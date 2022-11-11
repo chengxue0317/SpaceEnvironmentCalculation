@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.AlarmEventMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.AlarmEventDO" id="alarmEventMapper">
+        <result property="thresholdTime" column="THRESHOLD_TIME"/>
+        <result property="content" column="CONTENT"/>
+        <result property="overview" column="OVERVIEW"/>
+        <result property="level" column="LEVEL"/>
+        <result property="type" column="TYPE"/>
+    </resultMap>
+    <select id="getAlarmEventsDataCount" resultType="Long">
+        select count(*) from (
+        SELECT LEVEL FROM SEC_XRAY_ALARM
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+        UNION ALL
+        SELECT LEVEL FROM SEC_PROTON_ALARM
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+        UNION ALL
+        SELECT LEVEL FROM SEC_ELE_ALARM
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+        UNION ALL
+        SELECT LEVEL FROM SEC_DST_ALARM
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+        )
+    </select>
+
+    <select id="getAlarmEventsDataList" resultMap="alarmEventMapper">
+        SELECT 'xray' AS TYPE, THRESHOLD_TIME, CONTENT,LEVEL,OVERVIEW FROM SEC_XRAY_ALARM
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+        UNION ALL
+        SELECT 'proton' AS TYPE, THRESHOLD_TIME, CONTENT,LEVEL,OVERVIEW FROM SEC_PROTON_ALARM
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+        UNION ALL
+        SELECT 'electron' AS TYPE, THRESHOLD_TIME, CONTENT,LEVEL,OVERVIEW FROM SEC_ELE_ALARM
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+        UNION ALL
+        SELECT 'geomagnetic' AS TYPE, THRESHOLD_TIME, CONTENT,LEVEL,OVERVIEW FROM SEC_DST_ALARM
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+        ORDER BY THRESHOLD_TIME DESC limit #{offset}, #{pageSize}
+    </select>
+
+    <select id="getAlarmEventDataCount" resultType="Long">
+        SELECT count(*) FROM ${tableName}
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAlarmEventDataList" resultMap="alarmEventMapper">
+        SELECT ${type} AS TYPE, THRESHOLD_TIME, CONTENT,LEVEL,OVERVIEW FROM ${tableName}
+        <where>
+            <if test="startTime!=null and startTime!=''">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="level!=null and level!=''">
+                AND LEVEL in ${level}
+            </if>
+        </where>
+        ORDER BY THRESHOLD_TIME DESC
+        OFFSET #{offset} limit #{pageSize}
+    </select>
+</mapper>
