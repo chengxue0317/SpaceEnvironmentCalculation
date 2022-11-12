@@ -1,5 +1,6 @@
 package cn.piesat.sec.model.query;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -20,11 +21,13 @@ public class AlarmEventQuery {
      * 警报类型
      */
     @ApiModelProperty("开始时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
     /**
      * 警报类型
      */
     @ApiModelProperty("结束时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
     /**
      * 警报类型
