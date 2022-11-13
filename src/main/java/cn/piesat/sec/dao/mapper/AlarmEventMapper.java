@@ -1,6 +1,7 @@
 package cn.piesat.sec.dao.mapper;
 
 import cn.piesat.sec.model.entity.AlarmEventDO;
+import cn.piesat.sec.model.entity.SecAlarmForecastDO;
 import cn.piesat.sec.model.vo.AlarmEventVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -44,7 +45,7 @@ public interface AlarmEventMapper extends BaseMapper<AlarmEventDO> {
      * @param pageSize  数据每页条数
      * @return 数据集合
      */
-    List<AlarmEventVO> getAlarmEventDataList(@Param("type") String type,
+    List<AlarmEventDO> getAlarmEventDataList(@Param("type") String type,
         @Param("tableName") String tableName,
         @Param("startTime") LocalDateTime startTime,
         @Param("endTime") LocalDateTime endTime,
@@ -75,11 +76,25 @@ public interface AlarmEventMapper extends BaseMapper<AlarmEventDO> {
      * @param pageSize  数据每页条数
      * @return 数据集合
      */
-    List<AlarmEventVO> getAlarmEventsDataList(
+    List<AlarmEventDO> getAlarmEventsDataList(
         @Param("startTime") LocalDateTime startTime,
         @Param("endTime") LocalDateTime endTime,
         @Param("level") String level,
         @Param("offset") long offset,
         @Param("pageSize") int pageSize);
 
+    /**
+     * 获取当天的警报事件
+     *
+     * @param tableName 表名称
+     * @return 指定表当天的警报事件
+     */
+    List<AlarmEventDO> getTodayAlarmEvent(@Param("tableName") String tableName);
+
+    /**
+     * 查询未来三天预报事件
+     *
+     * @return 未来三天预报事件数据
+     */
+    List<SecAlarmForecastDO> getAlarmEvent3daysForecast();
 }

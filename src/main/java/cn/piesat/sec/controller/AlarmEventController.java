@@ -32,7 +32,12 @@ public class AlarmEventController {
 
     @ApiOperation("分页查询")
     @PostMapping("/list")
-    public PageResult list(PageBean pageBean, @RequestBody(required = false) AlarmEventQuery alarmEventQuery){
-        return alarmEventService.list(pageBean,alarmEventQuery);
+    public PageResult list(PageBean pageBean, @RequestBody(required = false) AlarmEventQuery alarmEventQuery) {
+        return alarmEventService.list(pageBean, alarmEventQuery);
+    }
+
+    @PostMapping("/alarmEvent3daysForecast")
+    public PageResult getAlarmEvent3daysForecast() {
+        return alarmEventService.getAlarmEvent3daysForecast();
     }
 }

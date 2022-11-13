@@ -10,6 +10,30 @@
         <result property="level" column="LEVEL"/>
         <result property="type" column="TYPE"/>
     </resultMap>
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SecAlarmForecastDO" id="secAlarmForecastMap">
+        <result property="id" column="ID"/>
+        <result property="unitId" column="UNIT_ID"/>
+        <result property="deviceId" column="DEVICE_ID"/>
+        <result property="staId" column="STA_ID"/>
+        <result property="spe1" column="SPE1"/>
+        <result property="spe2" column="SPE2"/>
+        <result property="spe3" column="SPE3"/>
+        <result property="ree1" column="REE1"/>
+        <result property="ree2" column="REE2"/>
+        <result property="ree3" column="REE3"/>
+        <result property="gsmi1" column="GSMI1"/>
+        <result property="gsmi2" column="GSMI2"/>
+        <result property="gsmi3" column="GSMI3"/>
+        <result property="gsma1" column="GSMA1"/>
+        <result property="gsma2" column="GSMA2"/>
+        <result property="gsma3" column="GSMA3"/>
+        <result property="sxr1" column="SXR1"/>
+        <result property="sxr2" column="SXR2"/>
+        <result property="sxr3" column="SXR3"/>
+        <result property="time" column="TIME"/>
+    </resultMap>
     <select id="getAlarmEventsDataCount" resultType="Long">
         select count(*) from (
         SELECT LEVEL FROM SEC_XRAY_ALARM
@@ -151,5 +175,32 @@
         </where>
         ORDER BY THRESHOLD_TIME DESC
         OFFSET #{offset} limit #{pageSize}
+    </select>
+
+    <select id="getAlarmEvent3daysForecast" resultMap="secAlarmForecastMap">
+        SELECT SPE1,
+               SPE2,
+               SPE3,
+               REE1,
+               REE2,
+               REE3,
+               GSMI1,
+               GSMI2,
+               GSMI3,
+               GSMA1,
+               GSMA2,
+               GSMA3,
+               SXR1,
+               SXR2,
+               SXR3, TIME
+        FROM SEC_ALARM_FORECAST
+        ORDER BY TIME DESC LIMIT 1
+    </select>
+
+    <select id="getTodayAlarmEvent" resultMap="alarmEventMapper">
+        select THRESHOLD_TIME, CONTENT, OVERVIEW, LEVEL
+        from ${tableName}
+        where THRESHOLD_TIME <![CDATA[>=]]> SYSDATE()
+          and THRESHOLD_TIME <![CDATA[<]]> ADD_DAYS(SYSDATE(), 1)
     </select>
 </mapper>

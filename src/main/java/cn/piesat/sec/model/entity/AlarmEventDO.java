@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
 public class AlarmEventDO implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
-    * 实际警报出现时间(UTC+8)
-    */
+     * 实际警报出现时间(UTC+8)
+     */
     @ApiModelProperty("实际警报出现时间(UTC+8)")
     private LocalDateTime thresholdTime;
     /**
@@ -31,8 +31,8 @@ public class AlarmEventDO implements Serializable {
     @ApiModelProperty("警报类型")
     private String type;
     /**
-    * 警报内容
-    */
+     * 警报内容
+     */
     @ApiModelProperty("警报内容")
     private String content;
     /**
@@ -41,8 +41,8 @@ public class AlarmEventDO implements Serializable {
     @ApiModelProperty("警报综述")
     private String overview;
     /**
-    * 警报级别0~4分5个等级
-    */
+     * 警报级别0~4分5个等级
+     */
     @ApiModelProperty("警报级别0~4分5个等级")
-    private Integer level;
+    private Integer level = 0;
 }
