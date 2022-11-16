@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecMagneticParamterMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SecMagneticParamterDO" id="secMagneticParamterMap">
+        <result property="id" column="ID"/>
+        <result property="unitId" column="UNIT_ID"/>
+        <result property="deviceId" column="DEVICE_ID"/>
+        <result property="staId" column="STA_ID"/>
+        <result property="bT" column="B_T"/>
+        <result property="bH" column="B_H"/>
+        <result property="bD" column="B_D"/>
+        <result property="bZ" column="B_Z"/>
+        <result property="lon" column="LON"/>
+        <result property="lat" column="LAT"/>
+        <result property="time" column="TIME"/>
+    </resultMap>
+
+    <select id="getBtxyzData" resultMap="secMagneticParamterMap">
+        SELECT B_T,B_H,B_D,B_Z,TIME from SEC_MAGNETIC_PARAMTER
+        <where>
+            <if test="startTime != null">
+                AND TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND TIME <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY TIME ASC
+    </select>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecSsnMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SecSsnDO" id="secSsnMap">
+        <result property="id" column="ID"/>
+        <result property="unitId" column="UNIT_ID"/>
+        <result property="deviceId" column="DEVICE_ID"/>
+        <result property="staId" column="STA_ID"/>
+        <result property="ssn" column="SSN"/>
+        <result property="time" column="TIME"/>
+    </resultMap>
+
+    <select id="getSunSpotData" resultMap="secSsnMap">
+        SELECT SSN, TIME FROM SEC_SSN
+        <where>
+            <if test="startTime != null">
+                AND TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND TIME <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY TIME ASC
+    </select>
+</mapper>

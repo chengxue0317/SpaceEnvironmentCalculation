@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecKpIndexMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SecKpIndexDO" id="secKpIndexMap">
+        <result property="id" column="ID"/>
+        <result property="unitId" column="UNIT_ID"/>
+        <result property="deviceId" column="DEVICE_ID"/>
+        <result property="staId" column="STA_ID"/>
+        <result property="kp1" column="KP1"/>
+        <result property="kp2" column="KP2"/>
+        <result property="kp3" column="KP3"/>
+        <result property="kp4" column="KP4"/>
+        <result property="kp5" column="KP5"/>
+        <result property="kp6" column="KP6"/>
+        <result property="kp7" column="KP7"/>
+        <result property="kp8" column="KP8"/>
+        <result property="time" column="TIME"/>
+    </resultMap>
+
+    <select id="getKPData" resultMap="secKpIndexMap">
+        SELECT KP1,KP2,KP3,KP4,KP5,KP6,KP7,KP8,TIME FROM SEC_KP_INDEX
+        <where>
+            <if test="startTime != null">
+                AND TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND TIME <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY TIME ASC
+    </select>
+
+</mapper>

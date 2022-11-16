@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecXrayFluxMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SecXrayFluxDO" id="secXrayFluxMap">
+        <result property="id" column="ID"/>
+        <result property="unitId" column="UNIT_ID"/>
+        <result property="deviceId" column="DEVICE_ID"/>
+        <result property="staId" column="STA_ID"/>
+        <result property="satId" column="SAT_ID"/>
+        <result property="longer" column="LONGER"/>
+        <result property="shorter" column="SHORTER"/>
+        <result property="time" column="TIME"/>
+    </resultMap>
+
+    <select id="getSolarXrayData" resultMap="secXrayFluxMap">
+        SELECT
+        TIME,
+        LONGER * 100000 LONGER,
+        SHORTER * 100000 SHORTER
+        FROM
+        SEC_XRAY_FLUX
+        <where>
+            LONGER <![CDATA[>]]> 0 AND LONGER <![CDATA[<]]> 900000
+            <if test="startTime !=null">
+                AND TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime !=null">
+                AND TIME <![CDATA[<]]> #{endTime}
+            </if>
+        </where>
+        order by TIME ASC
+    </select>
+
+</mapper>

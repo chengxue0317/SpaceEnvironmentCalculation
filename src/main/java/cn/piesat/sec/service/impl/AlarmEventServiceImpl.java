@@ -7,8 +7,6 @@ import cn.piesat.sec.model.entity.AlarmEventDO;
 import cn.piesat.sec.model.entity.SecAlarmForecastDO;
 import cn.piesat.sec.model.query.AlarmEventQuery;
 import cn.piesat.sec.model.vo.AlarmEventForecastVO;
-import cn.piesat.sec.model.vo.AlarmEventVO;
-import cn.piesat.sec.model.vo.SecAlarmForecastVO;
 import cn.piesat.sec.service.AlarmEventService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

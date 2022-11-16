@@ -33,7 +33,7 @@ kjyy:
     create_time: createTime
     update_time: updateTime
   date:
-    format: yyyy-MM-dd HH:mm:ss.SSS
+    format: yyyy-MM-dd HH:mm:ss
 
 logging:
   level:

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecParticleFluxMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SecParticleFluxDO" id="secParticleFluxMap">
+        <result property="id" column="ID"/>
+        <result property="unitId" column="UNIT_ID"/>
+        <result property="deviceId" column="DEVICE_ID"/>
+        <result property="staId" column="STA_ID"/>
+        <result property="satId" column="SAT_ID"/>
+        <result property="e2" column="E2"/>
+        <result property="p1" column="P1"/>
+        <result property="p2" column="P2"/>
+        <result property="p3" column="P3"/>
+        <result property="p4" column="P4"/>
+        <result property="p5" column="P5"/>
+        <result property="p6" column="P6"/>
+        <result property="he" column="He"/>
+        <result property="li" column="Li"/>
+        <result property="c" column="C"/>
+        <result property="mg" column="Mg"/>
+        <result property="ar" column="Ar"/>
+        <result property="fe" column="Fe"/>
+        <result property="lon" column="LON"/>
+        <result property="lat" column="LAT"/>
+        <result property="altitude" column="ALTITUDE"/>
+        <result property="time" column="TIME"/>
+    </resultMap>
+    <select id="getProtonFluxData" resultMap="secParticleFluxMap">
+        SELECT P1,P2,P3,P4,P5,P6,TIME FROM SEC_PARTICLE_FLUX
+        <where>
+            <if test="satId != null and satId != 'null'">
+                AND SAT_ID = #{satId}
+            </if>
+            <if test="startTime != null">
+                AND TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND TIME <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY TIME ASC
+    </select>
+
+    <select id="getElectronicFluxData" resultMap="secParticleFluxMap">
+        SELECT E2, TIME FROM SEC_PARTICLE_FLUX
+        <where>
+            <if test="satId != null and satId != 'null'">
+                AND SAT_ID = #{satId}
+            </if>
+            <if test="startTime != null">
+                AND TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND TIME <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY TIME ASC
+    </select>
+</mapper>

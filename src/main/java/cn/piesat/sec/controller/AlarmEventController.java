@@ -36,6 +36,7 @@ public class AlarmEventController {
         return alarmEventService.list(pageBean, alarmEventQuery);
     }
 
+    @ApiOperation("查询过去24小时及未来3天预报数据")
     @PostMapping("/alarmEvent3daysForecast")
     public PageResult getAlarmEvent3daysForecast() {
         return alarmEventService.getAlarmEvent3daysForecast();

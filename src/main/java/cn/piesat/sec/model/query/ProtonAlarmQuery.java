@@ -2,15 +2,9 @@ package cn.piesat.sec.model.query;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import cn.piesat.kjyy.common.mybatisplus.annotation.query.Where;
-import cn.piesat.kjyy.common.mybatisplus.model.entity.Between;
-import cn.piesat.kjyy.common.mybatisplus.annotation.query.OrderBy;
-import cn.piesat.kjyy.common.mybatisplus.model.enums.Condition;
-import java.time.LocalDateTime;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import java.util.List;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 /**
  * 太阳质子事件Query

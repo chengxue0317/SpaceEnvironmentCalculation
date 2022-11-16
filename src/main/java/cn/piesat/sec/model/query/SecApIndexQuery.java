@@ -7,18 +7,23 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 未来三天警报预报表Query
+ * AP指数Query
  *
  * @author wuyazhou
  * @email wuyazhou@piesat.cn
- * @date 2022-11-12 15:16:45
+ * @date 2022-11-14 15:53:01
  */
 @Data
-@ApiModel("未来三天警报预报表查询对象")
-public class SecAlarmForecastQuery {
+@ApiModel("AP指数查询对象")
+public class SecApIndexQuery {
     /**
-     * 时间(UTC+8)
+     * AP
      */
-    @ApiModelProperty("时间(UTC+8)")
+    @ApiModelProperty("AP")
+    private Double ap;
+    /**
+     * 时间
+     */
+    @ApiModelProperty("时间")
     private LocalDateTime time;
 }
