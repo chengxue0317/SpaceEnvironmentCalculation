@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SdcResourceSatelliteMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SdcResourceSatelliteDO" id="sdcResourceSatelliteMap">
+        <result property="id" column="ID"/>
+        <result property="satId" column="SAT_ID"/>
+        <result property="satName" column="SAT_NAME"/>
+        <result property="satPrn" column="SAT_PRN"/>
+        <result property="satStatus" column="SAT_STATUS"/>
+        <result property="sendTime" column="SEND_TIME"/>
+        <result property="orbitalType" column="ORBITAL_TYPE"/>
+        <result property="orbitalPlaid" column="ORBITAL_PLAID"/>
+        <result property="orbitalPlaNodeId" column="ORBITAL_PLA_NODE_ID"/>
+        <result property="cd" column="CD"/>
+        <result property="weight" column="WEIGHT"/>
+        <result property="sdGeo" column="SD_GEO"/>
+        <result property="windArea" column="WIND_AREA"/>
+        <result property="size" column="SIZE"/>
+        <result property="material" column="MATERIAL"/>
+        <result property="sensorNum" column="SENSOR_NUM"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+    </resultMap>
+
+
+</mapper>
