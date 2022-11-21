@@ -2,19 +2,12 @@ package cn.piesat.sec.controller;
 
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
-import cn.piesat.sec.model.query.AlarmEventQuery;
-import cn.piesat.sec.model.vo.AlarmEventVO;
-import cn.piesat.sec.service.AlarmEventService;
-import cn.piesat.sec.service.ProtonAlarmService;
+import cn.piesat.sec.model.query.SecAlarmEventQuery;
+import cn.piesat.sec.service.SecAlarmEventService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * desc
@@ -27,13 +20,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/alarmevent")
 @RequiredArgsConstructor
-public class AlarmEventController {
-    private final AlarmEventService alarmEventService;
+public class SecAlarmEventController {
+    private final SecAlarmEventService alarmEventService;
 
     @ApiOperation("分页查询")
     @PostMapping("/list")
-    public PageResult list(PageBean pageBean, @RequestBody(required = false) AlarmEventQuery alarmEventQuery) {
-        return alarmEventService.list(pageBean, alarmEventQuery);
+    public PageResult list(PageBean pageBean, @RequestBody(required = false) SecAlarmEventQuery secAlarmEventQuery) {
+        return alarmEventService.list(pageBean, secAlarmEventQuery);
     }
 
     @ApiOperation("查询过去24小时及未来3天预报数据")

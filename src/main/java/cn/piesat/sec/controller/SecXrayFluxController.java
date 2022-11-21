@@ -8,7 +8,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecXrayFluxDTO;
 import cn.piesat.sec.model.query.SecXrayFluxQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecXrayFluxService;
 import cn.piesat.sec.model.vo.SecXrayFluxVO;
 import io.swagger.annotations.Api;
@@ -34,7 +34,7 @@ public class SecXrayFluxController {
 
     @ApiOperation("获取太阳X射线流量")
     @PostMapping("/getSolarXrayData")
-    public EnvElementVO getSolarXrayData(
+    public SecEnvElementVO getSolarXrayData(
         @RequestParam(value = "startTime", required = false) String startTime,
         @RequestParam(value = "endTime", required = false) String endTime
     ) {

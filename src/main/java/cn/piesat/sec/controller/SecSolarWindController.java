@@ -8,7 +8,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecSolarWindDTO;
 import cn.piesat.sec.model.query.SecSolarWindQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecSolarWindService;
 import cn.piesat.sec.model.vo.SecSolarWindVO;
 import io.swagger.annotations.Api;
@@ -34,8 +34,8 @@ public class SecSolarWindController {
 
     @ApiOperation("查询一段时间内的太阳风速数据")
     @PostMapping("/getSolarWindData")
-    public EnvElementVO getSolarWindData(@RequestParam(value = "startTime", required = false) String startTime,
-        @RequestParam(value = "endTime", required = false) String endTime) {
+    public SecEnvElementVO getSolarWindData(@RequestParam(value = "startTime", required = false) String startTime,
+                                            @RequestParam(value = "endTime", required = false) String endTime) {
         return secSolarWindService.getSolarWindData(startTime, endTime);
     }
 

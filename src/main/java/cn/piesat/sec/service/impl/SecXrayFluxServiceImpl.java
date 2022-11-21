@@ -9,7 +9,7 @@ import cn.piesat.sec.dao.mapper.SecXrayFluxMapper;
 import cn.piesat.sec.model.dto.SecXrayFluxDTO;
 import cn.piesat.sec.model.entity.SecXrayFluxDO;
 import cn.piesat.sec.model.query.SecXrayFluxQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecXrayFluxVO;
 import cn.piesat.sec.service.SecXrayFluxService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -43,8 +43,8 @@ public class SecXrayFluxServiceImpl extends ServiceImpl<SecXrayFluxMapper, SecXr
     SecXrayFluxMapper secXrayFluxMapper;
 
     @Override
-    public EnvElementVO getSolarXrayData(String startTime, String endTime) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getSolarXrayData(String startTime, String endTime) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("太阳X射线耀斑");
         try {
             List<Object> dataX = new ArrayList<>();

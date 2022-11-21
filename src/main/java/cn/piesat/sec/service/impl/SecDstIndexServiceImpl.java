@@ -5,7 +5,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.dao.mapper.SecDstIndexMapper;
 import cn.piesat.sec.model.entity.SecDstIndexDO;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecDstIndexService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -28,8 +28,8 @@ public class SecDstIndexServiceImpl extends ServiceImpl<SecDstIndexMapper, SecDs
     private SecDstIndexMapper secDstIndexMapper;
 
     @Override
-    public EnvElementVO getDstData(String startTime, String endTime) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getDstData(String startTime, String endTime) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("DST");
         try {
             List<Object> dataX = new ArrayList<>();

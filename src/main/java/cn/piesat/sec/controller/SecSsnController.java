@@ -8,7 +8,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecSsnDTO;
 import cn.piesat.sec.model.query.SecSsnQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecSsnService;
 import cn.piesat.sec.model.vo.SecSsnVO;
 import io.swagger.annotations.Api;
@@ -34,7 +34,7 @@ public class SecSsnController {
 
     @ApiOperation("获取太阳黑子数")
     @PostMapping("/getSunSpotData")
-    public EnvElementVO getSunSpotData(
+    public SecEnvElementVO getSunSpotData(
         @RequestParam(value = "startTime", required = false) String startTime,
         @RequestParam(value = "endTime", required = false) String endTime
     ) {

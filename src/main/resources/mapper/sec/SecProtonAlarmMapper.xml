@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecProtonAlarmMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SecProtonAlarmDO" id="secProtonAlarmMap">
+        <result property="id" column="ID"/>
+        <result property="unitId" column="UNIT_ID"/>
+        <result property="deviceId" column="DEVICE_ID"/>
+        <result property="staId" column="STA_ID"/>
+        <result property="publishTime" column="PUBLISH_TIME"/>
+        <result property="thresholdTime" column="THRESHOLD_TIME"/>
+        <result property="content" column="CONTENT"/>
+        <result property="level" column="LEVEL"/>
+        <result property="overview" column="OVERVIEW"/>
+    </resultMap>
+
+    <select id="getSecProton" resultMap="secProtonAlarmMap">
+        SELECT THRESHOLD_TIME,LEVEL FROM SEC_PROTON_ALARM
+        <where>
+            <if test="startTime!=null">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime!=null">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class EnvElementVO {
+public class SecEnvElementVO {
     private String titleText;
     private String titleText1;
     private String titleText2;

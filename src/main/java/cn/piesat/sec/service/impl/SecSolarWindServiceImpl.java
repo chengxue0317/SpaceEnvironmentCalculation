@@ -9,7 +9,7 @@ import cn.piesat.sec.dao.mapper.SecSolarWindMapper;
 import cn.piesat.sec.model.dto.SecSolarWindDTO;
 import cn.piesat.sec.model.entity.SecSolarWindDO;
 import cn.piesat.sec.model.query.SecSolarWindQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecSolarWindVO;
 import cn.piesat.sec.service.SecSolarWindService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -44,8 +44,8 @@ public class SecSolarWindServiceImpl extends ServiceImpl<SecSolarWindMapper, Sec
     private SecSolarWindMapper secSolarWindMapper;
 
     @Override
-    public EnvElementVO getSolarWindData(String startTime, String endTime) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getSolarWindData(String startTime, String endTime) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("太阳风速");
         try {
             List<SecSolarWindDO> list = secSolarWindMapper.getSolarWindData(startTime, endTime);

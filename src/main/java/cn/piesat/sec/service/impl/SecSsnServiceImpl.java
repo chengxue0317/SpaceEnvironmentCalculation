@@ -9,7 +9,7 @@ import cn.piesat.sec.dao.mapper.SecSsnMapper;
 import cn.piesat.sec.model.dto.SecSsnDTO;
 import cn.piesat.sec.model.entity.SecSsnDO;
 import cn.piesat.sec.model.query.SecSsnQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecSsnVO;
 import cn.piesat.sec.service.SecSsnService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -43,8 +43,8 @@ public class SecSsnServiceImpl extends ServiceImpl<SecSsnMapper, SecSsnDO> imple
     SecSsnMapper SecSsnMapper;
 
     @Override
-    public EnvElementVO getSunSpotData(String startTime, String endTime) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getSunSpotData(String startTime, String endTime) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("太阳黑子数");
         try {
             List<Object> dataX = new ArrayList<>();

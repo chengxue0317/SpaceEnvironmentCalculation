@@ -9,7 +9,7 @@ import cn.piesat.sec.dao.mapper.SecKpIndexMapper;
 import cn.piesat.sec.model.dto.SecKpIndexDTO;
 import cn.piesat.sec.model.entity.SecKpIndexDO;
 import cn.piesat.sec.model.query.SecKpIndexQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecKpIndexVO;
 import cn.piesat.sec.service.SecKpIndexService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -45,8 +45,8 @@ public class SecKpIndexServiceImpl extends ServiceImpl<SecKpIndexMapper, SecKpIn
     private SecKpIndexMapper secKpIndexMapper;
 
     @Override
-    public EnvElementVO getKpData(String startTime, String endTime) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getKpData(String startTime, String endTime) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("KP指数");
         try {
             List<SecKpIndexDO> list = secKpIndexMapper.getKPData(startTime, endTime);
@@ -59,7 +59,7 @@ public class SecKpIndexServiceImpl extends ServiceImpl<SecKpIndexMapper, SecKpIn
         return eeb;
     }
 
-    private void splitKpData(EnvElementVO eeb, List<SecKpIndexDO> list) {
+    private void splitKpData(SecEnvElementVO eeb, List<SecKpIndexDO> list) {
         List<Object> dataX = new ArrayList<>();
         List<Object> dataY = new ArrayList<>();
         list.forEach(item -> {

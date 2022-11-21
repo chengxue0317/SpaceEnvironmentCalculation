@@ -8,7 +8,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecMagneticParamterDTO;
 import cn.piesat.sec.model.query.SecMagneticParamterQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecMagneticParamterService;
 import cn.piesat.sec.model.vo.SecMagneticParamterVO;
 import io.swagger.annotations.Api;
@@ -34,8 +34,8 @@ public class SecMagneticParamterController {
 
     @ApiOperation("查询一段时间内的磁场数据")
     @PostMapping("/getBtxyzData")
-    public EnvElementVO getBtxyzData(@RequestParam(value = "startTime", required = false) String startTime,
-        @RequestParam(value = "endTime", required = false) String endTime) {
+    public SecEnvElementVO getBtxyzData(@RequestParam(value = "startTime", required = false) String startTime,
+                                        @RequestParam(value = "endTime", required = false) String endTime) {
         return secMagneticParamterService.getBtxyzData(startTime, endTime);
     }
     @ApiOperation("分页查询")

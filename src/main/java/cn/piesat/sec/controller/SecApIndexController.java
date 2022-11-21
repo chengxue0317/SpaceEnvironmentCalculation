@@ -9,7 +9,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecApIndexDTO;
 import cn.piesat.sec.model.query.SecApIndexQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecApIndexService;
 import cn.piesat.sec.model.vo.SecApIndexVO;
 import io.swagger.annotations.Api;
@@ -35,8 +35,8 @@ public class SecApIndexController {
 
     @ApiOperation("查询一段时间内的AP指数数据")
     @PostMapping("/getApData")
-    public EnvElementVO getApData(@RequestParam(value = "startTime", required = false) String startTime,
-        @RequestParam(value = "endTime", required = false) String endTime) {
+    public SecEnvElementVO getApData(@RequestParam(value = "startTime", required = false) String startTime,
+                                     @RequestParam(value = "endTime", required = false) String endTime) {
         return secApIndexService.getApData(startTime, endTime);
     }
 

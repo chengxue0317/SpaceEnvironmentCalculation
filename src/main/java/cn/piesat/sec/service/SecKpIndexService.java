@@ -4,7 +4,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecKpIndexDTO;
 import cn.piesat.sec.model.query.SecKpIndexQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.piesat.sec.model.entity.SecKpIndexDO;
 import cn.piesat.sec.model.vo.SecKpIndexVO;
@@ -27,7 +27,7 @@ public interface SecKpIndexService extends IService<SecKpIndexDO> {
      * @param endTime   结束时间
      * @return AP指数数据
      */
-    EnvElementVO getKpData(String startTime, String endTime);
+    SecEnvElementVO getKpData(String startTime, String endTime);
 
     /**
      * 分页查询

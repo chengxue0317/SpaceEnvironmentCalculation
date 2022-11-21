@@ -4,7 +4,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecSolarWindDTO;
 import cn.piesat.sec.model.query.SecSolarWindQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.piesat.sec.model.entity.SecSolarWindDO;
 import cn.piesat.sec.model.vo.SecSolarWindVO;
@@ -27,7 +27,7 @@ public interface SecSolarWindService extends IService<SecSolarWindDO> {
      * @param endTime   结束时间
      * @return 太阳风速数据
      */
-    EnvElementVO getSolarWindData(String startTime, String endTime);
+    SecEnvElementVO getSolarWindData(String startTime, String endTime);
 
     /**
      * 分页查询

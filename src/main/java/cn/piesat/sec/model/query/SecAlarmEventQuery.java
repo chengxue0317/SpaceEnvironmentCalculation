@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @ApiModel("太阳质子事件查询对象")
-public class AlarmEventQuery {
+public class SecAlarmEventQuery {
     /**
      * 警报类型
      */

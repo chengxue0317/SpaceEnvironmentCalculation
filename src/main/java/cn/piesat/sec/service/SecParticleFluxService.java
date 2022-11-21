@@ -4,7 +4,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecParticleFluxDTO;
 import cn.piesat.sec.model.query.SecParticleFluxQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.piesat.sec.model.entity.SecParticleFluxDO;
 import cn.piesat.sec.model.vo.SecParticleFluxVO;
@@ -27,7 +27,7 @@ public interface SecParticleFluxService extends IService<SecParticleFluxDO> {
      * @param endTime   结束时间
      * @return 质子通量数据
      */
-    EnvElementVO getProtonFluxData(String startTime, String endTime, String satId);
+    SecEnvElementVO getProtonFluxData(String startTime, String endTime, String satId);
 
     /**
      * 获取一段时间范围内的电子通量数据
@@ -36,7 +36,7 @@ public interface SecParticleFluxService extends IService<SecParticleFluxDO> {
      * @param endTime   结束时间
      * @return 电子通量数据
      */
-    EnvElementVO getElectronicFluxData(String startTime, String endTime, String satId);
+    SecEnvElementVO getElectronicFluxData(String startTime, String endTime, String satId);
 
     /**
      * 分页查询

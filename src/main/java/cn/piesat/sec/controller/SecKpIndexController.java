@@ -8,7 +8,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecKpIndexDTO;
 import cn.piesat.sec.model.query.SecKpIndexQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecKpIndexService;
 import cn.piesat.sec.model.vo.SecKpIndexVO;
 import io.swagger.annotations.Api;
@@ -34,8 +34,8 @@ public class SecKpIndexController {
 
     @ApiOperation("查询一段时间内的KP指数数据")
     @PostMapping("/getKpData")
-    public EnvElementVO getKpData(@RequestParam(value = "startTime", required = false) String startTime,
-        @RequestParam(value = "endTime", required = false) String endTime) {
+    public SecEnvElementVO getKpData(@RequestParam(value = "startTime", required = false) String startTime,
+                                     @RequestParam(value = "endTime", required = false) String endTime) {
         return secKpIndexService.getKpData(startTime, endTime);
     }
 

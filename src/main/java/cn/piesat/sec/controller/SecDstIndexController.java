@@ -7,7 +7,7 @@ import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.entity.SecDstIndexDO;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecDstIndexService;
 
 import io.swagger.annotations.Api;
@@ -34,8 +34,8 @@ public class SecDstIndexController {
 
     @ApiOperation("查询一段时间内的DST数据")
     @PostMapping("/getDstData")
-    public EnvElementVO getDstData(@RequestParam(value = "startTime", required = false) String startTime,
-        @RequestParam(value = "endTime", required = false) String endTime) {
+    public SecEnvElementVO getDstData(@RequestParam(value = "startTime", required = false) String startTime,
+                                      @RequestParam(value = "endTime", required = false) String endTime) {
         return secDstIndexService.getDstData(startTime, endTime);
     }
     /**

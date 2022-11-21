@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Data
 @ApiModel("太阳质子事件VO")
-public class ProtonAlarmVO implements Serializable {
+public class SecProtonAlarmVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

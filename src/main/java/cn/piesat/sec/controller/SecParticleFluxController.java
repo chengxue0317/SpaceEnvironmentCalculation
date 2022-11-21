@@ -8,7 +8,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecParticleFluxDTO;
 import cn.piesat.sec.model.query.SecParticleFluxQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecParticleFluxService;
 import cn.piesat.sec.model.vo.SecParticleFluxVO;
 import io.swagger.annotations.Api;
@@ -34,17 +34,17 @@ public class SecParticleFluxController {
 
     @ApiOperation("查询一段时间内的质子通量数据")
     @PostMapping("/getProtonFluxData")
-    public EnvElementVO getProtonIndexData(@RequestParam(value = "startTime", required = false) String startTime,
-        @RequestParam(value = "endTime", required = false) String endTime,
-        @RequestParam(value = "satId", required = false) String satId) {
+    public SecEnvElementVO getProtonIndexData(@RequestParam(value = "startTime", required = false) String startTime,
+                                              @RequestParam(value = "endTime", required = false) String endTime,
+                                              @RequestParam(value = "satId", required = false) String satId) {
         return secParticleFluxService.getProtonFluxData(startTime, endTime, satId);
     }
 
     @ApiOperation("查询一段时间内的电子通量数据")
     @PostMapping("/getElectronicFluxData")
-    public EnvElementVO getElectronicFluxData(@RequestParam(value = "startTime", required = false) String startTime,
-        @RequestParam(value = "endTime", required = false) String endTime,
-        @RequestParam(value = "satId", required = false) String satId) {
+    public SecEnvElementVO getElectronicFluxData(@RequestParam(value = "startTime", required = false) String startTime,
+                                                 @RequestParam(value = "endTime", required = false) String endTime,
+                                                 @RequestParam(value = "satId", required = false) String satId) {
         return secParticleFluxService.getElectronicFluxData(startTime, endTime, satId);
     }
 

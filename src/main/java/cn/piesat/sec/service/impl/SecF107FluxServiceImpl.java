@@ -9,7 +9,7 @@ import cn.piesat.sec.dao.mapper.SecF107FluxMapper;
 import cn.piesat.sec.model.dto.SecF107FluxDTO;
 import cn.piesat.sec.model.entity.SecF107FluxDO;
 import cn.piesat.sec.model.query.SecF107FluxQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecF107FluxVO;
 import cn.piesat.sec.service.SecF107FluxService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -43,8 +43,8 @@ public class SecF107FluxServiceImpl extends ServiceImpl<SecF107FluxMapper, SecF1
     private SecF107FluxMapper secF107FluxMapper;
 
     @Override
-    public EnvElementVO getF107Data(String startTime, String endTime) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getF107Data(String startTime, String endTime) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("F10.7射电流量");
         try {
             List<Object> dataX = new ArrayList<>();

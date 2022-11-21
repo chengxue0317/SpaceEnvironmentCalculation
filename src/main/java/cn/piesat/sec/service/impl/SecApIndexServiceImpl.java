@@ -9,7 +9,7 @@ import cn.piesat.sec.dao.mapper.SecApIndexMapper;
 import cn.piesat.sec.model.dto.SecApIndexDTO;
 import cn.piesat.sec.model.entity.SecApIndexDO;
 import cn.piesat.sec.model.query.SecApIndexQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecApIndexVO;
 import cn.piesat.sec.service.SecApIndexService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -43,8 +43,8 @@ public class SecApIndexServiceImpl extends ServiceImpl<SecApIndexMapper, SecApIn
     private SecApIndexMapper secApIndexMapper;
 
     @Override
-    public EnvElementVO getApData(String startTime, String endTime) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getApData(String startTime, String endTime) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("AP指数");
         try {
             List<Object> dataX = new ArrayList<>();

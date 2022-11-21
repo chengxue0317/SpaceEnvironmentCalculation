@@ -9,7 +9,7 @@ import cn.piesat.sec.dao.mapper.SecMagneticParamterMapper;
 import cn.piesat.sec.model.dto.SecMagneticParamterDTO;
 import cn.piesat.sec.model.entity.SecMagneticParamterDO;
 import cn.piesat.sec.model.query.SecMagneticParamterQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecMagneticParamterVO;
 import cn.piesat.sec.service.SecMagneticParamterService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -43,8 +43,8 @@ public class SecMagneticParamterServiceImpl extends ServiceImpl<SecMagneticParam
     private SecMagneticParamterMapper secMagneticParamterMapper;
 
     @Override
-    public EnvElementVO getBtxyzData(String startTime, String endTime) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getBtxyzData(String startTime, String endTime) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("太阳风磁场分量");
         try {
             List<Object> dataX = new ArrayList<>();

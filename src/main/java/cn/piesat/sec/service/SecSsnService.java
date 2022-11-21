@@ -4,7 +4,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecSsnDTO;
 import cn.piesat.sec.model.query.SecSsnQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.piesat.sec.model.entity.SecSsnDO;
 import cn.piesat.sec.model.vo.SecSsnVO;
@@ -27,7 +27,7 @@ public interface SecSsnService extends IService<SecSsnDO> {
      * @param endTime
      * @return
      */
-    EnvElementVO getSunSpotData(String startTime, String endTime);
+    SecEnvElementVO getSunSpotData(String startTime, String endTime);
 
     /**
      * 分页查询

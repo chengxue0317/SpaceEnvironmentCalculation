@@ -1,6 +1,5 @@
 package cn.piesat.sec.model.vo;
 
-import cn.piesat.sec.model.entity.AlarmEventDO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -17,36 +16,36 @@ import java.time.LocalDateTime;
  */
 @Data
 @ApiModel("警报事件VO")
-public class AlarmEventForecastVO implements Serializable {
+public class SecAlarmEventVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
      * 警报时间(UTC+8)
      */
     @ApiModelProperty("警报时间(UTC+8)")
-    private String time;
+    private LocalDateTime thresholdTime;
 
     /**
      * 警报类别
      */
-    @ApiModelProperty("太阳X射线")
-    private AlarmEventDO xray;
+    @ApiModelProperty("警报类别")
+    private String type;
 
     /**
      * 警报等级
      */
-    @ApiModelProperty("高能质子")
-    private AlarmEventDO proton;
+    @ApiModelProperty("警报等级")
+    private Integer level = 0;
 
     /**
      * 警报内容
      */
-    @ApiModelProperty("高能电子")
-    private AlarmEventDO electron;
+    @ApiModelProperty("警报内容")
+    private String content;
 
     /**
      * 警报综述
      */
-    @ApiModelProperty("地磁暴")
-    private AlarmEventDO geomagnetic;
+    @ApiModelProperty("警报综述")
+    private String overview;
 }

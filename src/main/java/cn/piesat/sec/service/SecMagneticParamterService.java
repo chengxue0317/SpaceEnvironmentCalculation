@@ -4,7 +4,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecMagneticParamterDTO;
 import cn.piesat.sec.model.query.SecMagneticParamterQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.piesat.sec.model.entity.SecMagneticParamterDO;
 import cn.piesat.sec.model.vo.SecMagneticParamterVO;
@@ -27,7 +27,7 @@ public interface SecMagneticParamterService extends IService<SecMagneticParamter
      * @param endTime   结束时间
      * @return 地磁参数数据
      */
-    EnvElementVO getBtxyzData(String startTime, String endTime);
+    SecEnvElementVO getBtxyzData(String startTime, String endTime);
 
     /**
      * 分页查询

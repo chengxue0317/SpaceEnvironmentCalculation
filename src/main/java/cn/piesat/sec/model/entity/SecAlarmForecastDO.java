@@ -50,62 +50,62 @@ public class SecAlarmForecastDO implements Serializable {
     /**
     * 未来第3天质子事件
     */
-    @ApiModelProperty("未来第3天质子事件")
+    @ApiModelProperty("未来第1天质子事件")
     private String spe1;
     /**
     * 
     */
-    @ApiModelProperty("")
+    @ApiModelProperty("未来第2天质子事件")
     private String spe2;
     /**
     * 
     */
-    @ApiModelProperty("")
+    @ApiModelProperty("未来第3天质子事件")
     private String spe3;
     /**
     * 未来第3天高能电子暴事件
     */
-    @ApiModelProperty("未来第3天高能电子暴事件")
+    @ApiModelProperty("未来第1天高能电子暴事件")
     private String ree1;
     /**
     * 
     */
-    @ApiModelProperty("")
+    @ApiModelProperty("未来第2天高能电子暴事件")
     private String ree2;
     /**
     * 
     */
-    @ApiModelProperty("")
+    @ApiModelProperty("未来第3天高能电子暴事件")
     private String ree3;
     /**
     * 未来第3天小地磁暴事件
     */
-    @ApiModelProperty("未来第3天小地磁暴事件")
+    @ApiModelProperty("未来第1天小地磁暴事件")
     private String gsmi1;
     /**
     * 
     */
-    @ApiModelProperty("")
+    @ApiModelProperty("未来第2天小地磁暴事件\"")
     private String gsmi2;
     /**
     * 
     */
-    @ApiModelProperty("")
+    @ApiModelProperty("未来第3天小地磁暴事件\"")
     private String gsmi3;
     /**
     * 未来第3天大地磁暴事件
     */
-    @ApiModelProperty("未来第3天大地磁暴事件")
+    @ApiModelProperty("未来第1天大地磁暴事件")
     private String gsma1;
     /**
     * 
     */
-    @ApiModelProperty("")
+    @ApiModelProperty("未来第2天大地磁暴事件")
     private String gsma2;
     /**
     * 
     */
-    @ApiModelProperty("")
+    @ApiModelProperty("未来第3天大地磁暴事件")
     private String gsma3;
     /**
     * 未来第1天发生耀斑事件描述

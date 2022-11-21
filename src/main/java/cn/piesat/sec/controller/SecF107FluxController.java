@@ -8,7 +8,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecF107FluxDTO;
 import cn.piesat.sec.model.query.SecF107FluxQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecF107FluxService;
 import cn.piesat.sec.model.vo.SecF107FluxVO;
 import io.swagger.annotations.Api;
@@ -34,8 +34,8 @@ public class SecF107FluxController {
 
     @ApiOperation("查询一段时间内的F10.7数据")
     @PostMapping("/getF107Data")
-    public EnvElementVO getF107Data(@RequestParam(value = "startTime", required = false) String startTime,
-        @RequestParam(value = "endTime", required = false) String endTime) {
+    public SecEnvElementVO getF107Data(@RequestParam(value = "startTime", required = false) String startTime,
+                                       @RequestParam(value = "endTime", required = false) String endTime) {
         return secF107FluxService.getF107Data(startTime, endTime);
     }
 

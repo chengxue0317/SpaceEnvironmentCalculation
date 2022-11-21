@@ -3,7 +3,7 @@
 
 <mapper namespace="cn.piesat.sec.dao.mapper.SecXrayAlarmMapper">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="cn.piesat.sec.model.entity.SecXrayAlarmDO" id="secXrayAlarmMap">
         <result property="id" column="ID"/>
         <result property="unitId" column="UNIT_ID"/>
@@ -16,5 +16,16 @@
         <result property="overview" column="OVERVIEW"/>
     </resultMap>
 
+    <select id="getXrayAlarmList" resultMap="secXrayAlarmMap">
+        SELECT THRESHOLD_TIME,CONTENT,LEVEL FROM SEC_XRAY_ALARM
+        <where>
+            <if test="startTime != null">
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+    </select>
 
 </mapper>

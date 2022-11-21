@@ -4,7 +4,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecXrayFluxDTO;
 import cn.piesat.sec.model.query.SecXrayFluxQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.piesat.sec.model.entity.SecXrayFluxDO;
 import cn.piesat.sec.model.vo.SecXrayFluxVO;
@@ -26,7 +26,7 @@ public interface SecXrayFluxService extends IService<SecXrayFluxDO> {
      * @param endTime
      * @return
      */
-    EnvElementVO getSolarXrayData(String startTime, String endTime);
+    SecEnvElementVO getSolarXrayData(String startTime, String endTime);
 
     /**
      * 分页查询

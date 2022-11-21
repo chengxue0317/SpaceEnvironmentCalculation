@@ -4,7 +4,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SecF107FluxDTO;
 import cn.piesat.sec.model.query.SecF107FluxQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.piesat.sec.model.entity.SecF107FluxDO;
 import cn.piesat.sec.model.vo.SecF107FluxVO;
@@ -28,7 +28,7 @@ public interface SecF107FluxService extends IService<SecF107FluxDO> {
      * @param endTime   结束时间
      * @return F10.7指数数据
      */
-    EnvElementVO getF107Data(String startTime, String endTime);
+    SecEnvElementVO getF107Data(String startTime, String endTime);
 
     /**
      * 分页查询

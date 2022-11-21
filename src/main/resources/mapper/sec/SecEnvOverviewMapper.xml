@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecEnvOverviewMapper">
+
+    <resultMap type="cn.piesat.sec.model.vo.SecEnvOverviewVO" id="SecDstAlarmMap">
+        <result property="id" column="ID"/>
+        <result property="time" column="TIME"/>
+        <result property="bef24h" column="BEF24H"/>
+        <result property="aft3day" column="AFT3DAY"/>
+        <result property="befweek" column="BEFWEEK"/>
+        <result property="aftweek" column="AFTWEEK"/>
+        <result property="befmonth" column="BEFMONTH"/>
+        <result property="aftmonth" column="AFTMONTH"/>
+        <result property="pathday" column="PATHDAY"/>
+        <result property="pathweek" column="PATHWEEK"/>
+        <result property="pathmonth" column="PATHMONTH"/>
+    </resultMap>
+
+    <select id="getEnvOverview" resultMap="SecDstAlarmMap">
+        SELECT BEF24H,
+               AFT3DAY,
+               PATHDAY,
+               BEFWEEK,
+               AFTWEEK,
+               BEFMONTH,
+               AFTMONTH,
+               PATHDAY,
+               PATHWEEK,
+               PATHMONTH
+        FROM (SELECT PAST_REVIEW AS BEF24H, FUTURE_REVIEW AS AFT3DAY, PATH AS PATHDAY
+              FROM SEC_DAILY_OVERVIEW
+              ORDER BY TIME DESC LIMIT 1) T1,
+             (SELECT PAST_REVIEW AS BEFWEEK, FUTURE_REVIEW AS AFTWEEK, PATH AS PATHWEEK
+              FROM SEC_WEEK_OVERVIEW
+              ORDER BY TIME DESC LIMIT 1) T2,
+             (SELECT PAST_REVIEW AS BEFMONTH, FUTURE_REVIEW AS AFTMONTH, PATH AS PATHMONTH
+              FROM SEC_MONTH_OVERVIEW
+              ORDER BY TIME DESC LIMIT 1) T3
+    </select>
+
+    <select id="getWeekOverview" resultMap="SecDstAlarmMap">
+        SELECT PAST_REVIEW AS BEFWEEK, FUTURE_REVIEW AS AFTWEEK, PATH AS PATHWEEK
+        FROM SEC_WEEK_OVERVIEW
+        <where>
+            <if test="startTime != null">
+                AND TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND TIME <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        LIMIT 1
+    </select>
+</mapper>

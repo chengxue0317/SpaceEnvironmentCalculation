@@ -9,7 +9,7 @@ import cn.piesat.sec.dao.mapper.SecParticleFluxMapper;
 import cn.piesat.sec.model.dto.SecParticleFluxDTO;
 import cn.piesat.sec.model.entity.SecParticleFluxDO;
 import cn.piesat.sec.model.query.SecParticleFluxQuery;
-import cn.piesat.sec.model.vo.EnvElementVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecParticleFluxVO;
 import cn.piesat.sec.service.SecParticleFluxService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -43,8 +43,8 @@ public class SecParticleFluxServiceImpl extends ServiceImpl<SecParticleFluxMappe
     private SecParticleFluxMapper secParticleFluxMapper;
 
     @Override
-    public EnvElementVO getProtonFluxData(String startTime, String endTime, String satId) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getProtonFluxData(String startTime, String endTime, String satId) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("质子通量");
         try {
             List<Object> dataX = new ArrayList<>();
@@ -80,8 +80,8 @@ public class SecParticleFluxServiceImpl extends ServiceImpl<SecParticleFluxMappe
     }
 
     @Override
-    public EnvElementVO getElectronicFluxData(String startTime, String endTime, String satId) {
-        EnvElementVO eeb = new EnvElementVO();
+    public SecEnvElementVO getElectronicFluxData(String startTime, String endTime, String satId) {
+        SecEnvElementVO eeb = new SecEnvElementVO();
         eeb.setTitleText("电子通量");
         try {
             List<Object> dataX = new ArrayList<>();

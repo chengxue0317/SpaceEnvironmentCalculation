@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="cn.piesat.sec.dao.mapper.AlarmEventMapper">
+<mapper namespace="cn.piesat.sec.dao.mapper.SecAlarmEventMapper">
     <!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="cn.piesat.sec.model.entity.AlarmEventDO" id="alarmEventMapper">
+    <resultMap type="cn.piesat.sec.model.entity.SecProtonAlarmDO" id="alarmEventMapper">
         <result property="thresholdTime" column="THRESHOLD_TIME"/>
         <result property="content" column="CONTENT"/>
         <result property="overview" column="OVERVIEW"/>
@@ -65,7 +65,8 @@
         SELECT LEVEL FROM SEC_ELE_ALARM
         <where>
             <if test="startTime!=null">
-                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+                AND THRESHOLD_TIME <![CDATA[>=]].
+                > #{startTime}
             </if>
             <if test="endTime!=null">
                 AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
@@ -203,4 +204,55 @@
         where THRESHOLD_TIME <![CDATA[>=]]> SYSDATE()
           and THRESHOLD_TIME <![CDATA[<]]> ADD_DAYS(SYSDATE(), 1)
     </select>
+
+    <select id="getFourthAlramEventsBef24h" resultType="java.util.HashMap">
+        select T.LEVEL xray, T1.LEVEL proton, T2.LEVEL ele, T3.LEVEL dst, bef24h, aft3day
+        from (select LEVEL
+              from SEC_XRAY_ALARM
+              where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+             ) T,
+             (select LEVEL
+              from SEC_PROTON_ALARM
+              where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+             ) T1,
+             (select LEVEL
+              from SEC_ELE_ALARM
+              where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+             ) T2,
+             (select LEVEL
+              from SEC_DST_ALARM
+              where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+             ) T3,
+             (select PAST_REVIEW bef24h, FUTURE_REVIEW aft3day
+              FROM SEC_DAILY_OVERVIEW
+              where TIME <![CDATA[>=]]> #{startTime}
+                AND TIME <![CDATA[<=]]> #{endTime}) T4
+    </select>
+
+    <update id="updatePath">
+        <choose>
+            <when test="type=='week'">
+                UPDATE SEC_WEEK_OVERVIEW
+                SET path=#{path}
+                WHERE TIME=#{time};
+                COMMIT;
+            </when>
+            <when test="type=='month'">
+                UPDATE SEC_MONTH_OVERVIEW
+                SET path=#{path}
+                WHERE TIME=#{time};
+                COMMIT;
+            </when>
+            <otherwise>
+                UPDATE SEC_DAILY_OVERVIEW
+                SET path=#{path}
+                WHERE TIME=#{time};
+                COMMIT;
+            </otherwise>
+        </choose>
+    </update>
 </mapper>
