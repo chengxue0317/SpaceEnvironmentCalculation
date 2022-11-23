@@ -2,7 +2,6 @@ package cn.piesat.sec.dao.mapper;
 
 import cn.piesat.sec.model.vo.SecEnvOverviewVO;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,7 +15,4 @@ import java.util.List;
 @Mapper
 public interface SecEnvOverviewMapper {
     List<SecEnvOverviewVO> getEnvOverview() throws Exception;
-
-    List<SecEnvOverviewVO> getWeekOverview(@Param("startTime") String startTime,
-                                           @Param("endTime") String endTime) throws Exception;
 }

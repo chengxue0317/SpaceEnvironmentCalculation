@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecReportMapper">
+    <select id="getCombinData" resultType="java.util.HashMap">
+        SELECT DISTINCT TO_CHAR(T1.TIME, 'YYYY-MM-DD') TIME,
+                        ROUND(AP) AP,
+                        SSN,
+                        LONGER,
+                        E2,
+                        F107,
+                        concat(ROUND(KP1), ROUND(KP2), ROUND(KP3), ROUND(KP4), ROUND(KP5), ROUND(KP6), ROUND(KP7), ROUND(KP8)) KP,
+                        T7.LEVEL PROTON,
+                        T8.CONTENT
+        FROM
+            SEC_AP_INDEX T1
+            LEFT JOIN SEC_SSN T2
+        ON TO_CHAR(T1.TIME,'YYYY-MM-DD')=TO_CHAR(T2.TIME,'YYYY-MM-DD')
+            LEFT JOIN SEC_XRAY_FLUX T3 ON TO_CHAR(T1.TIME,'YYYY-MM-DD') = TO_CHAR(T3.TIME,'YYYY-MM-DD')
+            LEFT JOIN SEC_PARTICLE_FLUX T4 ON TO_CHAR(T1.TIME,'YYYY-MM-DD') = TO_CHAR(T4.TIME,'YYYY-MM-DD')
+            LEFT JOIN SEC_F107_FLUX T5 ON TO_CHAR(T1.TIME,'YYYY-MM-DD') = TO_CHAR(T5.TIME,'YYYY-MM-DD')
+            LEFT JOIN SEC_KP_INDEX T6 ON TO_CHAR(T1.TIME,'YYYY-MM-DD') = TO_CHAR(T6.TIME,'YYYY-MM-DD')
+            LEFT JOIN SEC_PROTON_ALARM T7 ON TO_CHAR(T1.TIME, 'YYYY-MM-DD') = TO_CHAR(T7.THRESHOLD_TIME, 'YYYY-MM-DD')
+            LEFT JOIN SEC_XRAY_ALARM T8 ON TO_CHAR(T1.TIME, 'YYYY-MM-DD') = TO_CHAR(T8.THRESHOLD_TIME, 'YYYY-MM-DD')
+        where T1.TIME <![CDATA[>=]]> #{startTime}
+          and T1.TIME <![CDATA[<=]]> #{endTime}
+        order by TIME ASC
+    </select>
+</mapper>

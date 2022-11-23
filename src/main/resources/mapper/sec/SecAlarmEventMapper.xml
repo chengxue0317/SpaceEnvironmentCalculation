@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="cn.piesat.sec.dao.mapper.SecAlarmEventMapper">
-    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="cn.piesat.sec.model.entity.SecProtonAlarmDO" id="alarmEventMapper">
         <result property="thresholdTime" column="THRESHOLD_TIME"/>
         <result property="content" column="CONTENT"/>
@@ -11,7 +10,6 @@
         <result property="type" column="TYPE"/>
     </resultMap>
 
-    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="cn.piesat.sec.model.entity.SecAlarmForecastDO" id="secAlarmForecastMap">
         <result property="id" column="ID"/>
         <result property="unitId" column="UNIT_ID"/>
@@ -255,4 +253,16 @@
             </otherwise>
         </choose>
     </update>
+
+    <select id="getAlarmEventCount" resultMap="alarmEventMapper">
+        select LEVEL, wm_concat(TO_CHAR(THRESHOLD_TIME, 'MM-DD')) CONTENT
+        from ${tableName}
+        where
+            level <![CDATA[>]]> 0
+          and
+            THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+          and THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+        group by level
+        order by level asc
+    </select>
 </mapper>

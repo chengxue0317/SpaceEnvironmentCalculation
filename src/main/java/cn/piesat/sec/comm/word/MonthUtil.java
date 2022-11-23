@@ -38,7 +38,9 @@ public class MonthUtil {
                     ParagraphRenderData prd = new ParagraphRenderData();
                     List<RenderData> contents = new ArrayList<>();
                     TextRenderData trd = new TextRenderData();
-                    trd.setText(data[i][j]);
+                    String value = data[i][j];
+                    value = value == null ? "" : value;
+                    trd.setText(value);
                     contents.add(trd);
                     prd.setContents(contents);
                     pfcell.add(prd);
@@ -46,7 +48,7 @@ public class MonthUtil {
                     cell.setCellStyle(cellStyle);
                     cells.add(cell);
                 }
-                RowRenderData rowRenderData = Rows.of().textFontSize(Constant.TB_FONT_SMALL_SIZE).horizontalCenter().verticalCenter().create();
+                RowRenderData rowRenderData = Rows.of().textFontSize(Constant.TB_FONT_SMALL_SIZE).rowExactHeight(Constant.TB_ROW_HEIGHT).horizontalCenter().verticalCenter().create();
                 rowRenderData.setCells(cells);
                 rows.add(rowRenderData);
             }

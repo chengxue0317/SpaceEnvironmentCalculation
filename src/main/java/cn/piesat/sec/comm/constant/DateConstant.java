@@ -1,8 +1,5 @@
 package cn.piesat.sec.comm.constant;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,12 +7,10 @@ import java.util.Map;
 /**
  * 日期常量
  */
-@Api(tags = "日期常量类")
 public class DateConstant {
     /**
      * 日期中文常量
      */
-    @ApiModelProperty("中文日期")
     public static final Map<Integer, String> DATE_CONST = Collections.unmodifiableMap(new HashMap<Integer, String>() {
         {
             put(0, "○");
@@ -56,12 +51,10 @@ public class DateConstant {
     /**
      * 时间格式
      */
-    @ApiModelProperty("时分秒时间格式")
     public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * 日期格式
      */
-    @ApiModelProperty("日期格式")
     public static final String DATE_PATTERN = "yyyy-MM-dd";
 }

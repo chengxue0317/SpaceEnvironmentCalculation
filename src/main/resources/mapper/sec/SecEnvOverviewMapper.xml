@@ -3,7 +3,7 @@
 
 <mapper namespace="cn.piesat.sec.dao.mapper.SecEnvOverviewMapper">
 
-    <resultMap type="cn.piesat.sec.model.vo.SecEnvOverviewVO" id="SecDstAlarmMap">
+    <resultMap type="cn.piesat.sec.model.vo.SecEnvOverviewVO" id="SecEnvOverviewMap">
         <result property="id" column="ID"/>
         <result property="time" column="TIME"/>
         <result property="bef24h" column="BEF24H"/>
@@ -17,7 +17,7 @@
         <result property="pathmonth" column="PATHMONTH"/>
     </resultMap>
 
-    <select id="getEnvOverview" resultMap="SecDstAlarmMap">
+    <select id="getEnvOverview" resultMap="SecEnvOverviewMap">
         SELECT BEF24H,
                AFT3DAY,
                PATHDAY,
@@ -37,19 +37,5 @@
              (SELECT PAST_REVIEW AS BEFMONTH, FUTURE_REVIEW AS AFTMONTH, PATH AS PATHMONTH
               FROM SEC_MONTH_OVERVIEW
               ORDER BY TIME DESC LIMIT 1) T3
-    </select>
-
-    <select id="getWeekOverview" resultMap="SecDstAlarmMap">
-        SELECT PAST_REVIEW AS BEFWEEK, FUTURE_REVIEW AS AFTWEEK, PATH AS PATHWEEK
-        FROM SEC_WEEK_OVERVIEW
-        <where>
-            <if test="startTime != null">
-                AND TIME <![CDATA[>=]]> #{startTime}
-            </if>
-            <if test="endTime != null">
-                AND TIME <![CDATA[<=]]> #{endTime}
-            </if>
-        </where>
-        LIMIT 1
     </select>
 </mapper>

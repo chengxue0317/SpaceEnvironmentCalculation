@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
  *
  * @author piesat
  */
-@Api("系统配置类")
 @Component
 @ConfigurationProperties(prefix = "piesat")
 public class SecConfig {

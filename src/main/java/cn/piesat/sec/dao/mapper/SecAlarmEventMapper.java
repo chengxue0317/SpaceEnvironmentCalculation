@@ -28,10 +28,7 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
      * @param level     警报级别
      * @return 总条数
      */
-    Long getAlarmEventDataCount(@Param("tableName") String tableName,
-                                @Param("startTime") LocalDateTime startTime,
-                                @Param("endTime") LocalDateTime endTime,
-                                @Param("level") String level);
+    Long getAlarmEventDataCount(@Param("tableName") String tableName, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("level") String level);
 
     /**
      * 获取警报数据列表
@@ -45,13 +42,7 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
      * @param pageSize  数据每页条数
      * @return 数据集合
      */
-    List<SecProtonAlarmDO> getAlarmEventDataList(@Param("type") String type,
-                                                 @Param("tableName") String tableName,
-                                                 @Param("startTime") LocalDateTime startTime,
-                                                 @Param("endTime") LocalDateTime endTime,
-                                                 @Param("level") String level,
-                                                 @Param("offset") long offset,
-                                                 @Param("pageSize") int pageSize);
+    List<SecProtonAlarmDO> getAlarmEventDataList(@Param("type") String type, @Param("tableName") String tableName, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("level") String level, @Param("offset") long offset, @Param("pageSize") int pageSize);
 
     /**
      * 数据总条数
@@ -61,10 +52,7 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
      * @param level     警报级别
      * @return 总条数
      */
-    Long getAlarmEventsDataCount(
-            @Param("startTime") LocalDateTime startTime,
-            @Param("endTime") LocalDateTime endTime,
-            @Param("level") String level);
+    Long getAlarmEventsDataCount(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("level") String level);
 
     /**
      * 获取警报数据列表
@@ -76,12 +64,7 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
      * @param pageSize  数据每页条数
      * @return 数据集合
      */
-    List<SecProtonAlarmDO> getAlarmEventsDataList(
-            @Param("startTime") LocalDateTime startTime,
-            @Param("endTime") LocalDateTime endTime,
-            @Param("level") String level,
-            @Param("offset") long offset,
-            @Param("pageSize") int pageSize);
+    List<SecProtonAlarmDO> getAlarmEventsDataList(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("level") String level, @Param("offset") long offset, @Param("pageSize") int pageSize);
 
     /**
      * 获取当天的警报事件
@@ -115,4 +98,14 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
      * @return 四种警报事件结果
      */
     int updatePath(@Param("time") String time, @Param("path") String path, @Param("type") String type);
+
+    /**
+     * 获取警报事件统计信息
+     *
+     * @param tableName 警报事件表
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 警报分类统计信息
+     */
+    List<SecProtonAlarmDO> getAlarmEventCount(@Param("tableName") String tableName, @Param("startTime") String startTime, @Param("endTime") String endTime);
 }

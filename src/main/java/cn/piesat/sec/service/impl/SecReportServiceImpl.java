@@ -14,11 +14,12 @@ import cn.piesat.sec.comm.word.domain.MonthBean;
 import cn.piesat.sec.comm.word.domain.WeekDetailBean;
 import cn.piesat.sec.dao.mapper.*;
 import cn.piesat.sec.model.entity.*;
-import cn.piesat.sec.model.vo.SecEnvOverviewVO;
+import cn.piesat.sec.model.vo.SecOverviewVO;
 import cn.piesat.sec.service.SecReportService;
 import com.deepoove.poi.data.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +28,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class SecReportServiceImpl implements SecReportService {
@@ -42,7 +41,7 @@ public class SecReportServiceImpl implements SecReportService {
     private SecAlarmEventMapper secAlarmEventMapper;
 
     @Autowired
-    private SecEnvOverviewMapper secEnvOverviewMapper;
+    private SecOverviewMapper secOverviewMapper;
 
     @Autowired
     private SecXrayAlarmMapper secxrayalarmmapper;
@@ -61,6 +60,9 @@ public class SecReportServiceImpl implements SecReportService {
 
     @Autowired
     private SecKpIndexMapper secKpIndexMapper;
+
+    @Autowired
+    private SecReportMapper secReportMapper;
 
     @Override
     public synchronized String makeReport(String type) {
@@ -162,23 +164,21 @@ public class SecReportServiceImpl implements SecReportService {
         setOverviewData(weekDetailBean, startTime, endTime);
 
         // 图片
-        String picOutPath = targetDir + "week.png";
+        String picOutPath = SecConfig.getProfile() + "report/week.png";
         File pic = FileUtils.getFile(picOutPath);
         if (pic.exists()) {
             weekDetailBean.setPicTitleA("图1  MMM卫星环境");
-            weekDetailBean.setPicA(new PictureRenderData(500, 300, picOutPath));
+            weekDetailBean.setPicA(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, picOutPath));
         }
 
         //表格(查询最近一周周五~周四的数据)
         List<String> lastFriday2Thursday = DateUtil.getLastFriday2Thursday(null, DateConstant.DATE_PATTERN);
         String begin = lastFriday2Thursday.get(0);
         String end = lastFriday2Thursday.get(1);
-        List<String> dateList = DateUtil.getDateList(begin, 7, DateConstant.DATE_PATTERN);
-        String[][] table = new String[9][];
         try {
             begin += " 00:00:00";
             end += " 23:59:59";
-            setTableData(weekDetailBean, begin, end, dateList, table);
+            setTableData(weekDetailBean, begin, end);
             weekDetailBean.setUnit("中国星网");
             weekDetailBean.setDateCapital(DateUtil.getToDayCapital());
             InputStream model = this.getClass().getResourceAsStream("/word/weekDetail.docx");
@@ -192,6 +192,7 @@ public class SecReportServiceImpl implements SecReportService {
         }
     }
 
+
     @Override
     public String makeMonthReport() {
         String targetDir = SecConfig.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
@@ -201,140 +202,248 @@ public class SecReportServiceImpl implements SecReportService {
         MonthBean monthBean = new MonthBean();
         monthBean.setYear(DateUtil.getToDay().substring(0, 4));
         monthBean.setWhichIssue(DateUtil.getWeekPeriodical());
-        monthBean.setSubTitle(Constant.UNIT);
-        monthBean.setDateZH(DateUtil.getToDayZH());
-        InputStream model = this.getClass().getResourceAsStream("/word/monthDetail.docx");
-        MonthUtil.createDailyMonthDocx(model, tarPath, monthBean);
-        return tarPath;
+        monthBean.setSubTitle(Constant.UNIT); // 单位
+        monthBean.setDateZH(DateUtil.getToDayZH()); // 日期
+        try {
+            LocalDate today = LocalDate.now();
+            int dayOfMonth = today.getDayOfMonth();
+            LocalDate firstDay = LocalDate.now().minusDays(dayOfMonth);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String startTime = firstDay.format(formatter) + " 00:00:00";
+            String endTime = today.format(formatter) + " 23:59:59";
+            // 综述
+            List<SecOverviewVO> monthOverview = secOverviewMapper.getPeriodOverview("SEC_MONTH_OVERVIEW", startTime, endTime);
+            if (CollectionUtils.isNotEmpty(monthOverview)) {
+                SecOverviewVO secOverviewVO = monthOverview.get(0);
+                setMonthOverview(monthBean, startTime, endTime, secOverviewVO);
+
+                List<String> lastMonthDay = DateUtil.getLastMonthDay(null, null);
+                String begin = lastMonthDay.get(0) + " 00:00:00";
+                String end = lastMonthDay.get(1) + " 23:59:59";
+                // 过去一个月的警报数据汇总
+                combinTable1Data(monthBean, begin, end);
+                // 过去一个月的太阳地磁数据汇总
+                setTableData(monthBean, begin, end);
+                monthBean.setPic1(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/f107andssn.png"));
+                monthBean.setPicTitle1("图1 太阳F10.7和黑子数");
+                monthBean.setPic2(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/LongerandShorter.png"));
+                monthBean.setPicTitle2("图2 太阳X射线流量");
+                monthBean.setPic3(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/proton.png"));
+                monthBean.setPicTitle3("图3 高能质子通量");
+                monthBean.setPic4(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/ele.png"));
+                monthBean.setPicTitle4("图4 高能电子通量");
+                monthBean.setPic5(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/ap11.png"));
+                monthBean.setPicTitle5("图5 未来一个月AP指数");
+                monthBean.setPic6(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/kp11.png"));
+                monthBean.setPicTitle6("图6 未来一个月KP指数");
+
+                monthBean.setUnit("中国星网");
+                monthBean.setDateCapital(DateUtil.getToDayCapital());
+                InputStream model = this.getClass().getResourceAsStream("/word/monthDetail.docx");
+                MonthUtil.createDailyMonthDocx(model, tarPath, monthBean);
+                // 更新数据库数据
+                secAlarmEventMapper.updatePath(secOverviewVO.getTime(), tarPath.replace(SecConfig.getProfile(), ""), "month");
+            }
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "--------The generated monthly report table data is abnormal %s", e.getMessage()));
+        } finally {
+            return tarPath;
+        }
     }
 
-    private void setTableData(WeekDetailBean weekDetailBean, String startTime, String endTime, List<String> dateList, String[][] table) throws Exception {
-        Map<String, SecXrayAlarmDO> xrayMap = new HashMap<>();
-        Map<String, SecSsnDO> ssnMap = new HashMap<>();
-        Map<String, SecF107FluxDO> f107Map = new HashMap<>();
-        Map<String, SecProtonAlarmDO> protonMap = new HashMap<>();
-        Map<String, SecApIndexDO> apMap = new HashMap<>();
-        Map<String, SecKpIndexDO> kpMap = new HashMap<>();
+    /**
+     * 月报综述
+     *
+     * @param monthBean     月报对象
+     * @param startTime     开始时间
+     * @param endTime       结束时间
+     * @param secOverviewVO 综述对象
+     */
+    private void setMonthOverview(MonthBean monthBean, String startTime, String endTime, SecOverviewVO secOverviewVO) {
+        monthBean.setPastTitle(startTime.substring(0, 4) + "年" + startTime.substring(5, 7) + "月空间环境综述");
+        String pastReview = secOverviewVO.getPastReview();
+        pastReview = StringUtils.isEmpty(pastReview) ? "" : pastReview.replaceAll("</br>", "\n    ");
+        monthBean.setPastOverview(pastReview);
+        monthBean.setFutureTitle(endTime.substring(0, 4) + "年" + endTime.substring(5, 7) + "月空间环境预报综述");
+        String futureReview = secOverviewVO.getFutureReview();
+        futureReview = StringUtils.isEmpty(futureReview) ? "" : futureReview.replaceAll("</br>", "\n    ");
+        monthBean.setFutureOverview(futureReview);
+    }
 
-        // 查询一周的M级以上耀斑
-        getXrayWeekData(startTime, endTime, xrayMap);
-        // 查询一周的太阳黑子数
-        getSsnWeeksnData(startTime, endTime, ssnMap);
-        // 查询一周的F10.7
-        getf107WeeksnData(startTime, endTime, f107Map);
-        // 查询一周是否发生质子事件
-        getProtonWeeksnData(startTime, endTime, protonMap);
-        // 高能电子通量
-        // 查询一周的AP
-        getApWeeleksnData(startTime, endTime, apMap);
-        // 查询一周的KP
-        getKpWeeleksnData(startTime, endTime, kpMap);
-        setTableData(weekDetailBean, dateList, table, ssnMap, f107Map, protonMap, apMap, kpMap);
+    private void setTableData(WeekDetailBean weekDetailBean, String startTime, String endTime) throws Exception {
+        List<Map<String, Object>> data = secReportMapper.getCombinData(startTime, endTime);
+        if (CollectionUtils.isNotEmpty(data)) {
+            data = data.size() > 7 ? data.subList(0, 7) : data;
+            String[][] table = new String[9][];
+            String[] row0 = new String[]{"日期", "M级以上X射线耀斑", "", "", "", "F10.7射电流量", "黑子数", "是否发生质子事件", "高能电子通量(Electrons/cm2-day-sr)", "地磁Ap指数(Kp)"};
+            String[] row1 = new String[]{"", "开始", "最大", "结束", "级别", "", "", "", "", ""};
+            table[0] = row0;
+            table[1] = row1;
+            Object time;
+            Object ap;
+            Object f107;
+            Object ssn;
+            Object e2;
+            Object kp;
+            Object proton;
+            String strAp;
+            String strF107;
+            String strSsn;
+            String strE2;
+            String strKp;
+            String strProton;
+
+            for (int i = 0; i < data.size(); i++) {
+                Map<String, Object> strObjMap = data.get(i);
+                time = strObjMap.get("TIME");
+                f107 = strObjMap.get("F107");
+                strF107 = f107 == null ? "" : f107.toString();
+                ssn = strObjMap.get("SSN");
+                strSsn = ssn == null ? "" : ssn.toString();
+                e2 = strObjMap.get("E2");
+                strE2 = e2 == null ? "" : e2.toString();
+                proton = strObjMap.get("PROTON");
+                strProton = proton == null || Integer.parseInt(proton.toString()) < 1 ? "否" : "是";
+                kp = strObjMap.get("KP");
+                strKp = kp == null ? "" : kp.toString();
+                ap = strObjMap.get("AP");
+                strAp = ap == null ? "" : ap.toString();
+                strAp = strKp == null || strKp.length() == 0 ? strAp : strAp + "(" + strKp + ")";
+                table[i + 2] = new String[]{time.toString(), "", "", "", "", strF107, strSsn, strProton, strE2, strAp};
+            }
+            weekDetailBean.setTableTitle("表1 太阳地磁活动数据表");
+            List<RowRenderData> tableData = WeekDetailUtil.createTableData(table);
+            MergeCellRule mgRule = MergeCellRule.builder()
+                    .map(MergeCellRule.Grid.of(0, 1), MergeCellRule.Grid.of(0, 4))
+                    .map(MergeCellRule.Grid.of(0, 0), MergeCellRule.Grid.of(1, 0))
+                    .map(MergeCellRule.Grid.of(0, 5), MergeCellRule.Grid.of(1, 5))
+                    .map(MergeCellRule.Grid.of(0, 6), MergeCellRule.Grid.of(1, 6))
+                    .map(MergeCellRule.Grid.of(0, 7), MergeCellRule.Grid.of(1, 7))
+                    .map(MergeCellRule.Grid.of(0, 8), MergeCellRule.Grid.of(1, 8))
+                    .map(MergeCellRule.Grid.of(0, 9), MergeCellRule.Grid.of(1, 9))
+                    .build();
+            TableRenderData tb = Tables.ofWidth(17).width(17, new double[]{2, 1.25, 1.25, 1.25, 1.25, 2, 1, 2, 2.5, 2.5}).center().mergeRule(mgRule).create();
+            tb.setRows(tableData);
+            weekDetailBean.setTableConent(tb);
+
+        }
+    }
+
+    /**
+     * 组合表一内容
+     *
+     * @param mtb       月报对象
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     */
+    private void combinTable1Data(MonthBean mtb, String startTime, String endTime) {
+        List<String[]> table1 = new ArrayList<>();
+        String[] head = new String[]{"序号", "事件", "级别", "时间", "备注"};
+        table1.add(head);
+        int rowNum = 1; // 第几行
+        String eventName;
+        // 获取表1数据
+        try {
+            eventName = "太阳X射线耀斑";
+            List<SecProtonAlarmDO> tb1List = secAlarmEventMapper.getAlarmEventCount("SEC_XRAY_ALARM", startTime, endTime);
+            if (CollectionUtils.isNotEmpty(tb1List)) {
+                for (SecProtonAlarmDO wb : tb1List) {
+                    String[] row = new String[]{String.valueOf(rowNum), eventName, Constant.WARN_LEVEL.get(wb.getLevel()), wb.getContent(), ""};
+                    table1.add(row);
+                    rowNum++;
+                }
+            }
+            eventName = "太阳质子事件";
+            List<SecProtonAlarmDO> tb2List = secAlarmEventMapper.getAlarmEventCount("SEC_PROTON_ALARM", startTime, endTime);
+            if (CollectionUtils.isNotEmpty(tb2List)) {
+                for (SecProtonAlarmDO wb : tb2List) {
+                    String[] row = new String[]{String.valueOf(rowNum), eventName, Constant.WARN_LEVEL.get(wb.getLevel()), wb.getContent(), ""};
+                    table1.add(row);
+                    rowNum++;
+                }
+            }
+            eventName = "高能电子暴";
+            List<SecProtonAlarmDO> tb3List = secAlarmEventMapper.getAlarmEventCount("SEC_ELE_ALARM", startTime, endTime);
+            if (CollectionUtils.isNotEmpty(tb3List)) {
+                for (SecProtonAlarmDO wb : tb3List) {
+                    String[] row = new String[]{String.valueOf(rowNum), eventName, Constant.WARN_LEVEL.get(wb.getLevel()), wb.getContent(), ""};
+                    table1.add(row);
+                    rowNum++;
+                }
+            }
+            eventName = "地磁暴";
+            List<SecProtonAlarmDO> tb4List = secAlarmEventMapper.getAlarmEventCount("SEC_DST_ALARM", startTime, endTime);
+            if (CollectionUtils.isNotEmpty(tb4List)) {
+                for (SecProtonAlarmDO wb : tb4List) {
+                    String[] row = new String[]{String.valueOf(rowNum), eventName, Constant.WARN_LEVEL.get(wb.getLevel()), wb.getContent(), ""};
+                    table1.add(row);
+                    rowNum++;
+                }
+            }
+            if (CollectionUtils.isNotEmpty(tb1List) && CollectionUtils.isNotEmpty(tb2List) && CollectionUtils.isNotEmpty(tb3List) && CollectionUtils.isNotEmpty(tb4List)) {
+                List<RowRenderData> render = MonthUtil.createTableData(table1.toArray(new String[table1.size()][]));
+                TableRenderData tb = Tables.ofWidth(17).width(17, new double[]{2, 4, 3, 4, 4}).center().create();
+                tb.setRows(render);
+                mtb.setTableTitle1("表1 " + DateUtil.getLastMonthDay(null, "yyyy年MM月").get(0) + "太空环境事件汇总表");
+                mtb.setTable1(tb);
+            }
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "-----Getting alert data throws exception  %s", e.getMessage()));
+        }
+    }
+
+    private void setTableData(MonthBean mtb, String startTime, String endTime) throws Exception {
+        List<Map<String, Object>> data = secReportMapper.getCombinData(startTime, endTime);
+        String[][] table = new String[data.size() + 1][];
+        table[0] = new String[]{"日期", "F10.7射电流量", "太阳黑子数", "X射线耀斑", "电子通量", "AP", "kp"}; // 表头
+        Object time;
+        Object ap;
+        Object f107;
+        Object ssn;
+        Object longer;
+        Object e2;
+        Object kp;
+        String strAp;
+        String strF107;
+        String strSsn;
+        String strLonger;
+        String strE2;
+        String strKp;
+
+        for (int i = 0; i < data.size(); i++) {
+            Map<String, Object> strObjMap = data.get(i);
+            time = strObjMap.get("TIME");
+            ap = strObjMap.get("AP");
+            strAp = ap == null ? "" : ap.toString();
+            f107 = strObjMap.get("F107");
+            strF107 = f107 == null ? "" : f107.toString();
+            ssn = strObjMap.get("SSN");
+            strSsn = ssn == null ? "" : ssn.toString();
+            longer = strObjMap.get("LONGER");
+            strLonger = longer == null ? "" : longer.toString();
+            e2 = strObjMap.get("E2");
+            strE2 = e2 == null ? "" : e2.toString();
+            kp = strObjMap.get("KP");
+            strKp = kp == null ? "" : kp.toString();
+            table[i + 1] = new String[]{time.toString(), strF107, strSsn, strLonger, strE2, strAp, strKp};
+        }
+        TableRenderData tb = Tables.ofWidth(17).width(17, new double[]{3, 2, 2, 2, 3, 2, 3}).center().create();
+        List<RowRenderData> render = MonthUtil.createTableData(table);
+        tb.setRows(render);
+        mtb.setTableTitle2("表2 " + DateUtil.getLastMonthDay(null, "yyyy年MM月").get(0) + "太阳地磁观测数据");
+        mtb.setTable2(tb);
     }
 
     private void setOverviewData(WeekDetailBean weekDetailBean, String startTime, String endTime) {
         try {
-            List<SecEnvOverviewVO> weekOverview = secEnvOverviewMapper.getWeekOverview(startTime, endTime);
+            List<SecOverviewVO> weekOverview = secOverviewMapper.getPeriodOverview("SEC_WEEK_OVERVIEW", startTime, endTime);
             if (CollectionUtils.isNotEmpty(weekOverview)) {
-                SecEnvOverviewVO secEnvOverviewVO = weekOverview.get(0);
-                weekDetailBean.setPastOverView(secEnvOverviewVO.getBefweek());
-                weekDetailBean.setFutureOverView(secEnvOverviewVO.getBefweek());
+                SecOverviewVO secOverviewVO = weekOverview.get(0);
+                weekDetailBean.setPastOverView(secOverviewVO.getPastReview());
+                weekDetailBean.setFutureOverView(secOverviewVO.getFutureReview());
             }
         } catch (Exception e) {
-            logger.error(String.format(Locale.ROOT, "", e.getMessage()));
-        }
-    }
-
-    private void setTableData(WeekDetailBean weekDetailBean, List<String> dateList, String[][] table, Map<String, SecSsnDO> ssnMap, Map<String, SecF107FluxDO> f107Map, Map<String, SecProtonAlarmDO> protonMap, Map<String, SecApIndexDO> apMap, Map<String, SecKpIndexDO> kpMap) {
-        String[] row0 = new String[]{"日期", "M级以上X射线耀斑", "", "", "", "F10.7射电流量", "黑子数", "是否发生质子事件", "高能电子通量(Electrons/cm2-day-sr)", "地磁Ap指数(Kp)"};
-        String[] row1 = new String[]{"", "开始", "最大", "结束", "级别", "", "", "", "", ""};
-        table[0] = row0;
-        table[1] = row1;
-        weekDetailBean.setTableTitle("表1 太阳地磁活动数据表");
-        for (int i = 0; i < 7; i++) {
-            String time = dateList.get(i);
-            SecF107FluxDO secF107FluxDo = f107Map.get(time);
-            String f107 = secF107FluxDo == null ? "" : String.valueOf(secF107FluxDo.getF107());
-            SecSsnDO ssnDo = ssnMap.get(time);
-            String ssn = ssnDo == null ? "0" : String.valueOf(ssnDo.getSsn());
-            SecProtonAlarmDO protonDo = protonMap.get(time);
-            String proton = protonDo == null ? "否" : protonDo.getLevel() > 0 ? "是" : "否";
-            SecApIndexDO apDo = apMap.get(time);
-            String ap = apDo == null ? "" : String.valueOf(apDo.getAp());
-            SecKpIndexDO kpDo = kpMap.get(time);
-            String kp = kpDo == null ? "" : "" + kpDo.getKp1() + kpDo.getKp2() + kpDo.getKp3()
-                    + kpDo.getKp4() + kpDo.getKp5() + kpDo.getKp6() + kpDo.getKp7() + kpDo.getKp8();
-            ap += kp.length() > 0 ? "(" + kp + ")" : "";
-            ap = ap.replaceAll(".0", "");
-            String[] row = new String[]{time, "", "", "", "", f107, ssn, proton, "", ap};
-            table[i + 2] = row;
-        }
-        List<RowRenderData> tableData = WeekDetailUtil.createTableData(table);
-        MergeCellRule mgRule = MergeCellRule.builder()
-                .map(MergeCellRule.Grid.of(0, 1), MergeCellRule.Grid.of(0, 4))
-                .map(MergeCellRule.Grid.of(0, 0), MergeCellRule.Grid.of(1, 0))
-                .map(MergeCellRule.Grid.of(0, 5), MergeCellRule.Grid.of(1, 5))
-                .map(MergeCellRule.Grid.of(0, 6), MergeCellRule.Grid.of(1, 6))
-                .map(MergeCellRule.Grid.of(0, 7), MergeCellRule.Grid.of(1, 7))
-                .map(MergeCellRule.Grid.of(0, 8), MergeCellRule.Grid.of(1, 8))
-                .map(MergeCellRule.Grid.of(0, 9), MergeCellRule.Grid.of(1, 9))
-                .build();
-        TableRenderData tb = Tables.ofWidth(17).width(17, new double[]{2, 1.25, 1.25, 1.25, 1.25, 2, 1, 2, 2.5, 2.5}).center().mergeRule(mgRule).create();
-        tb.setRows(tableData);
-        weekDetailBean.setTableConent(tb);
-    }
-
-    private void getKpWeeleksnData(String startTime, String endTime, Map<String, SecKpIndexDO> kpMap) throws Exception {
-        List<SecKpIndexDO> kpList = secKpIndexMapper.getKPData(startTime, endTime);
-        if (CollectionUtils.isNotEmpty(kpList)) {
-            for (SecKpIndexDO kpdo : kpList) {
-                kpMap.put(DateUtil.parseDate(kpdo.getTime(), DateConstant.DATE_TIME_PATTERN).substring(0, 10), kpdo);
-            }
-        }
-    }
-
-    private void getApWeeleksnData(String startTime, String endTime, Map<String, SecApIndexDO> apMap) throws Exception {
-        List<SecApIndexDO> apList = secApIndexMapper.getAPData(startTime, endTime);
-        if (CollectionUtils.isNotEmpty(apList)) {
-            for (SecApIndexDO apdo : apList) {
-                apMap.put(DateUtil.parseDate(apdo.getTime(), DateConstant.DATE_TIME_PATTERN).substring(0, 10), apdo);
-            }
-        }
-    }
-
-    private void getProtonWeeksnData(String startTime, String endTime, Map<String, SecProtonAlarmDO> protonMap) {
-        List<SecProtonAlarmDO> protonList = secProtonAlarmMapper.getSecProton(startTime, endTime);
-        if (CollectionUtils.isNotEmpty(protonList)) {
-            for (SecProtonAlarmDO protondo : protonList) {
-                protonMap.put(DateUtil.parseDate(protondo.getThresholdTime(), DateConstant.DATE_TIME_PATTERN).substring(0, 10), protondo);
-            }
-        }
-    }
-
-    private void getf107WeeksnData(String startTime, String endTime, Map<String, SecF107FluxDO> f107Map) throws Exception {
-        List<SecF107FluxDO> f107FluxList = secF107FluxMapper.getF107Data(startTime, endTime);
-        if (CollectionUtils.isNotEmpty(f107FluxList)) {
-            for (SecF107FluxDO fluxdo : f107FluxList) {
-                f107Map.put(DateUtil.parseDate(fluxdo.getTime(), DateConstant.DATE_TIME_PATTERN).substring(0, 10), fluxdo);
-            }
-        }
-    }
-
-    private void getSsnWeeksnData(String startTime, String endTime, Map<String, SecSsnDO> ssnMap) throws Exception {
-        List<SecSsnDO> sunSpotDataList = secSsnMapper.getSunSpotData(startTime, endTime);
-        if (CollectionUtils.isNotEmpty(sunSpotDataList)) {
-            for (SecSsnDO sndo : sunSpotDataList) {
-                ssnMap.put(DateUtil.parseDate(sndo.getTime(), DateConstant.DATE_TIME_PATTERN).substring(0, 10), sndo);
-            }
-        }
-    }
-
-    private void getXrayWeekData(String startTime, String endTime, Map<String, SecXrayAlarmDO> xrayMap) throws Exception {
-        List<SecXrayAlarmDO> xrayAlarmList = secxrayalarmmapper.getXrayAlarmList(startTime, endTime);
-        if (CollectionUtils.isNotEmpty(xrayAlarmList)) {
-            for (SecXrayAlarmDO ddo : xrayAlarmList) {
-                xrayMap.put(DateUtil.parseDate(ddo.getThresholdTime(), DateConstant.DATE_TIME_PATTERN).substring(0, 10), ddo);
-            }
+            logger.error(String.format(Locale.ROOT, "---Getting a weekly review throws an exception %s", e.getMessage()));
         }
     }
 

@@ -207,7 +207,7 @@ public class DateUtil {
     }
 
     /**
-     * 获取特定日期的一周、周日
+     * 获取特定日期的周一、周日
      *
      * @param specificDate 特定日期，如果为null默认是当天
      * @param pattern      日期字符串
