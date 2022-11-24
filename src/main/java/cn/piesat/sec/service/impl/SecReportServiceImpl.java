@@ -5,6 +5,7 @@ import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.comm.constant.DateConstant;
 import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.comm.util.FileUtil;
+import cn.piesat.sec.comm.util.ProcessUtil;
 import cn.piesat.sec.comm.word.CommonWordUtil;
 import cn.piesat.sec.comm.word.DailyShorUtil;
 import cn.piesat.sec.comm.word.MonthUtil;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -163,18 +165,12 @@ public class SecReportServiceImpl implements SecReportService {
         String endTime = pointDay + " 23:59:59";
         setOverviewData(weekDetailBean, startTime, endTime);
 
-        // 图片
-        String picOutPath = SecConfig.getProfile() + "report/week.png";
-        File pic = FileUtils.getFile(picOutPath);
-        if (pic.exists()) {
-            weekDetailBean.setPicTitleA("图1  MMM卫星环境");
-            weekDetailBean.setPicA(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, picOutPath));
-        }
-
-        //表格(查询最近一周周五~周四的数据)
+        //图片、表格(查询最近一周周五~周四的数据)
         List<String> lastFriday2Thursday = DateUtil.getLastFriday2Thursday(null, DateConstant.DATE_PATTERN);
         String begin = lastFriday2Thursday.get(0);
         String end = lastFriday2Thursday.get(1);
+        createWeekPng(weekDetailBean, begin + " 00:00:00", end + " 23:59:59", targetDir);
+
         try {
             begin += " 00:00:00";
             end += " 23:59:59";
@@ -185,6 +181,7 @@ public class SecReportServiceImpl implements SecReportService {
             WeekDetailUtil.createDailyDetailDocx(model, tarPath, weekDetailBean);
             // 更新数据库数据
             secAlarmEventMapper.updatePath(pointDay, tarPath.replace(SecConfig.getProfile(), ""), "week");
+            FileUtils.forceDelete(FileUtils.getFile(targetDir.concat("week.png"))); // 生成文件后删除图片
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "-----method makeShortDayReport----Insert message data exception  %s", e.getMessage()));
         } finally {
@@ -192,6 +189,43 @@ public class SecReportServiceImpl implements SecReportService {
         }
     }
 
+    private void createWeekPng(WeekDetailBean weekDetailBean, String startTime, String endTime, String targetDir) {
+        // 图片
+//        String picOutPath = SecConfig.getProfile() + "report/week.png";
+//        File pic = FileUtils.getFile(picOutPath);
+//        if (pic.exists()) {
+//            weekDetailBean.setPicTitleA("图1  MMM卫星环境");
+//            weekDetailBean.setPicA(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, picOutPath));
+//        }
+        try {
+            String python = SecConfig.getProfile() + "algorithm/weekpng/analyse_t.py";
+            String pythonini = SecConfig.getProfile() + "algorithm/weekpng/xw.ini";
+            StringBuilder cmd = new StringBuilder("python ");
+            cmd.append(python).append(" \"")
+                    .append(startTime).append("\" \"")
+                    .append(endTime).append("\" ")
+                    .append(pythonini).append(" ")
+                    .append(targetDir);
+            Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
+            int isFinished = process.waitFor(); // 阻塞线程，等待程序执行结束
+            if (isFinished == 0) {
+                logger.info(String.format(Locale.ROOT, "-----Weekly report image is successfully generated."));
+            } else {
+                logger.info(String.format(Locale.ROOT, "-----Failed to generate weekly report image."));
+            }
+
+            String picPath = targetDir + "week.png";
+            File pic = FileUtils.getFile(picPath);
+            if (pic.exists()) {
+                weekDetailBean.setPicTitleA("图1  MMM卫星环境");
+                weekDetailBean.setPicA(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, picPath));
+            }
+        } catch (IOException e) {
+            logger.error(String.format(Locale.ROOT, "---------Template file not found  %s", e.getMessage()));
+        } catch (InterruptedException e) {
+            logger.info(String.format(Locale.ROOT, "-----Failed to generate weekly report picture and throw InterruptedException. %s", e.getMessage()));
+        }
+    }
 
     @Override
     public String makeMonthReport() {

@@ -34,20 +34,7 @@ public class SecAlarmEventServiceImpl implements SecAlarmEventService {
         LocalDateTime startTime = secAlarmEventQuery.getStartTime();
         LocalDateTime endTime = secAlarmEventQuery.getEndTime();
         String[] levelArr = secAlarmEventQuery.getLevel();
-        Set<String> levelList = new HashSet<>();
-        if (levelArr != null && levelArr.length > 0) {
-            for (String s : levelArr) {
-                if (s.equalsIgnoreCase("2") || s.equalsIgnoreCase("3")) {
-                    levelList.add("2"); // 数据库实际2、3都表示橙色警报
-                    levelList.add("3");
-                } else if (s.equalsIgnoreCase("4") || s.equalsIgnoreCase("5")) {
-                    levelList.add("4");// 数据库实际4、5都表示橙色警报
-                    levelList.add("5");
-                } else {
-                    levelList.add(s);
-                }
-            }
-        }
+        List<String> levelList = Arrays.asList(levelArr);
         String level = levelArr == null || levelArr.length == 0 ? ">0" : "in (".concat(StringUtils.join(levelList, ",")).concat(")");
         String type = secAlarmEventQuery.getType();
         Long total = null;
