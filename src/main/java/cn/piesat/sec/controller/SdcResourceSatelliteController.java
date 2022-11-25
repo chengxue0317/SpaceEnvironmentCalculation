@@ -1,9 +1,12 @@
 package cn.piesat.sec.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import cn.hutool.core.io.FileUtil;
 import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
 import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
@@ -13,10 +16,15 @@ import cn.piesat.sec.model.entity.SdcResourceSatelliteDO;
 import cn.piesat.sec.model.query.SdcResourceSatelliteQuery;
 import cn.piesat.sec.model.vo.SdcResourceSatelliteVO;
 import cn.piesat.sec.service.SdcResourceSatelliteService;
+import cn.piesat.sec.utils.ExecUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +33,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -40,7 +49,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SdcResourceSatelliteController {
 
+    private static final Logger log = LoggerFactory.getLogger(SdcResourceSatelliteController.class);
+
+    @Value("${python.path.magnetic_global}")
+    private String pythonMagneticGlobal;
+    @Value("${picture.path.magnetic_global}")
+    private String pictureMagneticGlobal;
+
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
+
 
     @ApiOperation("分页查询")
     @PostMapping("/list")
@@ -84,6 +101,21 @@ public class SdcResourceSatelliteController {
         QueryWrapper<SdcResourceSatelliteDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("SAT_NAME").isNotNull("SAT_NAME");
         return sdcResourceSatelliteService.list(queryWrapper);
+    }
+
+    @ApiOperation("全球磁场分布")
+    @GetMapping("/drawGlobalMagnetic")
+    public String drawGlobalMagnetic(@RequestParam("time")String time,
+                                     @RequestParam("height")Integer height){
+
+        FileUtil.mkdir(pictureMagneticGlobal);
+        String command = "python "+pythonMagneticGlobal+" '"+time+"' "+height+" "+pictureMagneticGlobal;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String picName = time.replace(":", "-").replace(" ","_").concat("_").concat(height.toString()).concat("km.png");
+        return picName;
+
     }
 
 }

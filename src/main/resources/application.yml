@@ -41,3 +41,14 @@ logging:
 #配置报文文件路径
 piesat:
   profile: E:/work/xw/server/fileServer/
+
+
+python:
+  path:
+    magnetic_global: F:\code-sw\chaos_submit\magnetic_global.py   #全球磁场分布算法
+
+picture:
+  path:
+    magnetic_global: F:\code-sw\magnetic_global\      #全球磁场分布图片存储路径
+  url:
+    magnetic_global: /png/magnetic_global             #全球磁场分布图片映射路径

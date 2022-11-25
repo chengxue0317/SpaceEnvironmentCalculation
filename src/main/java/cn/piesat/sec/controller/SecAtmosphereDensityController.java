@@ -2,6 +2,7 @@ package cn.piesat.sec.controller;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -88,11 +89,11 @@ public class SecAtmosphereDensityController {
         QueryWrapper<SecAtmosphereDensityDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("TIME","DENSITY").between("TIME",secAtmosphereDensityQuery.getTimeBetween().getLeft(),secAtmosphereDensityQuery.getTimeBetween().getRight());
         List<SecAtmosphereDensityDO> list = secAtmosphereDensityService.list(queryWrapper);
-        ArrayList<LocalDateTime> times = new ArrayList<>();
-        ArrayList<Double> densitys = new ArrayList<>();
+        List<String> times = new ArrayList<>();
+        List<Double> densitys = new ArrayList<>();
         list.forEach(e->{
             densitys.add(e.getDensity());
-            times.add(e.getTime());
+            times.add(e.getTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         });
         Map map = new HashMap();
         map.put("times",times);
