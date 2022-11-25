@@ -72,4 +72,10 @@ public class SecProtonAlarmDO implements Serializable {
     */
     @ApiModelProperty("警报综述")
     private String overview;
+
+    /**
+     * 警报类型
+     */
+    @ApiModelProperty("警报类型")
+    private String type;
 }

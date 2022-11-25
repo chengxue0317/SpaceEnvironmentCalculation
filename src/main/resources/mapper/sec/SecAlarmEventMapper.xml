@@ -63,8 +63,7 @@
         SELECT LEVEL FROM SEC_ELE_ALARM
         <where>
             <if test="startTime!=null">
-                AND THRESHOLD_TIME <![CDATA[>=]].
-                > #{startTime}
+                AND THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
             </if>
             <if test="endTime!=null">
                 AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
