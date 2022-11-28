@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecStaInfoMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SecStaInfoDO" id="secStaInfoMap">
+        <result property="id" column="ID"/>
+        <result property="staId" column="STA_ID"/>
+        <result property="name" column="NAME"/>
+        <result property="type" column="TYPE"/>
+        <result property="lon" column="LON"/>
+        <result property="lat" column="LAT"/>
+        <result property="ele" column="ELE"/>
+        <result property="addr" column="ADDR"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+    </resultMap>
+
+
+</mapper>
