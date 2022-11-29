@@ -87,7 +87,7 @@ public class SecAtmosphereDensityController {
     @PostMapping("/getData")
     public Map getData(@RequestBody(required = false) SecAtmosphereDensityQuery secAtmosphereDensityQuery){
         QueryWrapper<SecAtmosphereDensityDO> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("TIME","DENSITY").between("TIME",secAtmosphereDensityQuery.getTimeBetween().getLeft(),secAtmosphereDensityQuery.getTimeBetween().getRight());
+        queryWrapper.select("TIME","DENSITY").eq("SAT_ID",secAtmosphereDensityQuery.getSatId()).between("TIME",secAtmosphereDensityQuery.getTimeBetween().getLeft(),secAtmosphereDensityQuery.getTimeBetween().getRight());
         List<SecAtmosphereDensityDO> list = secAtmosphereDensityService.list(queryWrapper);
         List<String> times = new ArrayList<>();
         List<Double> densitys = new ArrayList<>();

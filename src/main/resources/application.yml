@@ -9,7 +9,7 @@ spring:
       matching-strategy: ANT_PATH_MATCHER
   datasource:
     driverClassName: dm.jdbc.driver.DmDriver
-    url: jdbc:dm://127.0.0.1:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:dm://219.145.62.54:15236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: SDC
     password: sdc123456
   jackson:
@@ -46,6 +46,7 @@ piesat:
 python:
   path:
     magnetic_global: F:\code-sw\chaos_submit\magnetic_global.py   #全球磁场分布算法
+    orbital_magnetic: F:\code-sw\chaos_submit\magnetic_orbit.py   #轨道磁场分布算法
 
 picture:
   path:

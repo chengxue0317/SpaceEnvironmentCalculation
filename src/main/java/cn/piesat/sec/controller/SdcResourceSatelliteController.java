@@ -3,10 +3,12 @@ package cn.piesat.sec.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
 import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
@@ -14,9 +16,13 @@ import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SdcResourceSatelliteDTO;
 import cn.piesat.sec.model.entity.SdcResourceSatelliteDO;
 import cn.piesat.sec.model.query.SdcResourceSatelliteQuery;
+import cn.piesat.sec.model.vo.MagneticOrbitVO;
 import cn.piesat.sec.model.vo.SdcResourceSatelliteVO;
 import cn.piesat.sec.service.SdcResourceSatelliteService;
 import cn.piesat.sec.utils.ExecUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -55,6 +61,8 @@ public class SdcResourceSatelliteController {
     private String pythonMagneticGlobal;
     @Value("${picture.path.magnetic_global}")
     private String pictureMagneticGlobal;
+    @Value("${python.path.orbital_magnetic}")
+    private String pythonOrbitalMagnetic;
 
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
@@ -115,6 +123,37 @@ public class SdcResourceSatelliteController {
         log.info("Python命令执行结果：{}",result);
         String picName = time.replace(":", "-").replace(" ","_").concat("_").concat(height.toString()).concat("km.png");
         return picName;
+
+    }
+
+
+    @ApiOperation("轨道磁场分布")
+    @GetMapping("/drawOrbitalMagnetic")
+    public List<MagneticOrbitVO> drawOrbitalMagnetic(@RequestParam("beginTime")String beginTime,
+                                      @RequestParam("endTime")String endTime,
+                                     @RequestParam("satId")String satId){
+
+
+        String command = "python "+pythonOrbitalMagnetic+" "+satId+" '"+beginTime+"' "+" '"+endTime+"'";
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "%%", "%%");
+        JSONArray jsonArray = JSON.parseArray(jsonStr);
+        List<MagneticOrbitVO> magneticOrbitVOS = new ArrayList<>();
+        for (int i = 0;i<jsonArray.size();i++){
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            MagneticOrbitVO magneticOrbitVO = new MagneticOrbitVO();
+            magneticOrbitVO.setTime(jsonObject.get("时间").toString());
+            magneticOrbitVO.setHei(Float.parseFloat(jsonObject.get("高度km").toString()));
+            magneticOrbitVO.setLon(Float.parseFloat(jsonObject.get("经度deg").toString()));
+            magneticOrbitVO.setLat(Float.parseFloat(jsonObject.get("纬度deg").toString()));
+            magneticOrbitVO.setMagnetic(Float.parseFloat(jsonObject.get("磁场强度nT").toString()));
+            magneticOrbitVOS.add(magneticOrbitVO);
+        }
+
+
+        return magneticOrbitVOS;
 
     }
 
