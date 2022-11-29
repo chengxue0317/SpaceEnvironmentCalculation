@@ -89,11 +89,12 @@ public class SecAtmosphereDensityController {
         QueryWrapper<SecAtmosphereDensityDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("TIME","DENSITY").eq("SAT_ID",secAtmosphereDensityQuery.getSatId()).between("TIME",secAtmosphereDensityQuery.getTimeBetween().getLeft(),secAtmosphereDensityQuery.getTimeBetween().getRight());
         List<SecAtmosphereDensityDO> list = secAtmosphereDensityService.list(queryWrapper);
-        List<String> times = new ArrayList<>();
+        List<LocalDateTime> times = new ArrayList<>();
         List<Double> densitys = new ArrayList<>();
         list.forEach(e->{
             densitys.add(e.getDensity());
-            times.add(e.getTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            times.add(e.getTime());
+//            times.add(e.getTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         });
         Map map = new HashMap();
         map.put("times",times);
