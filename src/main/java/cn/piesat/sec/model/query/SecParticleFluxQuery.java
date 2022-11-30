@@ -1,5 +1,8 @@
 package cn.piesat.sec.model.query;
 
+import cn.piesat.kjyy.common.mybatisplus.annotation.query.Where;
+import cn.piesat.kjyy.common.mybatisplus.model.entity.Between;
+import cn.piesat.kjyy.common.mybatisplus.model.enums.Condition;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -90,5 +93,6 @@ public class SecParticleFluxQuery {
      * 时间（UTC）
      */
     @ApiModelProperty("时间（UTC）")
-    private LocalDateTime time;
+    @Where(value = Condition.BETWEEN,column = "TIME")
+    private Between<LocalDateTime> timeBetween;
 }
