@@ -1,6 +1,6 @@
 package cn.piesat.sec.controller;
 
-import cn.piesat.sec.comm.conf.SecConfig;
+import cn.piesat.sec.comm.conf.SecFileServerConfig;
 import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.model.vo.SecEnvOverviewVO;
 import cn.piesat.sec.service.SecEnvOverviewService;
@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 
@@ -60,7 +59,7 @@ public class SecEnvOverviewController {
         if(StringUtils.isEmpty(path)) {
             path = secReportService.makeReport(type);
         } else{
-            path = SecConfig.getProfile().concat(path);
+            path = SecFileServerConfig.getProfile().concat(path);
         }
         // 判断文件是否存在
         File file = FileUtils.getFile(path);

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 太阳质子事件

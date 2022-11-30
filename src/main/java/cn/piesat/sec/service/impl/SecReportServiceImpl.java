@@ -1,6 +1,6 @@
 package cn.piesat.sec.service.impl;
 
-import cn.piesat.sec.comm.conf.SecConfig;
+import cn.piesat.sec.comm.conf.SecFileServerConfig;
 import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.comm.constant.DateConstant;
 import cn.piesat.sec.comm.util.DateUtil;
@@ -46,24 +46,6 @@ public class SecReportServiceImpl implements SecReportService {
     private SecOverviewMapper secOverviewMapper;
 
     @Autowired
-    private SecXrayAlarmMapper secxrayalarmmapper;
-
-    @Autowired
-    private SecSsnMapper secSsnMapper;
-
-    @Autowired
-    private SecF107FluxMapper secF107FluxMapper;
-
-    @Autowired
-    private SecProtonAlarmMapper secProtonAlarmMapper;
-
-    @Autowired
-    private SecApIndexMapper secApIndexMapper;
-
-    @Autowired
-    private SecKpIndexMapper secKpIndexMapper;
-
-    @Autowired
     private SecReportMapper secReportMapper;
 
     @Override
@@ -92,7 +74,7 @@ public class SecReportServiceImpl implements SecReportService {
 
     @Override
     public String makeShortDayReport() {
-        String targetDir = SecConfig.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
+        String targetDir = SecFileServerConfig.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         String fileName = "空间环境日报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
@@ -134,7 +116,7 @@ public class SecReportServiceImpl implements SecReportService {
         // 数据入库
         try {
             // 更新数据库数据
-            secAlarmEventMapper.updatePath(startTime, tarPath.replace(SecConfig.getProfile(), ""), "day");
+            secAlarmEventMapper.updatePath(startTime, tarPath.replace(SecFileServerConfig.getProfile(), ""), "day");
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "-----method makeShortDayReport----Insert message data exception  %s", e.getMessage()));
         } finally {
@@ -149,7 +131,7 @@ public class SecReportServiceImpl implements SecReportService {
 
     @Override
     public String makeWeekReport() {
-        String targetDir = SecConfig.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
+        String targetDir = SecFileServerConfig.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         String fileName = "空间环境周报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
@@ -180,7 +162,7 @@ public class SecReportServiceImpl implements SecReportService {
             InputStream model = this.getClass().getResourceAsStream("/word/weekDetail.docx");
             WeekDetailUtil.createDailyDetailDocx(model, tarPath, weekDetailBean);
             // 更新数据库数据
-            secAlarmEventMapper.updatePath(pointDay, tarPath.replace(SecConfig.getProfile(), ""), "week");
+            secAlarmEventMapper.updatePath(pointDay, tarPath.replace(SecFileServerConfig.getProfile(), ""), "week");
             FileUtils.forceDelete(FileUtils.getFile(targetDir.concat("week.png"))); // 生成文件后删除图片
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "-----method makeShortDayReport----Insert message data exception  %s", e.getMessage()));
@@ -190,16 +172,9 @@ public class SecReportServiceImpl implements SecReportService {
     }
 
     private void createWeekPng(WeekDetailBean weekDetailBean, String startTime, String endTime, String targetDir) {
-        // 图片
-//        String picOutPath = SecConfig.getProfile() + "report/week.png";
-//        File pic = FileUtils.getFile(picOutPath);
-//        if (pic.exists()) {
-//            weekDetailBean.setPicTitleA("图1  MMM卫星环境");
-//            weekDetailBean.setPicA(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, picOutPath));
-//        }
         try {
-            String python = SecConfig.getProfile() + "algorithm/weekpng/analyse_t.py";
-            String pythonini = SecConfig.getProfile() + "algorithm/weekpng/xw.ini";
+            String python = SecFileServerConfig.getProfile() + "algorithm/weekpng/analyse_t.py";
+            String pythonini = SecFileServerConfig.getProfile() + "algorithm/weekpng/xw.ini";
             StringBuilder cmd = new StringBuilder("python ");
             cmd.append(python).append(" \"")
                     .append(startTime).append("\" \"")
@@ -229,7 +204,7 @@ public class SecReportServiceImpl implements SecReportService {
 
     @Override
     public String makeMonthReport() {
-        String targetDir = SecConfig.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
+        String targetDir = SecFileServerConfig.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
         FileUtil.mkdirs(targetDir);
         String fileName = "空间环境月报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
@@ -258,17 +233,17 @@ public class SecReportServiceImpl implements SecReportService {
                 combinTable1Data(monthBean, begin, end);
                 // 过去一个月的太阳地磁数据汇总
                 setTableData(monthBean, begin, end);
-                monthBean.setPic1(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/f107andssn.png"));
+                monthBean.setPic1(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecFileServerConfig.getProfile() + "report/f107andssn.png"));
                 monthBean.setPicTitle1("图1 太阳F10.7和黑子数");
-                monthBean.setPic2(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/LongerandShorter.png"));
+                monthBean.setPic2(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecFileServerConfig.getProfile() + "report/LongerandShorter.png"));
                 monthBean.setPicTitle2("图2 太阳X射线流量");
-                monthBean.setPic3(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/proton.png"));
+                monthBean.setPic3(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecFileServerConfig.getProfile() + "report/proton.png"));
                 monthBean.setPicTitle3("图3 高能质子通量");
-                monthBean.setPic4(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/ele.png"));
+                monthBean.setPic4(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecFileServerConfig.getProfile() + "report/ele.png"));
                 monthBean.setPicTitle4("图4 高能电子通量");
-                monthBean.setPic5(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/ap11.png"));
+                monthBean.setPic5(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecFileServerConfig.getProfile() + "report/ap11.png"));
                 monthBean.setPicTitle5("图5 未来一个月AP指数");
-                monthBean.setPic6(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecConfig.getProfile() + "report/kp11.png"));
+                monthBean.setPic6(new PictureRenderData(Constant.PIC_WIDTH, Constant.PIC_HIGH, SecFileServerConfig.getProfile() + "report/kp11.png"));
                 monthBean.setPicTitle6("图6 未来一个月KP指数");
 
                 monthBean.setUnit("中国星网");
@@ -276,7 +251,7 @@ public class SecReportServiceImpl implements SecReportService {
                 InputStream model = this.getClass().getResourceAsStream("/word/monthDetail.docx");
                 MonthUtil.createDailyMonthDocx(model, tarPath, monthBean);
                 // 更新数据库数据
-                secAlarmEventMapper.updatePath(secOverviewVO.getTime(), tarPath.replace(SecConfig.getProfile(), ""), "month");
+                secAlarmEventMapper.updatePath(secOverviewVO.getTime(), tarPath.replace(SecFileServerConfig.getProfile(), ""), "month");
             }
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "--------The generated monthly report table data is abnormal %s", e.getMessage()));

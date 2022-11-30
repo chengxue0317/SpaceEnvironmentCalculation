@@ -2,6 +2,7 @@ package cn.piesat.sec.service.impl;
 
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
+import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.dao.mapper.SecAlarmEventMapper;
 import cn.piesat.sec.model.entity.SecAlarmForecastDO;
 import cn.piesat.sec.model.entity.SecProtonAlarmDO;
@@ -87,8 +88,6 @@ public class SecAlarmEventServiceImpl implements SecAlarmEventService {
         List<SecProtonAlarmDO> dstList = secAlarmEventMapper.getTodayAlarmEvent("SEC_DST_ALARM");
         checkRowData(dstList);
 
-        // 未来三天警报预报数据
-        List<SecAlarmForecastDO> alarmEvent3daysForecast = secAlarmEventMapper.getAlarmEvent3daysForecast();
         SecAlarmEventForecastVO aevo = new SecAlarmEventForecastVO();
         aevo.setXray(xrayList.get(0));
         aevo.setTime("当前");
@@ -97,6 +96,9 @@ public class SecAlarmEventServiceImpl implements SecAlarmEventService {
         aevo.setGeomagnetic(dstList.get(0));
         List<SecAlarmEventForecastVO> list = new ArrayList<>();
         list.add(aevo);
+
+        // 未来三天警报预报数据
+        List<SecAlarmForecastDO> alarmEvent3daysForecast = secAlarmEventMapper.getAlarmEvent3daysForecast();
         if (CollectionUtils.isEmpty(alarmEvent3daysForecast)) {
             combinNodataRowsData(list);
         } else {
@@ -161,19 +163,36 @@ public class SecAlarmEventServiceImpl implements SecAlarmEventService {
         } else {
             Integer level = vo.getLevel();
             level = level == null ? 0 : level;
-            if (alarmStr.indexOf("红") != -1 && level < 5) {
-                vo.setLevel(5);
-                level = vo.getLevel();
+            if (alarmStr.indexOf("红") != -1 && level < 3) {
+                level = 3;
+                vo.setLevel(level);
+                vo.setOverview(findAnyMatchStr(alarmStr.split(Constant.SEMICOLON), "红"));
             }
-            if (alarmStr.indexOf("橙") != -1 && level < 3) {
-                vo.setLevel(3);
-                level = vo.getLevel();
+            if (alarmStr.indexOf("橙") != -1 && level < 2) {
+                level = 2;
+                vo.setLevel(level);
+                vo.setOverview(findAnyMatchStr(alarmStr.split(Constant.SEMICOLON), "橙"));
             }
             if (alarmStr.indexOf("黄") != -1 && level < 1) {
-                vo.setLevel(1);
+                level = 1;
+                vo.setLevel(level);
+                vo.setOverview(findAnyMatchStr(alarmStr.split(Constant.SEMICOLON), "黄"));
             }
         }
         vo.setContent(alarmStr);
         return vo;
+    }
+
+    private String findAnyMatchStr(String[] arr, String str) {
+        if (arr == null || arr.length == 0 || str == null || str.length() == 0) {
+            return StringUtils.EMPTY;
+        } else {
+            for (String item : arr) {
+                if (item.indexOf(str) > -1) {
+                    return item;
+                }
+            }
+        }
+        return StringUtils.EMPTY;
     }
 }

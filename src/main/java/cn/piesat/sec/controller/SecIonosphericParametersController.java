@@ -1,15 +1,15 @@
 package cn.piesat.sec.controller;
 
 import cn.piesat.sec.model.vo.IonosphericParametersVO;
+import cn.piesat.sec.service.SecIonosphericParametersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.ClientInfoStatus;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +24,43 @@ import java.util.List;
 @RestController
 @RequestMapping("/ionosphericparameters")
 @RequiredArgsConstructor
-public class IonosphericParametersController {
+public class SecIonosphericParametersController {
+    private final SecIonosphericParametersService secIPS;
+
+    /**
+     * 获取电离层参数多站最新数据
+     *
+     * @param type 电离层参数类型
+     * @return 电离层参数站点数据
+     */
+    @ApiOperation("获取电离层参数站点数据")
+    @GetMapping("ionosphericparametersStationData")
+    public List<IonosphericParametersVO> getIonosphericparametersStationData(@RequestParam("type") String type) {
+        List<IonosphericParametersVO> list = new ArrayList<IonosphericParametersVO>();
+        if (null == type) {
+            return list;
+        } else {
+            switch (type) {
+                case "s4": {
+                    IonosphericParametersVO v1 = new IonosphericParametersVO();
+                    v1.setName("长江1号");
+                    v1.setSrc("http://127.0.0.1:9999/dtec_01.png");
+                    list.add(v1);
+                    break;
+                }
+                case "fof2": {
+                    // todo 算法联调
+                    break;
+                }
+                default: {
+                    list = secIPS.getIonosphericStationsTECPngs();
+                    break;
+                }
+            }
+        }
+        return list;
+    }
+
     /**
      * 获取电离层参数数据
      *
@@ -35,11 +71,12 @@ public class IonosphericParametersController {
      * @return
      */
     @ApiOperation("获取电离层参数数据")
-    @PostMapping("getIonosphericparametersData")
+    @GetMapping("ionosphericparametersData")
     public List<IonosphericParametersVO> getIonosphericparametersData(@RequestParam("type") String type,
                                                                       @RequestParam(value = "staId", required = false) String staId,
                                                                       @RequestParam("startTime") String startTime,
                                                                       @RequestParam("endTime") String endTime) {
+        List list = new ArrayList();
         if (null == type) {
             // todo
         } else {
@@ -53,24 +90,12 @@ public class IonosphericParametersController {
                     break;
                 }
                 default: {
-                    // todo 算法联调
+                    list = secIPS.getIonosphericTecPngs(startTime, endTime);
                     break;
                 }
             }
         }
-        List list = new ArrayList();
-        IonosphericParametersVO v1 = new IonosphericParametersVO();
-        v1.setName("长江1号");
-        v1.setSrc("http://127.0.0.1:9999/dtec_01.png");
-        IonosphericParametersVO v2 = new IonosphericParametersVO();
-        v2.setName("北京7号北京7号北京7号北京7号北京7号北京7号");
-        v2.setSrc("http://127.0.0.1:9999/ROTI_01.png");
-        IonosphericParametersVO v3 = new IonosphericParametersVO();
-        v3.setName("沪太8号");
-        v3.setSrc("http://127.0.0.1:9999/tec_01.png");
-        list.add(v1);
-        list.add(v2);
-        list.add(v3);
+
         return list;
     }
 }

@@ -38,9 +38,12 @@ kjyy:
 logging:
   level:
     cn.piesat.sec: debug
-#配置报文文件路径
+
+#配置文件路径
 piesat:
   profile: E:/work/xw/server/fileServer/
+  ip: 127.0.0.1 #配置文件服务ip
+  port: 9999 #端口
 
 
 python:

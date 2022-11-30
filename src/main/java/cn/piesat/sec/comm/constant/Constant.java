@@ -127,5 +127,10 @@ public class Constant {
      * 图片高度
      */
     public static final int PIC_HIGH = 300;
+
+    /**
+     * 分号分隔符
+     */
+    public static final String SEMICOLON = ";";
 }
 
