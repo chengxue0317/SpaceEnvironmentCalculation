@@ -82,6 +82,36 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         return pictures;
     }
 
+    @Override
+    public List<IonosphericParametersVO> getIonosphericRotiPngs(String startTime, String endTime, String staId) {
+        List<IonosphericParametersVO> pictures = new ArrayList<>();
+        String targetDir = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getRoti());
+        FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
+        setPicturesInfo(pictures, targetDir, SecFileServerConfig.getRoti());
+        if (CollectionUtils.isNotEmpty(pictures)) {
+            return pictures;
+        }
+        String python = SecFileServerConfig.getProfile() + "algorithm/roti/ROTI.py";
+        StringBuilder cmd = new StringBuilder("python ");
+        cmd.append(python).append(" \"")
+                .append(startTime).append("\" \"")
+                .append(endTime).append("\" ")
+                .append(staId).append(" ")
+                .append(targetDir);
+        try {
+            Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
+            if (!process.waitFor(100, TimeUnit.SECONDS)) {
+                process.destroy();
+            }
+            setPicturesInfo(pictures, targetDir, SecFileServerConfig.getRoti());
+        } catch (IOException e) {
+            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
+        } catch (InterruptedException e) {
+            logger.info(String.format(Locale.ROOT, "-----The global tec site image is abnormal. %s", e.getMessage()));
+        }
+        return pictures;
+    }
+
     private void setPicturesInfo(List<IonosphericParametersVO> pictures, String targetDir, String pkgs) {
         File[] pics = FileUtils.getFile(targetDir).listFiles();
         if (ArrayUtils.isNotEmpty(pics)) {

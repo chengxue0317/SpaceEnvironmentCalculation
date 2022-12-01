@@ -60,7 +60,7 @@ public class SecIonosphericParametersController {
                 case "s4": {
                     IonosphericParametersVO v1 = new IonosphericParametersVO();
                     v1.setName("长江1号");
-                    v1.setSrc("http://127.0.0.1:9999/" +SecFileServerConfig.getS4Stations()+"dtec_01.png");
+                    v1.setSrc("http://127.0.0.1:9999/" +SecFileServerConfig.getS4Stations()+"line.png");
                     list.add(v1);
                     break;
                 }
@@ -102,7 +102,7 @@ public class SecIonosphericParametersController {
                     break;
                 }
                 case "roti": {
-                    // todo 算法联调
+                    list = secIPS.getIonosphericRotiPngs(startTime, endTime, staId);
                     break;
                 }
                 default: {

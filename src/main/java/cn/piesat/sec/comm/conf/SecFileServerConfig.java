@@ -46,6 +46,19 @@ public class SecFileServerConfig {
      */
     private static String s4Times;
 
+    /**
+     * ROTI出图位置
+     */
+    private static String roti;
+
+    public static String getRoti() {
+        return roti;
+    }
+
+    public void setRoti(String roti) {
+        SecFileServerConfig.roti = roti;
+    }
+
     public static String getS4Stations() {
         return s4Stations;
     }
