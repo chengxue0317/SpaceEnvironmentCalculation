@@ -26,6 +26,58 @@ public class SecFileServerConfig {
      */
     private static String port;
 
+    /**
+     * TEC全国站点出图位置
+     */
+    private static String tecStations;
+
+    /**
+     * TEC 时段出图位置
+     */
+    private static String tecTimes;
+
+    /**
+     * 电离层闪烁 全国站点出图位置
+     */
+    private static String s4Stations;
+
+    /**
+     * 电离层闪烁 时段出图位置
+     */
+    private static String s4Times;
+
+    public static String getS4Stations() {
+        return s4Stations;
+    }
+
+    public void setS4Stations(String s4Stations) {
+        SecFileServerConfig.s4Stations = s4Stations;
+    }
+
+    public static String getS4Times() {
+        return s4Times;
+    }
+
+    public void setS4Times(String s4Times) {
+        SecFileServerConfig.s4Times = s4Times;
+    }
+
+    public static String getTecStations() {
+        return tecStations;
+    }
+
+    public void setTecStations(String tecStations) {
+        SecFileServerConfig.tecStations = tecStations;
+    }
+
+    public static String getTecTimes() {
+        return tecTimes;
+    }
+
+    public void setTecTimes(String tecTimes) {
+        SecFileServerConfig.tecTimes = tecTimes;
+    }
+
     public static String getIp() {
         return ip;
     }

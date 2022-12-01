@@ -18,7 +18,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Locale;
 
@@ -55,7 +54,7 @@ public class SecEnvOverviewController {
     public synchronized void downFile(
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "path", required = false) String path,
-            HttpServletResponse response) throws UnsupportedEncodingException {
+            HttpServletResponse response){
         if(StringUtils.isEmpty(path)) {
             path = secReportService.makeReport(type);
         } else{
@@ -81,7 +80,7 @@ public class SecEnvOverviewController {
                 }
                 out.flush();
             } catch (Exception e) {
-                logger.error(String.format(Locale.ROOT, ": %s", e.getMessage(), path));
+                logger.error(String.format(Locale.ROOT, "--download--%s: %s", path, e.getMessage()));
             }
         }
     }

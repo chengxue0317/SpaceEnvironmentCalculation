@@ -13,9 +13,14 @@ import java.util.Map;
  */
 public class Constant {
     /**
-     * 编码格式
+     * 编码格式-utf8
      */
     public static String UTF8 = "utf-8";
+
+    /**
+     * 编码格式-GBK
+     */
+    public static String GBK = "GBK";
 
     /**
      * 文件后缀

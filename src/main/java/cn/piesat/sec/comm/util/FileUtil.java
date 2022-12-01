@@ -4,11 +4,14 @@ import cn.piesat.sec.comm.constant.Constant;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -65,6 +68,37 @@ public class FileUtil {
         } else {
             delFile(isDelRootFile, file);
         }
+    }
+
+    /**
+     * 获取文件/文件夹路径下的所有文件路径
+     *
+     * @param source 数据源路径
+     * @return 文件路径集合
+     */
+    @ApiOperation("获取文件/文件夹路径下的所有文件路径")
+    public static List<String> getFilePaths(String source) {
+        List<String> list = new ArrayList<>();
+        if (StringUtils.isEmpty(source)) {
+            return list;
+        }
+        if (org.apache.commons.io.FileUtils.getFile(source).isFile()) {
+            list.add(source);
+        } else if (org.apache.commons.io.FileUtils.getFile(source).isDirectory()) {
+            File[] files = org.apache.commons.io.FileUtils.getFile(source).listFiles();
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isFile()) {
+                    list.add(files[i].getAbsolutePath());
+                } else if (files[i].isDirectory()) {
+                    list.addAll(getFilePaths(files[i].getAbsolutePath()));
+                } else {
+                    continue;
+                }
+            }
+        } else {
+            return list;
+        }
+        return list;
     }
 
     private static void delFile(boolean isDelRootFile, File file) {

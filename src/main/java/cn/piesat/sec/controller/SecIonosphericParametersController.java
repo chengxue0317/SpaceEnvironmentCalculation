@@ -1,17 +1,32 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.sec.comm.conf.SecFileServerConfig;
+import cn.piesat.sec.comm.constant.Constant;
+import cn.piesat.sec.comm.util.ZipUtil;
 import cn.piesat.sec.model.vo.IonosphericParametersVO;
 import cn.piesat.sec.service.SecIonosphericParametersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 电离层参数
@@ -25,6 +40,7 @@ import java.util.List;
 @RequestMapping("/ionosphericparameters")
 @RequiredArgsConstructor
 public class SecIonosphericParametersController {
+    private static final Logger logger = LoggerFactory.getLogger(SecIonosphericParametersController.class);
     private final SecIonosphericParametersService secIPS;
 
     /**
@@ -44,7 +60,7 @@ public class SecIonosphericParametersController {
                 case "s4": {
                     IonosphericParametersVO v1 = new IonosphericParametersVO();
                     v1.setName("长江1号");
-                    v1.setSrc("http://127.0.0.1:9999/dtec_01.png");
+                    v1.setSrc("http://127.0.0.1:9999/" +SecFileServerConfig.getS4Stations()+"dtec_01.png");
                     list.add(v1);
                     break;
                 }
@@ -95,7 +111,70 @@ public class SecIonosphericParametersController {
                 }
             }
         }
-
         return list;
+    }
+
+    @GetMapping("ionosphericspngs")
+    public void downloadPics(@RequestParam("type") String type, HttpServletResponse response) {
+        String path = null;
+        switch (type) {
+            case "s4": {
+                path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getS4Stations());
+                break;
+            }
+            case "roti": {
+                break;
+            }
+            default: {
+                path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getTecStations());
+                break;
+            }
+        }
+        ZipOutputStream zout = null;
+        try {
+            File rootFile = FileUtils.getFile(path);
+            File[] files = rootFile.listFiles();
+            // 循环下载
+            response.setCharacterEncoding(Constant.UTF8);
+            response.setContentType("multipart/form-data;application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(String.valueOf(System.currentTimeMillis()), "UTF-8"));
+            zout = new ZipOutputStream(response.getOutputStream());
+            byte[] buff = new byte[Constant.BUFFSIZE];
+            int len;
+            InputStream inputStream = null;
+            for (int i = 0; i < files.length; i++) {
+                // 判断文件是否存在
+                File file = files[i];
+                if (!file.exists()) {
+                    logger.error(files[i] + ":文件不存在！");
+                    continue;
+                }
+                inputStream = FileUtils.openInputStream(file);
+                if (null == inputStream) {
+                    continue;
+                }
+                zout.putNextEntry(new ZipEntry(file.getName()));
+                while ((len = inputStream.read(buff)) != -1) {
+                    zout.write(buff, 0, len);
+                }
+                zout.flush();
+                zout.closeEntry();
+                inputStream.close();
+            }
+            zout.flush();
+            zout.finish();
+
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "File download exception %s", e.getMessage()));
+        } finally {
+            if (null != zout) {
+                try {
+                    zout.close();
+                } catch (IOException e) {
+                    logger.error("--------Failed to close ZipoutputStream. %s", e.getMessage());
+                }
+            }
+            return;
+        }
     }
 }
