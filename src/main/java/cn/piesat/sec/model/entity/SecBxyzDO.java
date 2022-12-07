@@ -3,8 +3,6 @@ package cn.piesat.sec.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.FieldFill;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
@@ -21,9 +19,9 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * @date 2022-11-14 21:52:42
  */
 @Data
-@TableName("SEC_MAGNETIC_PARAMTER")
+@TableName("SEC_B_XYZ")
 @ApiModel("地磁参数数据实体类")
-public class SecMagneticParamterDO implements Serializable {
+public class SecBxyzDO implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
     * ID主键
@@ -36,17 +34,7 @@ public class SecMagneticParamterDO implements Serializable {
     * 单位标识
     */
     @ApiModelProperty("单位标识")
-    private String unitId;
-    /**
-    * 设备标识
-    */
-    @ApiModelProperty("设备标识")
-    private String deviceId;
-    /**
-    * 台站标识
-    */
-    @ApiModelProperty("台站标识")
-    private String staId;
+    private String alt;
     /**
     * 总磁场
     */
@@ -56,12 +44,12 @@ public class SecMagneticParamterDO implements Serializable {
     * 磁子午线
     */
     @ApiModelProperty("磁子午线")
-    private Double bH;
+    private Double bX;
     /**
     * 磁偏角
     */
     @ApiModelProperty("磁偏角")
-    private Double bD;
+    private Double bY;
     /**
     * 垂直分量
     */

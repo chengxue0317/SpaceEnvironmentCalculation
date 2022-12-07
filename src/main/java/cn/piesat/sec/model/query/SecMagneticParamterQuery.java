@@ -25,12 +25,12 @@ public class SecMagneticParamterQuery {
      * 磁子午线
      */
     @ApiModelProperty("磁子午线")
-    private Double bH;
+    private Double bX;
     /**
      * 磁偏角
      */
     @ApiModelProperty("磁偏角")
-    private Double bD;
+    private Double bY;
     /**
      * 垂直分量
      */

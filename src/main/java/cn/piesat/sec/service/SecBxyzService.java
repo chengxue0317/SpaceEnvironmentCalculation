@@ -2,11 +2,10 @@ package cn.piesat.sec.service;
 
 import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
-import cn.piesat.sec.model.dto.SecMagneticParamterDTO;
 import cn.piesat.sec.model.query.SecMagneticParamterQuery;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
-import cn.piesat.sec.model.entity.SecMagneticParamterDO;
+import cn.piesat.sec.model.entity.SecBxyzDO;
 import cn.piesat.sec.model.vo.SecMagneticParamterVO;
 
 import java.io.Serializable;
@@ -19,7 +18,7 @@ import java.util.List;
  * @email wuyazhou@piesat.cn
  * @date 2022-11-14 21:52:42
  */
-public interface SecMagneticParamterService extends IService<SecMagneticParamterDO> {
+public interface SecBxyzService extends IService<SecBxyzDO> {
     /**
      * 获取一段时间范围内的地磁参数数据
      *

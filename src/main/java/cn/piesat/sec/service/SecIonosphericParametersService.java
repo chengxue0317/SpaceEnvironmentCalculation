@@ -1,16 +1,27 @@
 package cn.piesat.sec.service;
 
-import cn.piesat.sec.model.vo.IonosphericParametersVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
+import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 
 import java.util.List;
 
 public interface SecIonosphericParametersService {
     /**
+     * 获取闪烁数据
+     *
+     * @param staId     站点id
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return
+     */
+    SecEnvElementVO getBlinkData(String staId, String startTime, String endTime);
+
+    /**
      * 获取全国多站TEC效果图
      *
      * @return TEC效果图
      */
-    List<IonosphericParametersVO> getIonosphericStationsTECPngs();
+    List<SecIonosphericParametersVO> getIonosphericStationsTECPngs();
 
     /**
      * 获取全国TEC效果图
@@ -19,7 +30,7 @@ public interface SecIonosphericParametersService {
      * @param endTime   结束时间
      * @return TEC效果图
      */
-    List<IonosphericParametersVO> getIonosphericTecPngs(String startTime, String endTime);
+    List<SecIonosphericParametersVO> getIonosphericTecPngs(String startTime, String endTime);
 
     /**
      * 获取站点时段ROTI效果图
@@ -29,5 +40,5 @@ public interface SecIonosphericParametersService {
      * @param staId     站点id
      * @return ROTI效果图
      */
-    List<IonosphericParametersVO> getIonosphericRotiPngs(String startTime, String endTime, String staId);
+    List<SecIonosphericParametersVO> getIonosphericRotiPngs(String startTime, String endTime, String staId);
 }

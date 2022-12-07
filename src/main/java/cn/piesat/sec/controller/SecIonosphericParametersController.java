@@ -2,8 +2,8 @@ package cn.piesat.sec.controller;
 
 import cn.piesat.sec.comm.conf.SecFileServerConfig;
 import cn.piesat.sec.comm.constant.Constant;
-import cn.piesat.sec.comm.util.ZipUtil;
-import cn.piesat.sec.model.vo.IonosphericParametersVO;
+import cn.piesat.sec.model.vo.SecEnvElementVO;
+import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 import cn.piesat.sec.service.SecIonosphericParametersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +43,21 @@ public class SecIonosphericParametersController {
     private final SecIonosphericParametersService secIPS;
 
     /**
+     * 获取电离层闪烁数据
+     *
+     * @param staId 站点ID
+     * @return 电离层参数站点数据
+     */
+    @ApiOperation("获取电离层闪烁数据")
+    @GetMapping("blinkData")
+    public SecEnvElementVO getBlinkData(@RequestParam("staId") String staId,
+                                        @RequestParam("startTime") String startTime,
+                                        @RequestParam("endTime") String endTime) {
+
+        return secIPS.getBlinkData(staId, startTime, endTime);
+    }
+
+    /**
      * 获取电离层参数多站最新数据
      *
      * @param type 电离层参数类型
@@ -51,16 +65,16 @@ public class SecIonosphericParametersController {
      */
     @ApiOperation("获取电离层参数站点数据")
     @GetMapping("ionosphericparametersStationData")
-    public List<IonosphericParametersVO> getIonosphericparametersStationData(@RequestParam("type") String type) {
-        List<IonosphericParametersVO> list = new ArrayList<IonosphericParametersVO>();
+    public List<SecIonosphericParametersVO> getIonosphericparametersStationData(@RequestParam("type") String type) {
+        List<SecIonosphericParametersVO> list = new ArrayList<SecIonosphericParametersVO>();
         if (null == type) {
             return list;
         } else {
             switch (type) {
                 case "s4": {
-                    IonosphericParametersVO v1 = new IonosphericParametersVO();
+                    SecIonosphericParametersVO v1 = new SecIonosphericParametersVO();
                     v1.setName("长江1号");
-                    v1.setSrc("http://127.0.0.1:9999/" +SecFileServerConfig.getS4Stations()+"line.png");
+                    v1.setSrc("http://127.0.0.1:9999/" + SecFileServerConfig.getS4Stations() + "line.png");
                     list.add(v1);
                     break;
                 }
@@ -88,35 +102,27 @@ public class SecIonosphericParametersController {
      */
     @ApiOperation("获取电离层参数数据")
     @GetMapping("ionosphericparametersData")
-    public List<IonosphericParametersVO> getIonosphericparametersData(@RequestParam("type") String type,
-                                                                      @RequestParam(value = "staId", required = false) String staId,
-                                                                      @RequestParam("startTime") String startTime,
-                                                                      @RequestParam("endTime") String endTime) {
+    public List<SecIonosphericParametersVO> getIonosphericparametersData(@RequestParam(value = "type", required = true) String type,
+                                                                         @RequestParam(value = "staId", required = false) String staId,
+                                                                         @RequestParam("startTime") String startTime,
+                                                                         @RequestParam("endTime") String endTime) {
         List list = new ArrayList();
-        if (null == type) {
-            // todo
+        if (type.toLowerCase(Locale.ROOT).equals("roti")) {
+            list = secIPS.getIonosphericRotiPngs(startTime, endTime, staId);
         } else {
-            switch (type) {
-                case "s4": {
-                    // todo 算法联调
-                    break;
-                }
-                case "roti": {
-                    list = secIPS.getIonosphericRotiPngs(startTime, endTime, staId);
-                    break;
-                }
-                default: {
-                    list = secIPS.getIonosphericTecPngs(startTime, endTime);
-                    break;
-                }
-            }
+            list = secIPS.getIonosphericTecPngs(startTime, endTime);
         }
         return list;
     }
 
     @GetMapping("ionosphericspngs")
-    public void downloadPics(@RequestParam("type") String type, HttpServletResponse response) {
+    public void downloadPics(@RequestParam(value = "type", required = true) String type, HttpServletResponse response) {
         String path = null;
+        if (type.toLowerCase(Locale.ROOT).equals("roti")) {
+
+        } else {
+            path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getTecStations());
+        }
         switch (type) {
             case "s4": {
                 path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getS4Stations());

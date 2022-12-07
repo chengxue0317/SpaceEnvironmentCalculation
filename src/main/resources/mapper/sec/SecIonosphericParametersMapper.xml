@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecIonosphericParametersMapper">
+
+    <resultMap type="cn.piesat.sec.model.entity.SecIonosphericParamtersDO" id="secIonosphericMap">
+        <result property="id" column="ID"/>
+        <result property="ls4" column="L_S4"/>
+        <result property="ss4" column="S_S4"/>
+        <result property="uhfs4" column="UHF_S4"/>
+        <result property="time" column="TIME"/>
+    </resultMap>
+
+    <select id="getBlinkData" resultMap="secIonosphericMap">
+        SELECT
+        L_S4 ,
+        S_S4 ,
+        UHF_S4,
+        TIME
+        FROM
+        SEC_IONOSPHERIC_ST
+        <where>
+            <if test="staId != null">
+                AND STA_ID = #{staId}
+            </if>
+            <if test="startTime != null">
+                AND TIME <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND TIME <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY TIME ASC
+    </select>
+</mapper>

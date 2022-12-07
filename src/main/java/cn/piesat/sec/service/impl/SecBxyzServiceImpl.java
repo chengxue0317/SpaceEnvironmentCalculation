@@ -5,13 +5,12 @@ import cn.piesat.kjyy.common.mybatisplus.utils.Query;
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.kjyy.core.utils.CopyBean;
-import cn.piesat.sec.dao.mapper.SecMagneticParamterMapper;
-import cn.piesat.sec.model.dto.SecMagneticParamterDTO;
-import cn.piesat.sec.model.entity.SecMagneticParamterDO;
+import cn.piesat.sec.dao.mapper.SecBxyzMapper;
+import cn.piesat.sec.model.entity.SecBxyzDO;
 import cn.piesat.sec.model.query.SecMagneticParamterQuery;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecMagneticParamterVO;
-import cn.piesat.sec.service.SecMagneticParamterService;
+import cn.piesat.sec.service.SecBxyzService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -36,11 +35,11 @@ import java.util.Locale;
  * @date 2022-11-14 21:52:42
  */
 @Service("secMagneticParamterService")
-public class SecMagneticParamterServiceImpl extends ServiceImpl<SecMagneticParamterMapper, SecMagneticParamterDO> implements SecMagneticParamterService {
-    Logger logger = LoggerFactory.getLogger(SecMagneticParamterServiceImpl.class);
+public class SecBxyzServiceImpl extends ServiceImpl<SecBxyzMapper, SecBxyzDO> implements SecBxyzService {
+    Logger logger = LoggerFactory.getLogger(SecBxyzServiceImpl.class);
 
     @Autowired
-    private SecMagneticParamterMapper secMagneticParamterMapper;
+    private SecBxyzMapper secBxyzMapper;
 
     @Override
     public SecEnvElementVO getBtxyzData(String startTime, String endTime) {
@@ -52,15 +51,13 @@ public class SecMagneticParamterServiceImpl extends ServiceImpl<SecMagneticParam
             List<Object> dataY1 = new ArrayList<>();
             List<Object> dataY2 = new ArrayList<>();
             List<Object> dataY3 = new ArrayList<>();
-            List<SecMagneticParamterDO> list = secMagneticParamterMapper.getBtxyzData(startTime, endTime);
+            List<SecBxyzDO> list = secBxyzMapper.getBtxyzData(startTime, endTime);
             if (CollectionUtils.isNotEmpty(list)) {
                 list.forEach(item -> {
-                    Double bh = item.getBH();
-                    Double bd = item.getBD();
                     dataX.add(item.getTime());
                     dataY.add(item.getBT());
-                    dataY1.add(bh * Math.cos(bd));
-                    dataY2.add(bh * Math.sin(bd));
+                    dataY1.add(item.getBX());
+                    dataY2.add(item.getBY());
                     dataY3.add(item.getBZ());
                 });
                 eeb.setDataX(dataX);
@@ -77,32 +74,32 @@ public class SecMagneticParamterServiceImpl extends ServiceImpl<SecMagneticParam
 
     @Override
     public PageResult list(PageBean pageBean, SecMagneticParamterQuery secMagneticParamterQuery) {
-        QueryWrapper<SecMagneticParamterDO> wrapper = null;
+        QueryWrapper<SecBxyzDO> wrapper = null;
         if (ObjectUtils.isEmpty(secMagneticParamterQuery)) {
             wrapper = new QueryWrapper<>();
         } else {
             wrapper = ConditionBuilder.build(secMagneticParamterQuery);
         }
-        IPage<SecMagneticParamterDO> page = this.page(Query.getPage(pageBean), wrapper);
+        IPage<SecBxyzDO> page = this.page(Query.getPage(pageBean), wrapper);
         return new PageResult(page.getTotal(), CopyBean.copy(page.getRecords(), SecMagneticParamterVO::new));
     }
 
     @Override
     public SecMagneticParamterVO info(Serializable id) {
-        SecMagneticParamterDO secMagneticParamterDO = getById(id);
-        return CopyBean.copy(secMagneticParamterDO,SecMagneticParamterVO::new);
+        SecBxyzDO secBxyzDO = getById(id);
+        return CopyBean.copy(secBxyzDO,SecMagneticParamterVO::new);
     }
     @Override
     public Boolean save(SecMagneticParamterDTO secMagneticParamterDTO) {
-        SecMagneticParamterDO secMagneticParamterDO = CopyBean.copy(secMagneticParamterDTO, SecMagneticParamterDO::new);
-        return save(secMagneticParamterDO);
+        SecBxyzDO secBxyzDO = CopyBean.copy(secMagneticParamterDTO, SecBxyzDO::new);
+        return save(secBxyzDO);
     }
 
     @Override
     public Boolean update(SecMagneticParamterDTO secMagneticParamterDTO) {
-        SecMagneticParamterDO secMagneticParamterDO = this.getById(secMagneticParamterDTO.getId());
-        BeanUtils.copyProperties(secMagneticParamterDTO,secMagneticParamterDO);
-        return updateById(secMagneticParamterDO);
+        SecBxyzDO secBxyzDO = this.getById(secMagneticParamterDTO.getId());
+        BeanUtils.copyProperties(secMagneticParamterDTO, secBxyzDO);
+        return updateById(secBxyzDO);
     }
 
     @Override

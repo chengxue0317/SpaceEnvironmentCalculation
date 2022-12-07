@@ -14,7 +14,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("电离层参数VO")
-public class IonosphericParametersVO {
+public class SecIonosphericParametersVO {
     /**
      * 图片名称
      */

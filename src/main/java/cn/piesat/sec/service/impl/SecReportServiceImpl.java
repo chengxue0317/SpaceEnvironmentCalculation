@@ -163,7 +163,7 @@ public class SecReportServiceImpl implements SecReportService {
             WeekDetailUtil.createDailyDetailDocx(model, tarPath, weekDetailBean);
             // 更新数据库数据
             secAlarmEventMapper.updatePath(pointDay, tarPath.replace(SecFileServerConfig.getProfile(), ""), "week");
-            FileUtils.forceDelete(FileUtils.getFile(targetDir.concat("week.png"))); // 生成文件后删除图片
+            FileUtils.forceDelete(FileUtils.getFile(targetDir.concat("week1.png"))); // 生成文件后删除图片
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "-----method makeShortDayReport----Insert message data exception  %s", e.getMessage()));
         } finally {
@@ -189,7 +189,7 @@ public class SecReportServiceImpl implements SecReportService {
                 logger.info(String.format(Locale.ROOT, "-----Failed to generate weekly report image."));
             }
 
-            String picPath = targetDir + "week.png";
+            String picPath = targetDir + "week1.png";
             File pic = FileUtils.getFile(picPath);
             if (pic.exists()) {
                 weekDetailBean.setPicTitleA("图1  MMM卫星环境");

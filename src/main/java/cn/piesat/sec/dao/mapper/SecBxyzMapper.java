@@ -1,7 +1,6 @@
 package cn.piesat.sec.dao.mapper;
 
-import cn.piesat.sec.model.entity.SecKpIndexDO;
-import cn.piesat.sec.model.entity.SecMagneticParamterDO;
+import cn.piesat.sec.model.entity.SecBxyzDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -16,7 +15,7 @@ import java.util.List;
  * @date 2022-11-14 21:52:42
  */
 @Mapper
-public interface SecMagneticParamterMapper extends BaseMapper<SecMagneticParamterDO> {
+public interface SecBxyzMapper extends BaseMapper<SecBxyzDO> {
 
     /**
      * 获取地磁参数数据
@@ -26,6 +25,6 @@ public interface SecMagneticParamterMapper extends BaseMapper<SecMagneticParamte
      * @return 地磁参数数据
      * @throws Exception
      */
-    List<SecMagneticParamterDO> getBtxyzData(@Param("startTime") String startTime,
-        @Param("endTime") String endTime) throws Exception;
+    List<SecBxyzDO> getBtxyzData(@Param("startTime") String startTime,
+                                 @Param("endTime") String endTime) throws Exception;
 }
