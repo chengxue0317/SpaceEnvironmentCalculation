@@ -6,6 +6,7 @@ import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.kjyy.core.utils.CopyBean;
 import cn.piesat.sec.dao.mapper.SecBxyzMapper;
+import cn.piesat.sec.model.dto.SecBxyzDTO;
 import cn.piesat.sec.model.entity.SecBxyzDO;
 import cn.piesat.sec.model.query.SecMagneticParamterQuery;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
@@ -90,13 +91,13 @@ public class SecBxyzServiceImpl extends ServiceImpl<SecBxyzMapper, SecBxyzDO> im
         return CopyBean.copy(secBxyzDO,SecMagneticParamterVO::new);
     }
     @Override
-    public Boolean save(SecMagneticParamterDTO secMagneticParamterDTO) {
+    public Boolean save(SecBxyzDTO secMagneticParamterDTO) {
         SecBxyzDO secBxyzDO = CopyBean.copy(secMagneticParamterDTO, SecBxyzDO::new);
         return save(secBxyzDO);
     }
 
     @Override
-    public Boolean update(SecMagneticParamterDTO secMagneticParamterDTO) {
+    public Boolean update(SecBxyzDTO secMagneticParamterDTO) {
         SecBxyzDO secBxyzDO = this.getById(secMagneticParamterDTO.getId());
         BeanUtils.copyProperties(secMagneticParamterDTO, secBxyzDO);
         return updateById(secBxyzDO);

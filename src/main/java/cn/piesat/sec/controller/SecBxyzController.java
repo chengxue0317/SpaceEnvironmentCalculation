@@ -4,6 +4,7 @@ import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
 import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
+import cn.piesat.sec.model.dto.SecBxyzDTO;
 import cn.piesat.sec.model.query.SecMagneticParamterQuery;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecMagneticParamterVO;
@@ -52,14 +53,14 @@ public class SecBxyzController {
 
     @ApiOperation("保存信息")
     @PostMapping("/save")
-    public Boolean save(@Validated(AddGroup.class) @RequestBody SecMagneticParamterDTO secMagneticParamterDTO){
-        return secBxyzService.save(secMagneticParamterDTO);
+    public Boolean save(@Validated(AddGroup.class) @RequestBody SecBxyzDTO secBxyzDTO){
+        return secBxyzService.save(secBxyzDTO);
     }
 
     @ApiOperation("修改信息")
     @PutMapping("/update")
-    public Boolean update(@Validated(UpdateGroup.class) @RequestBody SecMagneticParamterDTO secMagneticParamterDTO){
-        return secBxyzService.update(secMagneticParamterDTO);
+    public Boolean update(@Validated(UpdateGroup.class) @RequestBody SecBxyzDTO secBxyzDTO){
+        return secBxyzService.update(secBxyzDTO);
     }
 
     @ApiOperation("批量删除信息")

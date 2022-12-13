@@ -2,6 +2,7 @@ package cn.piesat.sec.service;
 
 import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
+import cn.piesat.sec.model.dto.SecBxyzDTO;
 import cn.piesat.sec.model.query.SecMagneticParamterQuery;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -48,18 +49,18 @@ public interface SecBxyzService extends IService<SecBxyzDO> {
     /**
      * 新增
      *
-     * @param secMagneticParamterDTO {@link SecMagneticParamterDTO} 地磁参数数据DTO
+     * @param secBxyzDTO {@link SecBxyzDTO} 地磁参数数据DTO
      * @return false or true
     */
-    Boolean save(SecMagneticParamterDTO secMagneticParamterDTO);
+    Boolean save(SecBxyzDTO secBxyzDTO);
 
     /**
      * 修改
      *
-     * @param secMagneticParamterDTO {@link SecMagneticParamterDTO} 地磁参数数据DTO
+     * @param secBxyzDTO {@link SecBxyzDTO} 地磁参数数据DTO
      * @return false or true
      */
-    Boolean update(SecMagneticParamterDTO secMagneticParamterDTO);
+    Boolean update(SecBxyzDTO secBxyzDTO);
 
     /**
      * 批量删除
