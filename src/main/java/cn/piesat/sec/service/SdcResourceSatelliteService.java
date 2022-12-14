@@ -1,6 +1,6 @@
 package cn.piesat.sec.service;
 
-import cn.piesat.kjyy.core.model.dto.PageBean ;
+import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.dto.SdcResourceSatelliteDTO;
 import cn.piesat.sec.model.entity.SdcResourceSatelliteDO;
@@ -23,10 +23,10 @@ public interface SdcResourceSatelliteService extends IService<SdcResourceSatelli
     /**
      * 分页查询
      *
-     * @param pageBean {@link PageBean} 分页对象
+     * @param pageBean                  {@link PageBean} 分页对象
      * @param sdcResourceSatelliteQuery {@link SdcResourceSatelliteQuery} 卫星基本信息查询对象
      * @return {@link PageResult} 查询结果
-    */
+     */
     PageResult list(PageBean pageBean, SdcResourceSatelliteQuery sdcResourceSatelliteQuery);
 
     /**
@@ -34,15 +34,22 @@ public interface SdcResourceSatelliteService extends IService<SdcResourceSatelli
      *
      * @param id id
      * @return {@link SdcResourceSatelliteVO}
-    */
+     */
     SdcResourceSatelliteVO info(Serializable id);
+
+    /**
+     * 获取所有卫星数据
+     *
+     * @return 所有卫星数据
+     */
+    List<SdcResourceSatelliteVO> getAllList();
 
     /**
      * 新增
      *
      * @param sdcResourceSatelliteDTO {@link SdcResourceSatelliteDTO} 卫星基本信息DTO
      * @return false or true
-    */
+     */
     Boolean save(SdcResourceSatelliteDTO sdcResourceSatelliteDTO);
 
     /**
@@ -58,7 +65,7 @@ public interface SdcResourceSatelliteService extends IService<SdcResourceSatelli
      *
      * @param ids id集合
      * @return false or true
-    */
+     */
     Boolean delete(List<Serializable> ids);
 
     /**
@@ -66,7 +73,7 @@ public interface SdcResourceSatelliteService extends IService<SdcResourceSatelli
      *
      * @param id id
      * @return false or true
-    */
+     */
     Boolean delete(Serializable id);
 }
 

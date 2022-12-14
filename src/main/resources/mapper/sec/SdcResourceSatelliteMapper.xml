@@ -25,5 +25,7 @@
         <result property="updateTime" column="UPDATE_TIME"/>
     </resultMap>
 
-
+    <select id="getAllList" resultMap="sdcResourceSatelliteMap">
+        SELECT DISTINCT SAT_ID,SAT_NAME FROM SDC_RESOURCE_SATELLITE
+    </select>
 </mapper>

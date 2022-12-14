@@ -51,6 +51,19 @@ public class SecFileServerConfig {
      */
     private static String roti;
 
+    /**
+     * 算法二级目录
+     */
+    private static String secondDir;
+
+    public static String getSecondDir() {
+        return secondDir;
+    }
+
+    public void setSecondDir(String secondDir) {
+        SecFileServerConfig.secondDir = secondDir;
+    }
+
     public static String getRoti() {
         return roti;
     }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SdcResourceStationMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SdcResourceStationDO" id="sdcResourceStationMap">
+        <result property="id" column="ID"/>
+        <result property="staId" column="STA_ID"/>
+        <result property="staName" column="STA_NAME"/>
+        <result property="staType" column="STA_TYPE"/>
+        <result property="status" column="STATUS"/>
+        <result property="antennaNum" column="ANTENNA_NUM"/>
+        <result property="longitude" column="LONGITUDE"/>
+        <result property="latitude" column="LATITUDE"/>
+        <result property="elevation" column="ELEVATION"/>
+        <result property="location" column="LOCATION"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+    </resultMap>
+
+    <select id="getAllList" resultMap="sdcResourceStationMap">
+        select STA_ID, STA_NAME, ANTENNA_NUM, LONGITUDE, LATITUDE, ELEVATION
+        from SDC_RESOURCE_STATION
+        where STATUS = 0
+    </select>
+</mapper>
