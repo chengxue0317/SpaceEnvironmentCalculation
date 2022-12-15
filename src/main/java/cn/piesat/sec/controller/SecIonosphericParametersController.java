@@ -24,6 +24,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -118,17 +119,17 @@ public class SecIonosphericParametersController {
     @GetMapping("ionosphericspngs")
     public void downloadPics(@RequestParam(value = "type", required = true) String type, HttpServletResponse response) {
         String path = null;
-        if (type.toLowerCase(Locale.ROOT).equals("roti")) {
-
-        } else {
-            path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getTecStations());
-        }
         switch (type) {
             case "s4": {
                 path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getS4Stations());
                 break;
             }
-            case "roti": {
+            case "globleTEC": {
+                path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getTecTimes());
+                break;
+            }
+            case "globleROTI": {
+                path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getRoti());
                 break;
             }
             default: {
@@ -139,7 +140,7 @@ public class SecIonosphericParametersController {
         ZipOutputStream zout = null;
         try {
             File rootFile = FileUtils.getFile(path);
-            File[] files = rootFile.listFiles();
+            List<File> files = FileUtils.listFiles(rootFile, null, true).stream().collect(Collectors.toList());
             // 循环下载
             response.setCharacterEncoding(Constant.UTF8);
             response.setContentType("multipart/form-data;application/octet-stream");
@@ -148,11 +149,11 @@ public class SecIonosphericParametersController {
             byte[] buff = new byte[Constant.BUFFSIZE];
             int len;
             InputStream inputStream = null;
-            for (int i = 0; i < files.length; i++) {
+            for (int i = 0; i < files.size(); i++) {
                 // 判断文件是否存在
-                File file = files[i];
+                File file = files.get(i);
                 if (!file.exists()) {
-                    logger.error(files[i] + ":文件不存在！");
+                    logger.error(file.getAbsolutePath() + ":====FILE NOT EXISTS！");
                     continue;
                 }
                 inputStream = FileUtils.openInputStream(file);
