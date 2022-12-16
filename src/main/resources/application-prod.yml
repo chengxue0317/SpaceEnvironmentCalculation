@@ -1,0 +1,13 @@
+python:
+  path:
+    magnetic_global: /export/chaos_submit/magnetic_global.py   #全球磁场分布算法
+    orbital_magnetic: /export/chaos_submit/magnetic_orbit.py   #轨道磁场分布算法
+    atmosphere_density: /export/yuechao_cal/atm_density/msis_simu.py  #大气密度算法
+    single_event_effects: /export/yuechao_cal/Single_events/seu_cal.py  #单粒子效应
+    radiation_dose: /export/yuechao_cal/does_depth/does.py   #卫星辐射总剂量计算评估
+
+picture:
+  path:
+    magnetic_global: /export/magnetic_global/     #全球磁场分布图片存储路径
+  url:
+    magnetic_global: /png/magnetic_global/             #全球磁场分布图片映射路径

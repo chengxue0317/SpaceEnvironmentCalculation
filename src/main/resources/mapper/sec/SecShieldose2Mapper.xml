@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.SecShieldose2Mapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.SecShieldose2DO" id="secShieldose2Map">
+        <result property="id" column="ID"/>
+        <result property="satId" column="SAT_ID"/>
+        <result property="material" column="MATERIAL"/>
+        <result property="mode" column="MODE"/>
+        <result property="does" column="DOES"/>
+        <result property="depth" column="DEPTH"/>
+        <result property="time" column="TIME"/>
+    </resultMap>
+
+
+</mapper>
