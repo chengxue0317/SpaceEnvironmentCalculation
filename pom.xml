@@ -103,6 +103,12 @@
             <artifactId>jna</artifactId>
             <version>5.10.0</version>
         </dependency>
+        <!-- MinIO 自己服务器搭建的文件服务器-->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.4.6</version>
+        </dependency>
     </dependencies>
 
     <build>

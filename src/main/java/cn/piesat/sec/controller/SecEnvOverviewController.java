@@ -1,6 +1,6 @@
 package cn.piesat.sec.controller;
 
-import cn.piesat.sec.comm.conf.SecFileServerConfig;
+import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.model.vo.SecEnvOverviewVO;
 import cn.piesat.sec.service.SecEnvOverviewService;
@@ -58,7 +58,7 @@ public class SecEnvOverviewController {
         if(StringUtils.isEmpty(path)) {
             path = secReportService.makeReport(type);
         } else{
-            path = SecFileServerConfig.getProfile().concat(path);
+            path = SecFileServerProperties.getProfile().concat(path);
         }
         // 判断文件是否存在
         File file = FileUtils.getFile(path);

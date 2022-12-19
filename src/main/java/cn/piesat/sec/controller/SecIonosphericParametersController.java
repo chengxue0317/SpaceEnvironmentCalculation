@@ -1,6 +1,6 @@
 package cn.piesat.sec.controller;
 
-import cn.piesat.sec.comm.conf.SecFileServerConfig;
+import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
@@ -75,7 +75,7 @@ public class SecIonosphericParametersController {
                 case "s4": {
                     SecIonosphericParametersVO v1 = new SecIonosphericParametersVO();
                     v1.setName("长江1号");
-                    v1.setSrc("http://127.0.0.1:9999/" + SecFileServerConfig.getS4Stations() + "line.png");
+                    v1.setSrc("http://127.0.0.1:9999/" + SecFileServerProperties.getS4Stations() + "line.png");
                     list.add(v1);
                     break;
                 }
@@ -121,19 +121,19 @@ public class SecIonosphericParametersController {
         String path = null;
         switch (type) {
             case "s4": {
-                path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getS4Stations());
+                path = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getS4Stations());
                 break;
             }
             case "globleTEC": {
-                path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getTecTimes());
+                path = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getTecTimes());
                 break;
             }
             case "globleROTI": {
-                path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getRoti());
+                path = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getRoti());
                 break;
             }
             default: {
-                path = SecFileServerConfig.getProfile().concat(SecFileServerConfig.getTecStations());
+                path = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getTecStations());
                 break;
             }
         }

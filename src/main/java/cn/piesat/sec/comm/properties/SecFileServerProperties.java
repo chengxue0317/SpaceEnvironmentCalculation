@@ -1,4 +1,4 @@
-package cn.piesat.sec.comm.conf;
+package cn.piesat.sec.comm.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(prefix = "piesat")
-public class SecFileServerConfig {
+public class SecFileServerProperties {
     /**
      * 文件路径
      */
@@ -61,7 +61,7 @@ public class SecFileServerConfig {
     }
 
     public void setSecondDir(String secondDir) {
-        SecFileServerConfig.secondDir = secondDir;
+        SecFileServerProperties.secondDir = secondDir;
     }
 
     public static String getRoti() {
@@ -69,7 +69,7 @@ public class SecFileServerConfig {
     }
 
     public void setRoti(String roti) {
-        SecFileServerConfig.roti = roti;
+        SecFileServerProperties.roti = roti;
     }
 
     public static String getS4Stations() {
@@ -77,7 +77,7 @@ public class SecFileServerConfig {
     }
 
     public void setS4Stations(String s4Stations) {
-        SecFileServerConfig.s4Stations = s4Stations;
+        SecFileServerProperties.s4Stations = s4Stations;
     }
 
     public static String getS4Times() {
@@ -85,7 +85,7 @@ public class SecFileServerConfig {
     }
 
     public void setS4Times(String s4Times) {
-        SecFileServerConfig.s4Times = s4Times;
+        SecFileServerProperties.s4Times = s4Times;
     }
 
     public static String getTecStations() {
@@ -93,7 +93,7 @@ public class SecFileServerConfig {
     }
 
     public void setTecStations(String tecStations) {
-        SecFileServerConfig.tecStations = tecStations;
+        SecFileServerProperties.tecStations = tecStations;
     }
 
     public static String getTecTimes() {
@@ -101,7 +101,7 @@ public class SecFileServerConfig {
     }
 
     public void setTecTimes(String tecTimes) {
-        SecFileServerConfig.tecTimes = tecTimes;
+        SecFileServerProperties.tecTimes = tecTimes;
     }
 
     public static String getIp() {
@@ -109,7 +109,7 @@ public class SecFileServerConfig {
     }
 
     public void setIp(String ip) {
-        SecFileServerConfig.ip = ip;
+        SecFileServerProperties.ip = ip;
     }
 
     public static String getPort() {
@@ -117,7 +117,7 @@ public class SecFileServerConfig {
     }
 
     public void setPort(String port) {
-        SecFileServerConfig.port = port;
+        SecFileServerProperties.port = port;
     }
 
     public static String getProfile() {
@@ -125,7 +125,7 @@ public class SecFileServerConfig {
     }
 
     public void setProfile(String profile) {
-        SecFileServerConfig.profile = profile;
+        SecFileServerProperties.profile = profile;
     }
 
 }
