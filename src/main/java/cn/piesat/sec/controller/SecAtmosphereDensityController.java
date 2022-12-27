@@ -151,18 +151,6 @@ public class SecAtmosphereDensityController {
 
     }
 
-    public static void main(String[] args) {
-
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-
-        String uri = request.getRequestURI();//返回请求行中的资源名称
-        String url = request.getRequestURL().toString();//获得客户端发送请求的完整url
-        String ip = request.getRemoteAddr();//返回发出请求的IP地址
-        String params = request.getQueryString();//返回请求行中的参数部分
-        String host=request.getRemoteHost();//返回发出请求的客户机的主机名
-        int port =request.getRemotePort();//返回发出请求的客户机的端口号。
-
-    }
 
     @ApiOperation("根据id查询")
     @GetMapping("/test")

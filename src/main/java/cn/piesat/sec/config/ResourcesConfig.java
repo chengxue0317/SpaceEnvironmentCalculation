@@ -24,6 +24,11 @@ public class ResourcesConfig implements WebMvcConfigurer {
     @Value("${spring.jackson.date-format}")
     private String pattern;
 
+    @Value("${picture.path.global_radiation_env}")
+    private String picturePathGlobalRadiationEnv;
+    @Value("${picture.url.global_radiation_env}")
+    private String pictureUrlGlobalRadiationEnv;
+
     /**
      * 跨域配置
      */
@@ -54,6 +59,7 @@ public class ResourcesConfig implements WebMvcConfigurer {
         registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/", "classpath:/META-INF/resources/webjars/");
         //通过image访问本地的图片
         registry.addResourceHandler(pictureUrlMagneticGlobal+"/**").addResourceLocations("file:"+picturePathMagneticGlobal);
+        registry.addResourceHandler(pictureUrlGlobalRadiationEnv+"/**").addResourceLocations("file:"+picturePathGlobalRadiationEnv);
     }
 
 }

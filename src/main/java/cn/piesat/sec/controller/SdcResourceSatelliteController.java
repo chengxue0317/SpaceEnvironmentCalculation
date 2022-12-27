@@ -6,7 +6,9 @@ import java.io.Serializable;
 import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
@@ -73,6 +75,14 @@ public class SdcResourceSatelliteController {
     private String port;
     @Value("${picture.url.magnetic_global}")
     private String pictureUrlMagneticGlobal;
+
+    @Value("${python.path.global_radiation_env}")
+    private String pythonGlobalRadiationEnv;
+    @Value("${picture.url.global_radiation_env}")
+    private String pictureUrlGlobalRadiationEnv;
+
+    @Value("${python.path.orbit_reduction}")
+    private String pythonOrbitReduction;
 
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
@@ -209,7 +219,72 @@ public class SdcResourceSatelliteController {
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
         JSONObject jsonObject = JSON.parseObject(jsonStr);
+        return jsonStr.replaceAll("\\s*", "");
+
+    }
+
+    @ApiOperation("辐射带高能粒子分布")
+    @GetMapping("/getRadiationEnergeticParticle")
+    public String getRadiationEnergeticParticle(@RequestParam("beginTime")String beginTime,
+                                   @RequestParam("endTime")String endTime,
+                                   @RequestParam("satId")String satId,
+                                   @RequestParam("material")Integer material,
+                                   @RequestParam("mode")Integer mode){
+
+        String command = "python3 "+pythonRadiationDose+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material+" "+mode;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
         return jsonStr;
+
+    }
+
+
+    @ApiOperation("全球辐射环境")
+    @GetMapping("/getGlobalRadiationEnv")
+    public Map<String, String> getGlobalRadiationEnv(@RequestParam("time")String time,
+                                                @RequestParam("height")Integer height,
+                                                @RequestParam("ionChannel")Integer ionChannel,
+                                                @RequestParam("resolutionRatio")Integer resolutionRatio){
+
+        String command = "python3 "+pythonGlobalRadiationEnv+" '"+time+"' "+height+" "+ionChannel+" "+resolutionRatio;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+
+        String hostAddress = null;
+        try {
+            hostAddress = Inet4Address.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Map<String, String> map = new HashMap<>();
+        String substring = jsonStr.substring(jsonStr.lastIndexOf(File.separator));
+        String mainFigure = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
+        String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
+        map.put("mainFigure",mainFigure);
+        map.put("colorbar",colorbar);
+        return map;
+
+    }
+
+
+    @ApiOperation("轨道衰变效应")
+    @GetMapping("/getOrbitReduction")
+    public String getOrbitReduction(@RequestParam("beginTime")String beginTime,
+                                                     @RequestParam("endTime")String endTime,
+                                                     @RequestParam("satId")String satId){
+
+        String command = "python3 "+pythonOrbitReduction+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        return jsonStr.replaceAll("\\s*", "");
 
     }
 }
