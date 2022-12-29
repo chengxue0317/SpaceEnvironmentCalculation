@@ -1,5 +1,6 @@
 package cn.piesat.sec.controller;
 
+import java.io.File;
 import java.io.Serializable;
 import java.net.Inet4Address;
 import java.time.LocalDateTime;
@@ -146,6 +147,14 @@ public class SecAtmosphereDensityController {
             Map map = new HashMap();
             map.put("times",times);
             map.put("densitys",densitys);
+            File file = new File(jsonStr);
+            String parent = file.getParent();
+            boolean del = FileUtil.del(parent);
+            if (del){
+                log.info("数据文件路径：{}删除成功！",parent);
+            }else {
+                log.info("数据文件路径：{}删除失败！",parent);
+            }
             return map;
         }
 
