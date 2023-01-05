@@ -16,7 +16,7 @@ spring:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
   profiles:
-    active: prod
+    active: dev
 
 mybatis-plus:
   mapperLocations: classpath:mapper/**/*.xml
@@ -40,19 +40,6 @@ kjyy:
 logging:
   level:
     cn.piesat.sec: debug
-
-#配置文件路径
-piesat:
-  profile: E:/work/xw/server/fileServer/
-  ip: 127.0.0.1 #配置文件服务ip,对应profile所在位置
-  port: 9999 #端口
-  tecStations: TEC/stations/ #TEC全国站点出图位置
-  tecTimes: TEC/time/ #TEC时间段绘图数据
-  s4Stations: S4/stations/ #闪烁指数全国站点出图位置
-  s4Times: S4/time/ #闪烁指数时间段绘图数据
-  roti: ROTI/ #ROTI算法结果存储位置
-  secondDir: maps/Medium/ # TEC、ROTI算法二级目录
-
 minio:
   endpoint: http://127.0.0.1:9000
   accesskey: minioadmin

@@ -75,7 +75,7 @@ public class SecIonosphericParametersController {
                 case "s4": {
                     SecIonosphericParametersVO v1 = new SecIonosphericParametersVO();
                     v1.setName("长江1号");
-                    v1.setSrc("http://127.0.0.1:9999/" + SecFileServerProperties.getS4Stations() + "line.png");
+                    v1.setSrc("http://".concat(SecFileServerProperties.getIp()).concat(":").concat(SecFileServerProperties.getPort()).concat(Constant.FILE_SEPARATOR) + SecFileServerProperties.getS4Stations() + "line.png");
                     list.add(v1);
                     break;
                 }

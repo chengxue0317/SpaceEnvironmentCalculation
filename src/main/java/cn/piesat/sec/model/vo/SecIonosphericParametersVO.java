@@ -4,6 +4,8 @@ package cn.piesat.sec.model.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 电离层参数VO
@@ -13,6 +15,8 @@ import lombok.Data;
  * @date 2022-11-14 16:35:45
  */
 @Data
+@Getter
+@Setter
 @ApiModel("电离层参数VO")
 public class SecIonosphericParametersVO {
     /**

@@ -95,7 +95,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String targetDir = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getTecTimes());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
-        setPicturesInfo(pictures, targetDir.concat(SecFileServerProperties.getSecondDir()), SecFileServerProperties.getTecTimes().concat(SecFileServerProperties.getSecondDir()));
+        setPicturesInfo(pictures, targetDir, SecFileServerProperties.getTecTimes().concat(SecFileServerProperties.getSecondDir()));
         if (CollectionUtils.isNotEmpty(pictures)) {
             return pictures;
         }
@@ -124,7 +124,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String targetDir = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getRoti());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
-        setPicturesInfo(pictures, targetDir.concat(SecFileServerProperties.getSecondDir()), SecFileServerProperties.getRoti().concat(SecFileServerProperties.getSecondDir()));
+        setPicturesInfo(pictures, targetDir, SecFileServerProperties.getRoti().concat(SecFileServerProperties.getSecondDir()));
         if (CollectionUtils.isNotEmpty(pictures)) {
             return pictures;
         }
@@ -149,17 +149,21 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
     }
 
     private void setPicturesInfo(List<SecIonosphericParametersVO> pictures, String targetDir, String pkgs) {
-        File[] pics = FileUtils.getFile(targetDir).listFiles();
-        if (ArrayUtils.isNotEmpty(pics)) {
+//        File[] pics = FileUtils.getFile(targetDir).listFiles();
+        List<String> pics = FileUtil.getFilePaths(targetDir);
+        if (CollectionUtils.isNotEmpty(pics)) {
             String urlHead = "http://".concat(SecFileServerProperties.getIp()).concat(":").concat(SecFileServerProperties.getPort()).concat(Constant.FILE_SEPARATOR);
-            Arrays.stream(pics).forEach(item -> {
-                if (item.getName().toLowerCase(Locale.ROOT).endsWith(".png")) {
+            pics.forEach(item -> {
+                if (item.toLowerCase(Locale.ROOT).endsWith(".png")) {
                     SecIonosphericParametersVO ispvo = new SecIonosphericParametersVO();
-                    ispvo.setName(item.getName().substring(0, item.getName().indexOf(".")));
-                    ispvo.setSrc(urlHead.concat(pkgs).concat(item.getName()));
+                    File file = FileUtils.getFile(item);
+                    ispvo.setName(file.getName().substring(0, file.getName().indexOf(".")));
+                    ispvo.setSrc(urlHead.concat(pkgs).concat(file.getName()));
                     pictures.add(ispvo);
                 }
             });
+        } else {
+            System.out.println(String.format(Locale.ROOT,"=====路径%s下没有找到文件=====",targetDir));
         }
     }
 }

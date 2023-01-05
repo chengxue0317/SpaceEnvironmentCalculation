@@ -15,3 +15,15 @@ picture:
   url:
     magnetic_global: /png/magnetic_global/             #全球磁场分布图片映射路径
     global_radiation_env: /png/global_radiation_env/             #全球辐射环境图片映射路径
+    
+#配置文件路径
+piesat:
+  profile: /usr/docker/nginx/nginx-mnt/html/fileServer/
+  ip: 192.168.237.130 #配置文件服务ip,对应profile所在位置
+  port: 9999 #端口
+  tecStations: TEC/stations/ #TEC全国站点出图位置
+  tecTimes: TEC/time/ #TEC时间段绘图数据
+  s4Stations: S4/stations/ #闪烁指数全国站点出图位置
+  s4Times: S4/time/ #闪烁指数时间段绘图数据
+  roti: ROTI/ #ROTI算法结果存储位置
+  secondDir: maps/Medium/ # TEC、ROTI算法二级目录
