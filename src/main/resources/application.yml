@@ -2,19 +2,6 @@ server:
   port: 8998
 
 spring:
-  mvc:
-    servlet:
-      path: /sec
-    path-match:
-      matching-strategy: ANT_PATH_MATCHER
-  datasource:
-    driverClassName: dm.jdbc.driver.DmDriver
-    url: jdbc:dm://219.145.62.54:15236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
-    username: SDC
-    password: sdc123456
-  jackson:
-    time-zone: GMT+8
-    date-format: yyyy-MM-dd HH:mm:ss
   profiles:
     active: dev
 
