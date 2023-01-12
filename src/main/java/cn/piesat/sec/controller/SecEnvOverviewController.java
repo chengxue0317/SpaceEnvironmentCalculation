@@ -12,6 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletOutputStream;
@@ -39,6 +40,9 @@ public class SecEnvOverviewController {
 
     private final SecReportService secReportService;
 
+    @Autowired
+    private SecFileServerProperties secFileServerProperties;
+
     @ApiOperation("查询一段时间内的F10.7数据")
     @PostMapping("/getEnvOverview")
     public List<SecEnvOverviewVO> getEnvOverview() {
@@ -50,6 +54,7 @@ public class SecEnvOverviewController {
      * @param type 文件类型
      * @return 文件下载的url
      */
+    @ApiOperation("环境预报报文下载")
     @PostMapping(value = "/downFile")
     public synchronized void downFile(
             @RequestParam(value = "type", required = false) String type,
@@ -58,7 +63,7 @@ public class SecEnvOverviewController {
         if(StringUtils.isEmpty(path)) {
             path = secReportService.makeReport(type);
         } else{
-            path = SecFileServerProperties.getProfile().concat(path);
+            path = secFileServerProperties.getProfile().concat(path);
         }
         // 判断文件是否存在
         File file = FileUtils.getFile(path);

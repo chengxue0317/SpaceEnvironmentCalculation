@@ -27,8 +27,3 @@ kjyy:
 logging:
   level:
     cn.piesat.sec: debug
-minio:
-  endpoint: http://127.0.0.1:9000
-  accesskey: minioadmin
-  secretkey: minioadmin
-  bucketName: sec

@@ -1,7 +1,9 @@
 package cn.piesat.sec.controller;
 
-import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.comm.constant.Constant;
+import cn.piesat.sec.comm.properties.SecFileServerProperties;
+import cn.piesat.sec.comm.properties.SecMinioProperties;
+import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 import cn.piesat.sec.service.SecIonosphericParametersService;
@@ -11,11 +13,13 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +46,14 @@ import java.util.zip.ZipOutputStream;
 public class SecIonosphericParametersController {
     private static final Logger logger = LoggerFactory.getLogger(SecIonosphericParametersController.class);
     private final SecIonosphericParametersService secIPS;
+    @Resource
+    private MinioUtil minioUtil;
+
+    @Autowired
+    private SecFileServerProperties secFileServerProperties;
+
+    @Autowired
+    private SecMinioProperties secMinioProperties;
 
     /**
      * 获取电离层闪烁数据
@@ -73,9 +85,10 @@ public class SecIonosphericParametersController {
         } else {
             switch (type) {
                 case "s4": {
+                    String preview = minioUtil.preview(secMinioProperties.getBucketName(), "pics/station.png");
                     SecIonosphericParametersVO v1 = new SecIonosphericParametersVO();
                     v1.setName("长江1号");
-                    v1.setSrc("http://".concat(SecFileServerProperties.getIp()).concat(":").concat(SecFileServerProperties.getPort()).concat(Constant.FILE_SEPARATOR) + SecFileServerProperties.getS4Stations() + "line.png");
+                    v1.setSrc(preview);
                     list.add(v1);
                     break;
                 }
@@ -121,19 +134,19 @@ public class SecIonosphericParametersController {
         String path = null;
         switch (type) {
             case "s4": {
-                path = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getS4Stations());
+                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getS4Stations());
                 break;
             }
             case "globleTEC": {
-                path = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getTecTimes());
+                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecTimes());
                 break;
             }
             case "globleROTI": {
-                path = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getRoti());
+                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getRoti());
                 break;
             }
             default: {
-                path = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getTecStations());
+                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecStations());
                 break;
             }
         }

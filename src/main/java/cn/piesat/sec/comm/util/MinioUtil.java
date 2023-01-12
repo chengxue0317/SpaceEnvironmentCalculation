@@ -1,6 +1,5 @@
 package cn.piesat.sec.comm.util;
 
-import cn.piesat.sec.comm.properties.SecMinioProperties;
 import io.minio.*;
 import io.minio.http.Method;
 import io.minio.messages.Bucket;
@@ -10,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,9 +25,6 @@ import java.util.*;
 @Slf4j
 public class MinioUtil {
     private static final Logger logger = LoggerFactory.getLogger(MinioUtil.class);
-
-    @Autowired
-    private SecMinioProperties secMinioProperties;
 
     @Resource
     private MinioClient minioClient;
@@ -92,23 +87,18 @@ public class MinioUtil {
         return null;
     }
 
-
     /**
      * 文件上传
      *
      * @param file 上传的文件
      * @return
      */
-    public String upload(MultipartFile file) {
+    public String upload(String bucketName, MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
             throw new RuntimeException();
         }
         String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + originalFilename;
-        // 日期目录
-        // SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        // String datePath = dateFormat.format(new Date());// 日期目录：2021/10/27
-        // 也可以使用JDK1.8的新时间类LocalDate/LocalDateTime
         LocalDate now = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         String formatDatePath = formatter.format(now);
@@ -117,7 +107,7 @@ public class MinioUtil {
         String objectName = formatDatePath + "/" + timeMillis + fileName;
         try {
             PutObjectArgs objectArgs = PutObjectArgs.builder()
-                    .bucket(secMinioProperties.getBucketName())
+                    .bucket(bucketName)
                     .object(objectName)
                     .stream(file.getInputStream(), file.getSize(), -1)
                     .contentType(file.getContentType())
@@ -130,17 +120,40 @@ public class MinioUtil {
         return objectName;
     }
 
+    /**
+     * 上传文件
+     *
+     * @param bucketName 文件存储桶
+     * @param objectName 文件在文件服务器上的相对路径
+     * @param fileName   上传文件全路径
+     * @return 上传文件路径
+     */
+    public String upload(String bucketName, String objectName, String fileName) {
+        try {
+            minioClient.uploadObject(
+                    UploadObjectArgs.builder()
+                            .bucket(bucketName)        // 桶名称
+                            .object(objectName)        // 上传文件保存到minio的全路径
+                            .filename(fileName)        // 本地文件路径
+                            .build());
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "===upload %s", e.getMessage()));
+            return null;
+        }
+        return objectName;
+    }
 
     /**
      * 预览图片
      *
-     * @param fileName 文件名称
+     * @param bucketName 文件存储桶
+     * @param fileName   文件名称
      * @return 图片地址
      */
-    public String preview(String fileName) {
+    public String preview(String bucketName, String fileName) {
         // 查看文件地址
         GetPresignedObjectUrlArgs build = GetPresignedObjectUrlArgs.builder()
-                .bucket(secMinioProperties.getBucketName())
+                .bucket(bucketName)
                 .object(fileName)
                 .method(Method.GET)
                 .build();
@@ -155,11 +168,12 @@ public class MinioUtil {
     /**
      * 文件下载
      *
-     * @param fileName 文件名称
-     * @param res      response
+     * @param bucketName 文件存储桶
+     * @param fileName   文件名称
+     * @param res        response
      */
-    public void download(String fileName, HttpServletResponse res) {
-        GetObjectArgs objectArgs = GetObjectArgs.builder().bucket(secMinioProperties.getBucketName())
+    public void download(String bucketName, String fileName, HttpServletResponse res) {
+        GetObjectArgs objectArgs = GetObjectArgs.builder().bucket(bucketName)
                 .object(fileName).build();
         try (GetObjectResponse response = minioClient.getObject(objectArgs)) {
             byte[] buf = new byte[1024];
@@ -194,7 +208,7 @@ public class MinioUtil {
             return null;
         }
         Iterable<Result<Item>> results = minioClient.listObjects(
-                ListObjectsArgs.builder().bucket(bucketName).build());
+                ListObjectsArgs.builder().bucket(bucketName).recursive(true).build());
         List<Item> items = new ArrayList<>();
         try {
             for (Result<Item> result : results) {
@@ -206,7 +220,6 @@ public class MinioUtil {
         }
         return items;
     }
-
 
     /**
      * 获取单个桶中的所有文件对象名称
@@ -235,12 +248,13 @@ public class MinioUtil {
     /**
      * 删除
      *
-     * @param fileName 文件名称
+     * @param bucketName 文件存储桶
+     * @param fileName   文件名称
      * @return true|false
      */
-    public boolean remove(String fileName) {
+    public boolean remove(String bucketName, String fileName) {
         try {
-            minioClient.removeObject(RemoveObjectArgs.builder().bucket(secMinioProperties.getBucketName()).object(fileName).build());
+            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(fileName).build());
         } catch (Exception e) {
             return false;
         }
@@ -250,19 +264,19 @@ public class MinioUtil {
     /**
      * 批量删除文件
      *
-     * @param bucket      桶名称
+     * @param bucketName  桶名称
      * @param objectNames 对象名称
      * @return boolean
      */
-    public boolean removeObjects(String bucket, List<String> objectNames) {
-        boolean exsit = bucketExists(bucket);
+    public boolean removeObjects(String bucketName, List<String> objectNames) {
+        boolean exsit = bucketExists(bucketName);
         if (exsit) {
             try {
                 List<DeleteObject> objects = new LinkedList<>();
                 for (String str : objectNames) {
                     objects.add(new DeleteObject(str));
                 }
-                minioClient.removeObjects(RemoveObjectsArgs.builder().bucket(bucket).objects(objects).build());
+                minioClient.removeObjects(RemoveObjectsArgs.builder().bucket(bucketName).objects(objects).build());
                 return true;
             } catch (Exception e) {
                 logger.error(String.format(Locale.ROOT, "===removeObjects %s", e.getMessage()));

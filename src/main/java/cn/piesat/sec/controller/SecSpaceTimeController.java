@@ -1,10 +1,13 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.sec.comm.config.SecMinioConfig;
+import cn.piesat.sec.comm.properties.SecMinioProperties;
 import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.model.vo.SecSpaceTimeVO;
 import cn.piesat.sec.service.SecSpaceTimeService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -25,8 +28,10 @@ import java.util.List;
 public class SecSpaceTimeController {
     private final SecSpaceTimeService secSpaceTimeService;
     @Resource
-    MinioUtil minioUtil;
+    private MinioUtil minioUtil;
 
+    @Autowired
+    private SecMinioProperties secMinioProperties;
 
     @GetMapping("fileinfo")
     public SecSpaceTimeVO getSpaceTimeFileInfo(@RequestParam(value = "fileType", required = true) String fileType,
@@ -55,6 +60,6 @@ public class SecSpaceTimeController {
 
     @PostMapping("/downloadFile")
     public void downloadFile(@RequestParam("fileName") String fileName, HttpServletResponse response) {
-        minioUtil.download(fileName, response);
+        minioUtil.download(secMinioProperties.getBucketName(), fileName, response);
     }
 }

@@ -1,8 +1,8 @@
 package cn.piesat.sec.service.impl;
 
-import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.comm.constant.DateConstant;
+import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.comm.util.FileUtil;
 import cn.piesat.sec.comm.util.ProcessUtil;
 import cn.piesat.sec.dao.mapper.SecIonosphericParametersMapper;
@@ -12,7 +12,6 @@ import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 import cn.piesat.sec.service.SecIonosphericParametersService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +28,9 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SecIonosphericParametersServiceImpl implements SecIonosphericParametersService {
     private static final Logger logger = LoggerFactory.getLogger(SecIonosphericParametersServiceImpl.class);
+
+    @Autowired
+    private SecFileServerProperties secFileServerProperties;
 
     @Autowired
     private SecIonosphericParametersMapper secIonoMapper;
@@ -66,14 +67,14 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
     @Override
     public List<SecIonosphericParametersVO> getIonosphericStationsTECPngs() {
         List<SecIonosphericParametersVO> pictures = new ArrayList<>();
-        String targetDir = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getTecStations());
+        String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecStations());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
 
-        setPicturesInfo(pictures, targetDir, SecFileServerProperties.getTecStations());
+        setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecStations());
         if (CollectionUtils.isNotEmpty(pictures)) {
             return pictures;
         }
-        String python = SecFileServerProperties.getProfile() + "algorithm/stationtecpng/TEC_keshihua_03_png_creation.py";
+        String python = secFileServerProperties.getProfile() + "algorithm/stationtecpng/TEC_keshihua_03_png_creation.py";
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" ").append(targetDir);
         try {
@@ -81,7 +82,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
             if (!process.waitFor(100, TimeUnit.SECONDS)) {
                 process.destroy();
             }
-            setPicturesInfo(pictures, targetDir, SecFileServerProperties.getTecStations());
+            setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecStations());
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -93,13 +94,13 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
     @Override
     public List<SecIonosphericParametersVO> getIonosphericTecPngs(String startTime, String endTime) {
         List<SecIonosphericParametersVO> pictures = new ArrayList<>();
-        String targetDir = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getTecTimes());
+        String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecTimes());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
-        setPicturesInfo(pictures, targetDir, SecFileServerProperties.getTecTimes().concat(SecFileServerProperties.getSecondDir()));
+        setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
         if (CollectionUtils.isNotEmpty(pictures)) {
             return pictures;
         }
-        String python = SecFileServerProperties.getProfile() + "algorithm/tecpng/TEC/parameter_maps.py";
+        String python = secFileServerProperties.getProfile() + "algorithm/tecpng/TEC/parameter_maps.py";
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" \"")
                 .append(startTime).append("\" \"")
@@ -110,7 +111,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
             if (!process.waitFor(600, TimeUnit.SECONDS)) {
                 process.destroy();
             }
-            setPicturesInfo(pictures, targetDir.concat(SecFileServerProperties.getSecondDir()), SecFileServerProperties.getTecTimes().concat(SecFileServerProperties.getSecondDir()));
+            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -122,13 +123,13 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
     @Override
     public List<SecIonosphericParametersVO> getIonosphericRotiPngs(String startTime, String endTime, String staId) {
         List<SecIonosphericParametersVO> pictures = new ArrayList<>();
-        String targetDir = SecFileServerProperties.getProfile().concat(SecFileServerProperties.getRoti());
+        String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getRoti());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
-        setPicturesInfo(pictures, targetDir, SecFileServerProperties.getRoti().concat(SecFileServerProperties.getSecondDir()));
+        setPicturesInfo(pictures, targetDir, secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
         if (CollectionUtils.isNotEmpty(pictures)) {
             return pictures;
         }
-        String python = SecFileServerProperties.getProfile() + "algorithm/roti/ROTI/parameter_maps.py";
+        String python = secFileServerProperties.getProfile() + "algorithm/roti/ROTI/parameter_maps.py";
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" \"")
                 .append(startTime).append("\" \"")
@@ -139,7 +140,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
             if (!process.waitFor(600, TimeUnit.SECONDS)) {
                 process.destroy();
             }
-            setPicturesInfo(pictures, targetDir.concat(SecFileServerProperties.getSecondDir()), SecFileServerProperties.getRoti().concat(SecFileServerProperties.getSecondDir()));
+            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -152,7 +153,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 //        File[] pics = FileUtils.getFile(targetDir).listFiles();
         List<String> pics = FileUtil.getFilePaths(targetDir);
         if (CollectionUtils.isNotEmpty(pics)) {
-            String urlHead = "http://".concat(SecFileServerProperties.getIp()).concat(":").concat(SecFileServerProperties.getPort()).concat(Constant.FILE_SEPARATOR);
+            String urlHead = "http://".concat(secFileServerProperties.getIp()).concat(":").concat(secFileServerProperties.getPort()).concat(Constant.FILE_SEPARATOR);
             pics.forEach(item -> {
                 if (item.toLowerCase(Locale.ROOT).endsWith(".png")) {
                     SecIonosphericParametersVO ispvo = new SecIonosphericParametersVO();

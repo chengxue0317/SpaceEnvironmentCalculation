@@ -33,7 +33,7 @@ picture:
     
 #配置文件路径
 piesat:
-  profile: /usr/docker/nginx/nginx-mnt/html/fileServer/
+  profile: /work/xw/server/fileServer/
   ip: 192.168.237.130 #配置文件服务ip,对应profile所在位置
   port: 9999 #端口
   tecStations: TEC/stations/ #TEC全国站点出图位置
@@ -42,3 +42,9 @@ piesat:
   s4Times: S4/time/ #闪烁指数时间段绘图数据
   roti: ROTI/ #ROTI算法结果存储位置
   secondDir: maps/Medium/ # TEC、ROTI算法二级目录
+
+minio:
+  endpoint: http://172.6.10.34:9000
+  accesskey: minioadmin
+  secretkey: miniostorage
+  bucketName: htht

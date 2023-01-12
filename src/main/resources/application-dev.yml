@@ -7,6 +7,7 @@ spring:
   datasource:
     driverClassName: dm.jdbc.driver.DmDriver
     url: jdbc:dm://219.145.62.54:15236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+#    url: jdbc:dm://127.0.0.1:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: SDC
     password: sdc123456
   jackson:
@@ -42,3 +43,9 @@ piesat:
   s4Times: S4/time/ #闪烁指数时间段绘图数据
   roti: ROTI/ #ROTI算法结果存储位置
   secondDir: maps/Medium/ # TEC、ROTI算法二级目录
+
+minio:
+  endpoint: http://127.0.0.1:9000
+  accesskey: minioadmin
+  secretkey: minioadmin
+  bucketName: sec

@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -37,17 +38,17 @@ public class SecSpaceTimeServiceImpl implements SecSpaceTimeService {
     @Autowired
     private MinioClient minioClient;
 
+    @Resource
+    private SecFileServerProperties secFileServerProperties;
+
     @Value("${minio.bucketName}")
     private String buketName;
 
-    @Autowired
+    @Resource
     private SecSpaceTimeServiceMapper secSpaceTimeServiceMapper;
 
     @Resource
     private MinioUtil minioUtil;
-
-    @Resource
-    private SecMinioProperties secMinioProperties;
 
     @Override
     public SecSpaceTimeVO getSpaceTimeFileInfo(String fileType, String startTime, String endTime) {
@@ -64,7 +65,7 @@ public class SecSpaceTimeServiceImpl implements SecSpaceTimeService {
             String condition = "";
             Integer count = secSpaceTimeServiceMapper.getSpaceTimeDataCount(sqlCount.toString());
             String fileName = SpaceTimeConst.FILE_TYPE_NAME.get(fileType).concat(".txt");
-            String path = SecFileServerProperties.getProfile().concat("spacetime").concat(Constant.FILE_SEPARATOR).concat(fileName);
+            String path = secFileServerProperties.getProfile().concat("spacetime").concat(Constant.FILE_SEPARATOR).concat(fileName);
             List<String> pathList = new ArrayList<>();
             pathList.add(path);
             if (FileUtils.getFile(path).exists()) {
@@ -122,9 +123,7 @@ public class SecSpaceTimeServiceImpl implements SecSpaceTimeService {
 
     @Override
     public SecSpaceTimeVO getFileInformation(String fileType, String startTime, String endTime) {
-        Iterable<Result<Item>> myObjects = minioClient.listObjects(ListObjectsArgs.builder().bucket(buketName).recursive(true).build());
-        // 获取一个buket下的所有文件
-        Iterator<Result<Item>> iterator = myObjects.iterator();
+        List<Item> myObjects = minioUtil.listObjects(buketName);
         List<String> pathList = new ArrayList<>();
         SecSpaceTimeVO vo = new SecSpaceTimeVO();
         vo.setFileType(fileType);
@@ -132,9 +131,8 @@ public class SecSpaceTimeServiceImpl implements SecSpaceTimeService {
         vo.setEndTime(endTime);
         String start = startTime.replaceAll("[- :]", "");
         String end = endTime.replaceAll("[- :]", "");
-        while (iterator.hasNext()) {
-            try {
-                Item item = iterator.next().get();
+        if (CollectionUtils.isNotEmpty(myObjects)) {
+            for (Item item : myObjects) {
                 String fileName = SpaceTimeConst.FILE_TYPE_NAME.get(fileType);
                 String objName = item.objectName();
                 if (objName.toLowerCase(Locale.ROOT).indexOf(fileName.toLowerCase(Locale.ROOT)) > -1) {
@@ -145,26 +143,9 @@ public class SecSpaceTimeServiceImpl implements SecSpaceTimeService {
                         pathList.add(buketName.concat(Constant.FILE_SEPARATOR).concat(objName));
                     }
                 }
-            } catch (ErrorResponseException e) {
-                logger.error(String.format(Locale.ROOT, "---=ErrorResponseException %s", e.getMessage()));
-            } catch (InsufficientDataException e) {
-                logger.error(String.format(Locale.ROOT, "---=InsufficientDataException %s", e.getMessage()));
-            } catch (InternalException e) {
-                logger.error(String.format(Locale.ROOT, "---=InternalException %s", e.getMessage()));
-            } catch (InvalidKeyException e) {
-                logger.error(String.format(Locale.ROOT, "---=InvalidKeyException %s", e.getMessage()));
-            } catch (InvalidResponseException e) {
-                logger.error(String.format(Locale.ROOT, "---=InvalidResponseException %s", e.getMessage()));
-            } catch (IOException e) {
-                logger.error(String.format(Locale.ROOT, "---=IOException %s", e.getMessage()));
-            } catch (NoSuchAlgorithmException e) {
-                logger.error(String.format(Locale.ROOT, "---=NoSuchAlgorithmException %s", e.getMessage()));
-            } catch (ServerException e) {
-                logger.error(String.format(Locale.ROOT, "---=ServerException %s", e.getMessage()));
-            } catch (XmlParserException e) {
-                logger.error(String.format(Locale.ROOT, "---=XmlParserException %s", e.getMessage()));
             }
         }
+
         vo.setPath(pathList);
         if (pathList.size() == 0) {
             vo.setMessage("没有找到符合条件的文件信息");
