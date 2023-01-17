@@ -16,21 +16,33 @@ spring:
 
 python:
   path:
-    magnetic_global: F:\code-sw\chaos_submit\magnetic_global.py   #全球磁场分布算法
-    orbital_magnetic: F:\code-sw\chaos_submit\magnetic_orbit.py   #轨道磁场分布算法
+    config: /export/chaos_submit/xw.ini
+    magnetic_global: /export/chaos_submit/magnetic_global.py   #全球磁场分布算法
+    orbital_magnetic: /export/chaos_submit/magnetic_orbit.py   #轨道磁场分布算法
     atmosphere_density: /export/yuechao_cal/atm_density/msis_simu.py  #大气密度算法
     single_event_effects: /export/yuechao_cal/Single_events/seu_cal.py  #单粒子效应
     radiation_dose: /export/yuechao_cal/does_depth/does.py   #卫星辐射总剂量计算评估
     global_radiation_env: /export/yuechao_cal/SRAD/global_radiation/global_radiation.py   #全球辐射环境算法
     orbit_reduction: /export/yuechao_cal/orbit_reduction/orbit_reduction.py   #轨道衰变效应算法
+    satellite_radiation_env: /export/SEC/pythonPlot/global_radiation_plot.py   #卫星辐射环境算法
+    cross_anomaly: /export/SEC/AP8AE8/SatCrossSAATime/sat_cross_SAA_time.py   #穿越南大西洋异常区算法
 
 picture:
   path:
-    magnetic_global: F:\code-sw\magnetic_global\      #全球磁场分布图片存储路径
+    magnetic_global: /export/magnetic_global/     #全球磁场分布图片存储路径
     global_radiation_env: /export/yuechao_cal/SRAD/AP8AE8/     #全球辐射环境图片存储路径
+    satellite_radiation_env: /export/SEC/AP8AE8/     #全球辐射环境图片存储路径
   url:
     magnetic_global: /png/magnetic_global/             #全球磁场分布图片映射路径
     global_radiation_env: /png/global_radiation_env/             #全球辐射环境图片映射路径
+    satellite_radiation_env: /png/satellite_radiation_env/             #全球辐射环境图片映射路径
+
+#python docker
+remote:
+  ip: 169.254.148.128
+  port: 8026
+  user_name: root
+  password: 123456
 
 #配置文件路径
 piesat:

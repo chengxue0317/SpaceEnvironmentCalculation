@@ -23,6 +23,7 @@ import cn.piesat.sec.model.entity.SecAtmosphereDensityDO;
 import cn.piesat.sec.model.query.SecAtmosphereDensityQuery;
 import cn.piesat.sec.service.SecAtmosphereDensityService;
 import cn.piesat.sec.model.vo.SecAtmosphereDensityVO;
+import cn.piesat.sec.utils.Connection2Sever;
 import cn.piesat.sec.utils.ExecUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
@@ -63,6 +64,15 @@ public class SecAtmosphereDensityController {
 
     @Value("${python.path.atmosphere_density}")
     private String pythonAtmosphereDensity;
+
+    @Value("${remote.ip}")
+    private String ip;
+    @Value("${remote.port}")
+    private int portLinux;
+    @Value("${remote.user_name}")
+    private String userName;
+    @Value("${remote.password}")
+    private String password;
 
     private final SecAtmosphereDensityService secAtmosphereDensityService;
 
@@ -129,7 +139,8 @@ public class SecAtmosphereDensityController {
                         @RequestParam("satId")String satId) throws Exception {
         String command = "python3 "+pythonAtmosphereDensity+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId;
         log.info("执行Python命令：{}",command);
-        String result = ExecUtil.execCmdWithResult(command);
+//        String result = ExecUtil.execCmdWithResult(command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
         log.info("数据文件路径：{}",jsonStr);

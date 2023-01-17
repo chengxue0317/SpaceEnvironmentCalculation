@@ -22,6 +22,7 @@ import cn.piesat.sec.model.query.SdcResourceSatelliteQuery;
 import cn.piesat.sec.model.vo.MagneticOrbitVO;
 import cn.piesat.sec.model.vo.SdcResourceSatelliteVO;
 import cn.piesat.sec.service.SdcResourceSatelliteService;
+import cn.piesat.sec.utils.Connection2Sever;
 import cn.piesat.sec.utils.ExecUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -84,6 +85,26 @@ public class SdcResourceSatelliteController {
     @Value("${python.path.orbit_reduction}")
     private String pythonOrbitReduction;
 
+    @Value("${python.path.config}")
+    private String pythonConfig;
+
+    @Value("${python.path.cross_anomaly}")
+    private String pythonCrossAnomaly;
+
+    @Value("${python.path.satellite_radiation_env}")
+    private String pythonSatelliteRadiationEnv;
+    @Value("${picture.url.satellite_radiation_env}")
+    private String pictureUrlSatelliteRadiationEnv;
+
+    @Value("${remote.ip}")
+    private String ip;
+    @Value("${remote.port}")
+    private int portLinux;
+    @Value("${remote.user_name}")
+    private String userName;
+    @Value("${remote.password}")
+    private String password;
+
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
 
@@ -137,9 +158,10 @@ public class SdcResourceSatelliteController {
                                      @RequestParam("height")Integer height){
 
         FileUtil.mkdir(pictureMagneticGlobal);
-        String command = "python3 "+pythonMagneticGlobal+" \""+time+"\" "+height+" "+pictureMagneticGlobal;
+        String command = "python3 "+pythonMagneticGlobal+" \"'"+time+"'\" "+height+" "+pictureMagneticGlobal;
         log.info("执行Python命令：{}",command);
-        String result = ExecUtil.execCmdWithResult(command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
 //        String picName = time.replace(":", "-").replace(" ","_").concat("_").concat(height.toString()).concat("km.png");
         String hostAddress = null;
@@ -149,6 +171,11 @@ public class SdcResourceSatelliteController {
             e.printStackTrace();
         }
         String picName = result.replaceAll("\\s*", "");
+        try {
+            Connection2Sever.scpGet(ip,portLinux,userName,password,pictureMagneticGlobal+picName,pictureMagneticGlobal+picName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(picName);
 
     }
@@ -156,39 +183,41 @@ public class SdcResourceSatelliteController {
 
     @ApiOperation("轨道磁场分布")
     @GetMapping("/drawOrbitalMagnetic")
-    public List<MagneticOrbitVO> drawOrbitalMagnetic(@RequestParam("beginTime")String beginTime,
+    public JSONArray drawOrbitalMagnetic(@RequestParam("beginTime")String beginTime,
                                       @RequestParam("endTime")String endTime,
                                      @RequestParam("satId")String satId){
 
 
-        String command = "python3 "+pythonOrbitalMagnetic+" "+satId+" '"+beginTime+"' "+" '"+endTime+"'";
+        String command = "python3 "+pythonOrbitalMagnetic+" "+satId+" '"+beginTime+"' "+" '"+endTime+"'"+" "+pythonConfig;
         log.info("执行Python命令：{}",command);
-        String result = ExecUtil.execCmdWithResult(command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "%%", "%%");
         String trim = jsonStr.trim();
         JSONArray jsonArray = JSON.parseArray(trim);
-        List<MagneticOrbitVO> magneticOrbitVOS = new ArrayList<>();
-        for (int i = 0;i<jsonArray.size();i++){
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            MagneticOrbitVO magneticOrbitVO = new MagneticOrbitVO();
-            magneticOrbitVO.setTime(jsonObject.get("time").toString());
-            magneticOrbitVO.setHei(Float.parseFloat(jsonObject.get("alt").toString()));
-            magneticOrbitVO.setLon(Float.parseFloat(jsonObject.get("lon").toString()));
-            magneticOrbitVO.setLat(Float.parseFloat(jsonObject.get("lat").toString()));
-            magneticOrbitVO.setMagnetic(Float.parseFloat(jsonObject.get("B").toString()));
-            magneticOrbitVOS.add(magneticOrbitVO);
-        }
+//        List<MagneticOrbitVO> magneticOrbitVOS = new ArrayList<>();
+//        for (int i = 0;i<jsonArray.size();i++){
+//            JSONObject jsonObject = jsonArray.getJSONObject(i);
+//            MagneticOrbitVO magneticOrbitVO = new MagneticOrbitVO();
+//            magneticOrbitVO.setTime(jsonObject.get("time").toString());
+//            magneticOrbitVO.setHei(Float.parseFloat(jsonObject.get("alt").toString()));
+//            magneticOrbitVO.setLon(Float.parseFloat(jsonObject.get("lon").toString()));
+//            magneticOrbitVO.setLat(Float.parseFloat(jsonObject.get("lat").toString()));
+//            magneticOrbitVO.setMagnetic(Float.parseFloat(jsonObject.get("B").toString()));
+//            magneticOrbitVOS.add(magneticOrbitVO);
+//        }
 
 
-        return magneticOrbitVOS;
+//        return magneticOrbitVOS;
+        return jsonArray;
 
     }
 
 
     @ApiOperation("单粒子效应评估数据")
     @GetMapping("/getSingleEventEffects")
-    public String drawOrbitalMagnetic2(@RequestParam("beginTime")String beginTime,
+    public JSONObject drawOrbitalMagnetic2(@RequestParam("beginTime")String beginTime,
                                                      @RequestParam("endTime")String endTime,
                                                      @RequestParam("satId")String satId,
                                                      @RequestParam("material")Integer material,
@@ -196,18 +225,19 @@ public class SdcResourceSatelliteController {
 
         String command = "python3 "+pythonSingleEventEffects+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material+" "+mode;
         log.info("执行Python命令：{}",command);
-        String result = ExecUtil.execCmdWithResult(command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
         JSONObject jsonObject = JSON.parseObject(jsonStr);
-        return jsonStr;
+        return jsonObject;
 
     }
 
 
     @ApiOperation("卫星辐射总剂量计算评估")
     @GetMapping("/getRadiationDose")
-    public String getRadiationDose(@RequestParam("beginTime")String beginTime,
+    public JSONObject getRadiationDose(@RequestParam("beginTime")String beginTime,
                                        @RequestParam("endTime")String endTime,
                                        @RequestParam("satId")String satId,
                                        @RequestParam("material")Integer material,
@@ -215,11 +245,12 @@ public class SdcResourceSatelliteController {
 
         String command = "python3 "+pythonRadiationDose+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material+" "+mode;
         log.info("执行Python命令：{}",command);
-        String result = ExecUtil.execCmdWithResult(command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
-        return jsonStr.replaceAll("\\s*", "");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        return jsonObject;
 
     }
 
@@ -233,7 +264,8 @@ public class SdcResourceSatelliteController {
 
         String command = "python3 "+pythonRadiationDose+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material+" "+mode;
         log.info("执行Python命令：{}",command);
-        String result = ExecUtil.execCmdWithResult(command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
         JSONObject jsonObject = JSON.parseObject(jsonStr);
@@ -251,7 +283,8 @@ public class SdcResourceSatelliteController {
 
         String command = "python3 "+pythonGlobalRadiationEnv+" '"+time+"' "+height+" "+ionChannel+" "+resolutionRatio;
         log.info("执行Python命令：{}",command);
-        String result = ExecUtil.execCmdWithResult(command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
 
@@ -263,7 +296,7 @@ public class SdcResourceSatelliteController {
         }
 
         Map<String, String> map = new HashMap<>();
-        String substring = jsonStr.substring(jsonStr.lastIndexOf(File.separator));
+        String substring = jsonStr.substring(jsonStr.lastIndexOf(File.separator)+1);
         String mainFigure = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
         String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
         map.put("mainFigure",mainFigure);
@@ -275,16 +308,106 @@ public class SdcResourceSatelliteController {
 
     @ApiOperation("轨道衰变效应")
     @GetMapping("/getOrbitReduction")
-    public String getOrbitReduction(@RequestParam("beginTime")String beginTime,
+    public JSONObject getOrbitReduction(@RequestParam("beginTime")String beginTime,
                                                      @RequestParam("endTime")String endTime,
                                                      @RequestParam("satId")String satId){
 
         String command = "python3 "+pythonOrbitReduction+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId;
         log.info("执行Python命令：{}",command);
-        String result = ExecUtil.execCmdWithResult(command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
-        return jsonStr.replaceAll("\\s*", "");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        return jsonObject;
 
     }
+
+    @ApiOperation("穿越南大西洋异常区")
+    @GetMapping("/getCrossAnomaly")
+    public JSONArray getCrossAnomaly(@RequestParam(value = "s",required = false)String s,
+                                      @RequestParam(value = "st",required = false)String st,
+                                      @RequestParam(value = "et",required = false)String et,
+                                      @RequestParam(value = "a",required = false)String a,
+                                      @RequestParam(value = "f",required = false)String f,
+                                      @RequestParam(value = "m",required = false)String m,
+                                      @RequestParam(value = "c",required = false)String c){
+
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotEmpty(s)){
+            sb.append(" -s ").append(s);
+        }else if (StringUtils.isNotEmpty(st)){
+            sb.append(" -st ").append(st);
+        }else if (StringUtils.isNotEmpty(et)){
+            sb.append(" -et ").append(et);
+        }else if (StringUtils.isNotEmpty(a)){
+            sb.append(" -a ").append(a);
+        }else if (StringUtils.isNotEmpty(f)){
+            sb.append(" -f ").append(f);
+        }else if (StringUtils.isNotEmpty(m)){
+            sb.append(" -m ").append(m);
+        }else if (StringUtils.isNotEmpty(c)){
+            sb.append(" -c ").append(c);
+        }
+        String command = "python3 "+pythonCrossAnomaly+sb.toString();
+        log.info("执行Python命令：{}",command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String resultHandle = result.replaceAll("\n", "");
+        JSONArray jsonArray = JSON.parseArray(resultHandle);
+        return jsonArray;
+
+    }
+
+    @ApiOperation("卫星辐射环境")
+    @GetMapping("/getSatelliteRadiationEnv")
+    public Map<String, String> getSatelliteRadiationEnv(@RequestParam(value = "s",required = false)String s,
+                                        @RequestParam(value = "st",required = false)String st,
+                                        @RequestParam(value = "et",required = false)String et,
+                                        @RequestParam(value = "a",required = false)String a,
+                                        @RequestParam(value = "f",required = false)String f,
+                                        @RequestParam(value = "m",required = false)String m,
+                                        @RequestParam(value = "c",required = false)String c){
+
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotEmpty(s)){
+            sb.append(" -s ").append(s);
+        }else if (StringUtils.isNotEmpty(st)){
+            sb.append(" -st ").append(st);
+        }else if (StringUtils.isNotEmpty(et)){
+            sb.append(" -et ").append(et);
+        }else if (StringUtils.isNotEmpty(a)){
+            sb.append(" -a ").append(a);
+        }else if (StringUtils.isNotEmpty(f)){
+            sb.append(" -f ").append(f);
+        }else if (StringUtils.isNotEmpty(m)){
+            sb.append(" -m ").append(m);
+        }else if (StringUtils.isNotEmpty(c)){
+            sb.append(" -c ").append(c);
+        }
+        String command = "python3 "+pythonSatelliteRadiationEnv+sb.toString();
+        log.info("执行Python命令：{}",command);
+        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String resultHandle = result.replaceAll("\\s*", "");
+        String hostAddress = null;
+        try {
+            hostAddress = Inet4Address.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Map<String, String> map = new HashMap<>();
+        String substring = resultHandle.substring(resultHandle.lastIndexOf(File.separator)+1);
+        System.out.println(substring);
+        String logPlot = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/log_plot.png");
+        String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/color_bar.png");
+        map.put("logPlot",logPlot);
+        map.put("colorbar",colorbar);
+        return map;
+
+    }
+
 }

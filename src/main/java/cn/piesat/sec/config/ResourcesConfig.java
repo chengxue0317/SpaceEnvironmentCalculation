@@ -29,6 +29,11 @@ public class ResourcesConfig implements WebMvcConfigurer {
     @Value("${picture.url.global_radiation_env}")
     private String pictureUrlGlobalRadiationEnv;
 
+    @Value("${picture.path.satellite_radiation_env}")
+    private String picturePathSatelliteRadiationEnv;
+    @Value("${picture.url.satellite_radiation_env}")
+    private String pictureUrlSatelliteRadiationEnv;
+
     /**
      * 跨域配置
      */
@@ -60,6 +65,7 @@ public class ResourcesConfig implements WebMvcConfigurer {
         //通过image访问本地的图片
         registry.addResourceHandler(pictureUrlMagneticGlobal+"/**").addResourceLocations("file:"+picturePathMagneticGlobal);
         registry.addResourceHandler(pictureUrlGlobalRadiationEnv+"/**").addResourceLocations("file:"+picturePathGlobalRadiationEnv);
+        registry.addResourceHandler(pictureUrlSatelliteRadiationEnv+"/**").addResourceLocations("file:"+picturePathSatelliteRadiationEnv);
     }
 
 }
