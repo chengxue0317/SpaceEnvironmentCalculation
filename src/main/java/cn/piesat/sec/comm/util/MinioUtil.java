@@ -220,7 +220,6 @@ public class MinioUtil {
         List<Item> items = listObjects(bucketName, dirpath, recursive);
         ZipOutputStream zout = null;
         try {
-            // 循环下载
             response.setCharacterEncoding(Constant.UTF8);
             response.setContentType("multipart/form-data;application/octet-stream");
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(String.valueOf(System.currentTimeMillis()), "UTF-8"));
