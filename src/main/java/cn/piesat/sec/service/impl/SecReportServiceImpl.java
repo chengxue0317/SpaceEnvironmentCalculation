@@ -1,10 +1,12 @@
 package cn.piesat.sec.service.impl;
 
-import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.comm.constant.DateConstant;
+import cn.piesat.sec.comm.properties.SecFileServerProperties;
+import cn.piesat.sec.comm.properties.SecMinioProperties;
 import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.comm.util.FileUtil;
+import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.comm.util.ProcessUtil;
 import cn.piesat.sec.comm.word.CommonWordUtil;
 import cn.piesat.sec.comm.word.DailyShorUtil;
@@ -13,8 +15,11 @@ import cn.piesat.sec.comm.word.WeekDetailUtil;
 import cn.piesat.sec.comm.word.domain.DailyShortBean;
 import cn.piesat.sec.comm.word.domain.MonthBean;
 import cn.piesat.sec.comm.word.domain.WeekDetailBean;
-import cn.piesat.sec.dao.mapper.*;
-import cn.piesat.sec.model.entity.*;
+import cn.piesat.sec.dao.mapper.SecAlarmEventMapper;
+import cn.piesat.sec.dao.mapper.SecOverviewMapper;
+import cn.piesat.sec.dao.mapper.SecReportMapper;
+import cn.piesat.sec.model.entity.SecAlarmForecastDO;
+import cn.piesat.sec.model.entity.SecProtonAlarmDO;
 import cn.piesat.sec.model.vo.SecOverviewVO;
 import cn.piesat.sec.service.SecReportService;
 import com.deepoove.poi.data.*;
@@ -41,6 +46,12 @@ public class SecReportServiceImpl implements SecReportService {
 
     @Autowired
     private SecFileServerProperties secFileServerProperties;
+
+    @Autowired
+    private MinioUtil minioUtil;
+
+    @Autowired
+    private SecMinioProperties secMinioProperties;
 
     @Autowired
     private SecAlarmEventMapper secAlarmEventMapper;
@@ -81,6 +92,9 @@ public class SecReportServiceImpl implements SecReportService {
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         String fileName = "空间环境日报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
+        if (minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath)) {
+            return tarPath;
+        }
         DailyShortBean dailyshotBean = new DailyShortBean();
         dailyshotBean.setWhichIssue(DateUtil.getDailyPeriodical());
         dailyshotBean.setUnit(Constant.UNIT);
@@ -116,10 +130,27 @@ public class SecReportServiceImpl implements SecReportService {
         FileUtil.delDirFiles(FileUtils.getFile(tarPath), true); // 如果文件已经存在则删除文件
         InputStream model = this.getClass().getResourceAsStream("/word/dailyShort.docx");
         DailyShorUtil.createDailyDetailDocx(model, tarPath, dailyshotBean);
-        // 数据入库
+
         try {
-            // 更新数据库数据
-            secAlarmEventMapper.updatePath(startTime, tarPath.replace(secFileServerProperties.getProfile(), ""), "day");
+            // 文件上传
+            minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
+            // 查看文件是否上传成功，如果不成功再传一次，如果二次上传仍不成功则记录失败日志
+            boolean isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+            if (isFileExists) {
+                // 更新数据库数据
+                secAlarmEventMapper.updatePath(startTime, tarPath, "day");
+            } else {
+                // 二次上传
+                minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
+                isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+                if (isFileExists) {
+                    // 更新数据库数据
+                    secAlarmEventMapper.updatePath(startTime, tarPath, "day");
+                } else {
+                    logger.error(String.format(Locale.ROOT, "-----Failed to upload file %s", tarPath));
+                }
+            }
+
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "-----method makeShortDayReport----Insert message data exception  %s", e.getMessage()));
         } finally {
@@ -138,6 +169,9 @@ public class SecReportServiceImpl implements SecReportService {
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         String fileName = "空间环境周报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
+        if (minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath)) {
+            return tarPath;
+        }
         WeekDetailBean weekDetailBean = new WeekDetailBean();
         weekDetailBean.setYear(DateUtil.getToDay().substring(0, 4));
         weekDetailBean.setWhichIssue(DateUtil.getWeekPeriodical());
@@ -164,8 +198,25 @@ public class SecReportServiceImpl implements SecReportService {
             weekDetailBean.setDateCapital(DateUtil.getToDayCapital());
             InputStream model = this.getClass().getResourceAsStream("/word/weekDetail.docx");
             WeekDetailUtil.createDailyDetailDocx(model, tarPath, weekDetailBean);
-            // 更新数据库数据
-            secAlarmEventMapper.updatePath(pointDay, tarPath.replace(secFileServerProperties.getProfile(), ""), "week");
+
+            // 文件上传
+            minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
+            // 查看文件是否上传成功，如果不成功再传一次，如果二次上传仍不成功则记录失败日志
+            boolean isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+            if (isFileExists) {
+                // 更新数据库数据
+                secAlarmEventMapper.updatePath(pointDay, tarPath.replace(secFileServerProperties.getProfile(), ""), "week");
+            } else {
+                // 二次上传
+                minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
+                isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+                if (isFileExists) {
+                    // 更新数据库数据
+                    secAlarmEventMapper.updatePath(pointDay, tarPath.replace(secFileServerProperties.getProfile(), ""), "week");
+                } else {
+                    logger.error(String.format(Locale.ROOT, "-------Failed to upload file %s", tarPath));
+                }
+            }
             FileUtils.forceDelete(FileUtils.getFile(targetDir.concat("week1.png"))); // 生成文件后删除图片
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "-----method makeShortDayReport----Insert message data exception  %s", e.getMessage()));
@@ -211,6 +262,9 @@ public class SecReportServiceImpl implements SecReportService {
         FileUtil.mkdirs(targetDir);
         String fileName = "空间环境月报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
+        if (minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath)) {
+            return tarPath;
+        }
         MonthBean monthBean = new MonthBean();
         monthBean.setYear(DateUtil.getToDay().substring(0, 4));
         monthBean.setWhichIssue(DateUtil.getWeekPeriodical());

@@ -2,6 +2,8 @@ package cn.piesat.sec.controller;
 
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.comm.constant.Constant;
+import cn.piesat.sec.comm.properties.SecMinioProperties;
+import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.model.vo.SecEnvOverviewVO;
 import cn.piesat.sec.service.SecEnvOverviewService;
 import cn.piesat.sec.service.SecReportService;
@@ -43,6 +45,12 @@ public class SecEnvOverviewController {
     @Autowired
     private SecFileServerProperties secFileServerProperties;
 
+    @Autowired
+    private MinioUtil minioUtil;
+
+    @Autowired
+    private SecMinioProperties secMinioProperties;
+
     @ApiOperation("查询一段时间内的F10.7数据")
     @PostMapping("/getEnvOverview")
     public List<SecEnvOverviewVO> getEnvOverview() {
@@ -59,34 +67,16 @@ public class SecEnvOverviewController {
     public synchronized void downFile(
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "path", required = false) String path,
-            HttpServletResponse response){
-        if(StringUtils.isEmpty(path)) {
+            HttpServletResponse response) {
+        if (StringUtils.isEmpty(path)) {
             path = secReportService.makeReport(type);
-        } else{
+        } else {
             path = secFileServerProperties.getProfile().concat(path);
         }
         // 判断文件是否存在
-        File file = FileUtils.getFile(path);
-        Boolean exist = file.exists();
+        boolean exist = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), path);
         if (exist) {
-            //1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
-            response.setContentType("multipart/form-data");
-            response.setHeader("Content-Disposition", "attachment;fileName=" + file.getName());
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setCharacterEncoding(Constant.UTF8);
-
-            try (InputStream inputStream = FileUtils.openInputStream(file);
-                 ) {
-                ServletOutputStream out = response.getOutputStream();
-                byte[] buffer = new byte[Constant.BUFFSIZE];
-                int length;
-                while ((length = inputStream.read(buffer)) != -1) {
-                    out.write(buffer, 0, length);
-                }
-                out.flush();
-            } catch (Exception e) {
-                logger.error(String.format(Locale.ROOT, "--download--%s: %s", path, e.getMessage()));
-            }
+            minioUtil.download(secMinioProperties.getBucketName(), path, response);
         }
     }
 

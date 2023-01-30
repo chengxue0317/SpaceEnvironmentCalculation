@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.comm.constant.SpaceTimeConst;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
-import cn.piesat.sec.comm.properties.SecMinioProperties;
 import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.dao.mapper.SecSpaceTimeServiceMapper;
 import cn.piesat.sec.model.vo.SecSpaceTimeVO;

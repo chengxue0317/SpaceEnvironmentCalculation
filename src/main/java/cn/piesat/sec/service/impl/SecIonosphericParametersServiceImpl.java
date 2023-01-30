@@ -1,9 +1,10 @@
 package cn.piesat.sec.service.impl;
 
-import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.comm.constant.DateConstant;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
+import cn.piesat.sec.comm.properties.SecMinioProperties;
 import cn.piesat.sec.comm.util.FileUtil;
+import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.comm.util.ProcessUtil;
 import cn.piesat.sec.dao.mapper.SecIonosphericParametersMapper;
 import cn.piesat.sec.model.entity.SecIonosphericParamtersDO;
@@ -34,6 +35,12 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 
     @Autowired
     private SecIonosphericParametersMapper secIonoMapper;
+
+    @Autowired
+    private MinioUtil minioUtil;
+
+    @Autowired
+    private SecMinioProperties secMinioProperties;
 
     @Override
     public SecEnvElementVO getBlinkData(String staId, String startTime, String endTime) {
@@ -69,11 +76,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecStations());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
-
         setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecStations());
-        if (CollectionUtils.isNotEmpty(pictures)) {
-            return pictures;
-        }
+        if (setPicsPathofMinio(pictures)) return pictures;
         String python = secFileServerProperties.getProfile() + "algorithm/stationtecpng/TEC_keshihua_03_png_creation.py";
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" ").append(targetDir);
@@ -83,6 +87,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
                 process.destroy();
             }
             setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecStations());
+            updatePicsPathofMinio(pictures);
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -97,9 +102,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecTimes());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
-        if (CollectionUtils.isNotEmpty(pictures)) {
-            return pictures;
-        }
+        if (setPicsPathofMinio(pictures)) return pictures;
         String python = secFileServerProperties.getProfile() + "algorithm/tecpng/TEC/parameter_maps.py";
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" \"")
@@ -112,6 +115,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
                 process.destroy();
             }
             setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
+            updatePicsPathofMinio(pictures);
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -120,15 +124,24 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         return pictures;
     }
 
+    private boolean setPicsPathofMinio(List<SecIonosphericParametersVO> pictures) {
+        if (CollectionUtils.isNotEmpty(pictures)) {
+            for (SecIonosphericParametersVO pic : pictures) {
+                String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? pic.getSrc().substring(1) : pic.getSrc();
+                pic.setSrc(minioUtil.preview(secMinioProperties.getBucketName(), path));
+            }
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public List<SecIonosphericParametersVO> getIonosphericRotiPngs(String startTime, String endTime, String staId) {
         List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getRoti());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         setPicturesInfo(pictures, targetDir, secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
-        if (CollectionUtils.isNotEmpty(pictures)) {
-            return pictures;
-        }
+        if (setPicsPathofMinio(pictures)) return pictures;
         String python = secFileServerProperties.getProfile() + "algorithm/roti/ROTI/parameter_maps.py";
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" \"")
@@ -141,6 +154,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
                 process.destroy();
             }
             setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
+            // 算法生成图片上传到文件服务器
+            updatePicsPathofMinio(pictures);
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -149,22 +164,30 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         return pictures;
     }
 
+    private void updatePicsPathofMinio(List<SecIonosphericParametersVO> pictures) {
+        if (CollectionUtils.isNotEmpty(pictures)) {
+            for (SecIonosphericParametersVO pic : pictures) {
+                minioUtil.upload(secMinioProperties.getBucketName(), pic.getSrc(), pic.getSrc());
+                String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? pic.getSrc().substring(1) : pic.getSrc();
+                pic.setSrc(minioUtil.preview(secMinioProperties.getBucketName(), path));
+            }
+        }
+    }
+
     private void setPicturesInfo(List<SecIonosphericParametersVO> pictures, String targetDir, String pkgs) {
-//        File[] pics = FileUtils.getFile(targetDir).listFiles();
         List<String> pics = FileUtil.getFilePaths(targetDir);
         if (CollectionUtils.isNotEmpty(pics)) {
-            String urlHead = "http://".concat(secFileServerProperties.getIp()).concat(":").concat(secFileServerProperties.getPort()).concat(Constant.FILE_SEPARATOR);
             pics.forEach(item -> {
                 if (item.toLowerCase(Locale.ROOT).endsWith(".png")) {
                     SecIonosphericParametersVO ispvo = new SecIonosphericParametersVO();
                     File file = FileUtils.getFile(item);
                     ispvo.setName(file.getName().substring(0, file.getName().indexOf(".")));
-                    ispvo.setSrc(urlHead.concat(pkgs).concat(file.getName()));
+                    ispvo.setSrc(secFileServerProperties.getProfile().concat(pkgs).concat(file.getName()));
                     pictures.add(ispvo);
                 }
             });
         } else {
-            System.out.println(String.format(Locale.ROOT,"=====路径%s下没有找到文件=====",targetDir));
+            logger.info(String.format(Locale.ROOT, "=====路径%s下没有找到文件=====", targetDir));
         }
     }
 }

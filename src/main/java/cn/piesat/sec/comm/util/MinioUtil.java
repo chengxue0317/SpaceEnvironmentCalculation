@@ -1,32 +1,42 @@
 package cn.piesat.sec.comm.util;
 
+import cn.piesat.sec.comm.constant.Constant;
 import io.minio.*;
 import io.minio.http.Method;
 import io.minio.messages.Bucket;
 import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 @Component
 @Slf4j
 public class MinioUtil {
-    private static final Logger logger = LoggerFactory.getLogger(MinioUtil.class);
+    private final Logger logger = LoggerFactory.getLogger(MinioUtil.class);
 
-    @Resource
+    @Autowired
     private MinioClient minioClient;
 
     /**
@@ -186,7 +196,7 @@ public class MinioUtil {
                 byte[] bytes = os.toByteArray();
                 res.setCharacterEncoding("utf-8");
                 // 设置强制下载不打开
-                // res.setContentType("application/force-download");
+                res.setContentType("application/force-download");
                 res.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
                 try (ServletOutputStream stream = res.getOutputStream()) {
                     stream.write(bytes);
@@ -197,6 +207,80 @@ public class MinioUtil {
             logger.error(String.format(Locale.ROOT, "===download %s", e.getMessage()));
         }
     }
+
+    /**
+     * 文件下载
+     *
+     * @param bucketName 数据桶名称
+     * @param dirpath    文件路径
+     * @param response   浏览器响应对象
+     * @param recursive  是否递归
+     */
+    public void download(String bucketName, String dirpath, HttpServletResponse response, boolean recursive) {
+        List<Item> items = listObjects(bucketName, dirpath, recursive);
+        ZipOutputStream zout = null;
+        try {
+            // 循环下载
+            response.setCharacterEncoding(Constant.UTF8);
+            response.setContentType("multipart/form-data;application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(String.valueOf(System.currentTimeMillis()), "UTF-8"));
+            zout = new ZipOutputStream(response.getOutputStream());
+            if (CollectionUtils.isNotEmpty(items)) {
+                byte[] buff = new byte[Constant.BUFFSIZE];
+                int len;
+                for (Item item : items) {
+                    GetObjectArgs objectArgs = GetObjectArgs.builder().bucket(bucketName)
+                            .object(item.objectName()).build();
+                    GetObjectResponse objresp = minioClient.getObject(objectArgs);
+                    zout.putNextEntry(new ZipEntry(item.objectName()));
+                    while ((len = objresp.read(buff)) != -1) {
+                        zout.write(buff, 0, len);
+                    }
+                    zout.flush();
+                    zout.closeEntry();
+                    objresp.close();
+                }
+                zout.flush();
+                zout.finish();
+            }
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "========File download exception %s", e.getMessage()));
+        } finally {
+            if (null != zout) {
+                try {
+                    zout.close();
+                } catch (IOException e) {
+                    logger.error("--------Failed to close ZipoutputStream. %s", e.getMessage());
+                }
+            }
+            return;
+        }
+    }
+
+    /**
+     * 获取路径下文件列表
+     *
+     * @param bucketName bucket名称
+     * @param prefix     文件名称
+     * @param recursive  是否递归查找，如果是false,就模拟文件夹结构查找
+     * @return 二进制流
+     */
+    public List<Item> listObjects(String bucketName, String prefix,
+                                  boolean recursive) {
+        Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder().bucket(bucketName).prefix(prefix).recursive(recursive).build());
+        List<Item> items = new ArrayList<>();
+        try {
+            for (Result<Item> result : results) {
+                items.add(result.get());
+            }
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "===listObjects %s", e.getMessage()));
+            return null;
+        }
+        return items;
+    }
+
 
     /**
      * 查看文件对象
@@ -219,6 +303,46 @@ public class MinioUtil {
             return null;
         }
         return items;
+    }
+
+    /**
+     * 查看文件对象
+     *
+     * @return 存储bucket内文件对象信息
+     */
+    public List<Item> listObjects(String bucketName, String startAf) {
+        if (StringUtils.isBlank(bucketName) || !bucketExists(bucketName)) {
+            return null;
+        }
+        Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder().bucket(bucketName).startAfter(startAf).recursive(true).build());
+        List<Item> items = new ArrayList<>();
+        try {
+            for (Result<Item> result : results) {
+                items.add(result.get());
+            }
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "===listObjects %s", e.getMessage()));
+            return null;
+        }
+        return items;
+    }
+
+    /**
+     * 判断文件是否存在
+     *
+     * @param bucketName 存储桶
+     * @param objectName 对象
+     * @return true：存在
+     */
+    public boolean doesObjectExist(String bucketName, String objectName) {
+        boolean exist = true;
+        try {
+            minioClient.statObject(StatObjectArgs.builder().bucket(bucketName).object(objectName).build());
+        } catch (Exception e) {
+            exist = false;
+        }
+        return exist;
     }
 
     /**

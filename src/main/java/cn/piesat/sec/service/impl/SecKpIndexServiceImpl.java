@@ -64,24 +64,10 @@ public class SecKpIndexServiceImpl extends ServiceImpl<SecKpIndexMapper, SecKpIn
         List<Object> dataY = new ArrayList<>();
         list.forEach(item -> {
             LocalDateTime time = item.getTime();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
             String ymd = time.format(formatter);
-            dataX.add(ymd.concat(" 00"));
-            dataX.add(ymd.concat(" 03"));
-            dataX.add(ymd.concat(" 06"));
-            dataX.add(ymd.concat(" 09"));
-            dataX.add(ymd.concat(" 12"));
-            dataX.add(ymd.concat(" 15"));
-            dataX.add(ymd.concat(" 18"));
-            dataX.add(ymd.concat(" 21"));
-            dataY.add(item.getKp1());
-            dataY.add(item.getKp2());
-            dataY.add(item.getKp3());
-            dataY.add(item.getKp4());
-            dataY.add(item.getKp5());
-            dataY.add(item.getKp6());
-            dataY.add(item.getKp7());
-            dataY.add(item.getKp8());
+            dataX.add(ymd);
+            dataY.add(item.getKp());
         });
         eeb.setDataX(dataX);
         eeb.setDataY(dataY);
