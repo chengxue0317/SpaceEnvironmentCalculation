@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.Inet4Address;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.SimpleFormatter;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
@@ -171,11 +174,6 @@ public class SdcResourceSatelliteController {
             e.printStackTrace();
         }
         String picName = result.replaceAll("\\s*", "");
-        try {
-            Connection2Sever.scpGet(ip,portLinux,userName,password,pictureMagneticGlobal+picName,pictureMagneticGlobal+picName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(picName);
 
     }
@@ -188,7 +186,7 @@ public class SdcResourceSatelliteController {
                                      @RequestParam("satId")String satId){
 
 
-        String command = "python3 "+pythonOrbitalMagnetic+" "+satId+" '"+beginTime+"' "+" '"+endTime+"'"+" "+pythonConfig;
+        String command = "python3 "+pythonOrbitalMagnetic+" "+satId+" '\""+beginTime+"\"' "+" '\""+endTime+"\"'"+" "+pythonConfig;
         log.info("执行Python命令：{}",command);
         String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
 //        String result = ExecUtil.execCmdWithResult(command);
@@ -325,7 +323,7 @@ public class SdcResourceSatelliteController {
 
     @ApiOperation("穿越南大西洋异常区")
     @GetMapping("/getCrossAnomaly")
-    public JSONArray getCrossAnomaly(@RequestParam(value = "s",required = false)String s,
+    public JSONObject getCrossAnomaly(@RequestParam(value = "s",required = false)String s,
                                       @RequestParam(value = "st",required = false)String st,
                                       @RequestParam(value = "et",required = false)String et,
                                       @RequestParam(value = "a",required = false)String a,
@@ -335,7 +333,7 @@ public class SdcResourceSatelliteController {
 
         StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotEmpty(s)){
-            sb.append(" -s ").append(s);
+            sb.append(" -s ").append("'").append(s).append("'");
         }else if (StringUtils.isNotEmpty(st)){
             sb.append(" -st ").append(st);
         }else if (StringUtils.isNotEmpty(et)){
@@ -351,12 +349,15 @@ public class SdcResourceSatelliteController {
         }
         String command = "python3 "+pythonCrossAnomaly+sb.toString();
         log.info("执行Python命令：{}",command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-//        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String resultHandle = result.replaceAll("\n", "");
-        JSONArray jsonArray = JSON.parseArray(resultHandle);
-        return jsonArray;
+        if ("Null".equals(resultHandle)){
+            return null;
+        }
+        JSONObject jsonObject = JSON.parseObject(resultHandle);
+        return jsonObject;
 
     }
 
@@ -372,7 +373,7 @@ public class SdcResourceSatelliteController {
 
         StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotEmpty(s)){
-            sb.append(" -s ").append(s);
+            sb.append(" -s ").append("'").append(s).append("'");
         }else if (StringUtils.isNotEmpty(st)){
             sb.append(" -st ").append(st);
         }else if (StringUtils.isNotEmpty(et)){
@@ -388,8 +389,8 @@ public class SdcResourceSatelliteController {
         }
         String command = "python3 "+pythonSatelliteRadiationEnv+sb.toString();
         log.info("执行Python命令：{}",command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-//        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String resultHandle = result.replaceAll("\\s*", "");
         String hostAddress = null;
@@ -401,7 +402,6 @@ public class SdcResourceSatelliteController {
 
         Map<String, String> map = new HashMap<>();
         String substring = resultHandle.substring(resultHandle.lastIndexOf(File.separator)+1);
-        System.out.println(substring);
         String logPlot = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/log_plot.png");
         String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/color_bar.png");
         map.put("logPlot",logPlot);
