@@ -139,8 +139,8 @@ public class SecAtmosphereDensityController {
                         @RequestParam("satId")String satId) throws Exception {
         String command = "python3 "+pythonAtmosphereDensity+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId;
         log.info("执行Python命令：{}",command);
-//        String result = ExecUtil.execCmdWithResult(command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
         log.info("数据文件路径：{}",jsonStr);

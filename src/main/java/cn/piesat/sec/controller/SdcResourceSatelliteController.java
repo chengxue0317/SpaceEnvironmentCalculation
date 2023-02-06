@@ -161,10 +161,11 @@ public class SdcResourceSatelliteController {
                                      @RequestParam("height")Integer height){
 
         FileUtil.mkdir(pictureMagneticGlobal);
-        String command = "python3 "+pythonMagneticGlobal+" \"'"+time+"'\" "+height+" "+pictureMagneticGlobal;
+//        String command = "python3 "+pythonMagneticGlobal+" \"'"+time+"'\" "+height+" "+pictureMagneticGlobal;
+        String command = "python3 "+pythonMagneticGlobal+" \""+time+"\" "+height+" "+pictureMagneticGlobal;
         log.info("执行Python命令：{}",command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-//        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
 //        String picName = time.replace(":", "-").replace(" ","_").concat("_").concat(height.toString()).concat("km.png");
         String hostAddress = null;
@@ -186,10 +187,11 @@ public class SdcResourceSatelliteController {
                                      @RequestParam("satId")String satId){
 
 
-        String command = "python3 "+pythonOrbitalMagnetic+" "+satId+" '\""+beginTime+"\"' "+" '\""+endTime+"\"'"+" "+pythonConfig;
+//        String command = "python3 "+pythonOrbitalMagnetic+" "+satId+" '\""+beginTime+"\"' "+" '\""+endTime+"\"'"+" "+pythonConfig;
+        String command = "python3 "+pythonOrbitalMagnetic+" "+satId+" '"+beginTime+"' "+" '"+endTime+"'"+" "+pythonConfig;
         log.info("执行Python命令：{}",command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-//        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "%%", "%%");
         String trim = jsonStr.trim();
@@ -223,8 +225,8 @@ public class SdcResourceSatelliteController {
 
         String command = "python3 "+pythonSingleEventEffects+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material+" "+mode;
         log.info("执行Python命令：{}",command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-//        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
         JSONObject jsonObject = JSON.parseObject(jsonStr);
@@ -243,8 +245,8 @@ public class SdcResourceSatelliteController {
 
         String command = "python3 "+pythonRadiationDose+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material+" "+mode;
         log.info("执行Python命令：{}",command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-//        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
         JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
@@ -262,8 +264,8 @@ public class SdcResourceSatelliteController {
 
         String command = "python3 "+pythonRadiationDose+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material+" "+mode;
         log.info("执行Python命令：{}",command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-//        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
         JSONObject jsonObject = JSON.parseObject(jsonStr);
@@ -281,8 +283,8 @@ public class SdcResourceSatelliteController {
 
         String command = "python3 "+pythonGlobalRadiationEnv+" '"+time+"' "+height+" "+ionChannel+" "+resolutionRatio;
         log.info("执行Python命令：{}",command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-//        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
 
@@ -312,8 +314,8 @@ public class SdcResourceSatelliteController {
 
         String command = "python3 "+pythonOrbitReduction+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId;
         log.info("执行Python命令：{}",command);
-        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-//        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
         JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
