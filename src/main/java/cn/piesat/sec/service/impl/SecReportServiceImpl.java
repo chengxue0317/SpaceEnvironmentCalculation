@@ -83,6 +83,7 @@ public class SecReportServiceImpl implements SecReportService {
                 break;
             }
         }
+        FileUtils.deleteQuietly(FileUtils.getFile(reportPath));// 上传文件后删除容器文件
         return reportPath;
     }
 
@@ -150,7 +151,6 @@ public class SecReportServiceImpl implements SecReportService {
                     logger.error(String.format(Locale.ROOT, "-----Failed to upload file %s", tarPath));
                 }
             }
-
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "-----method makeShortDayReport----Insert message data exception  %s", e.getMessage()));
         } finally {
@@ -217,7 +217,7 @@ public class SecReportServiceImpl implements SecReportService {
                     logger.error(String.format(Locale.ROOT, "-------Failed to upload file %s", tarPath));
                 }
             }
-            FileUtils.forceDelete(FileUtils.getFile(targetDir.concat("week1.png"))); // 生成文件后删除图片
+            FileUtils.deleteQuietly(FileUtils.getFile(targetDir.concat("week1.png"))); // 生成文件后删除图片
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "-----method makeShortDayReport----Insert message data exception  %s", e.getMessage()));
         } finally {
@@ -227,8 +227,8 @@ public class SecReportServiceImpl implements SecReportService {
 
     private void createWeekPng(WeekDetailBean weekDetailBean, String startTime, String endTime, String targetDir) {
         try {
-            String python = secFileServerProperties.getProfile() + "algorithm/weekpng/analyse_t.py";
-            String pythonini = secFileServerProperties.getProfile() + "algorithm/weekpng/xw.ini";
+            String python = secFileServerProperties.getProfile() + secFileServerProperties.getWeekPngPy();
+            String pythonini = secFileServerProperties.getProfile() + secFileServerProperties.getWeekPngIni();
             StringBuilder cmd = new StringBuilder("python ");
             cmd.append(python).append(" \"")
                     .append(startTime).append("\" \"")
@@ -307,8 +307,24 @@ public class SecReportServiceImpl implements SecReportService {
                 monthBean.setDateCapital(DateUtil.getToDayCapital());
                 InputStream model = this.getClass().getResourceAsStream("/word/monthDetail.docx");
                 MonthUtil.createDailyMonthDocx(model, tarPath, monthBean);
-                // 更新数据库数据
-                secAlarmEventMapper.updatePath(secOverviewVO.getTime(), tarPath.replace(secFileServerProperties.getProfile(), ""), "month");
+                // 文件上传
+                minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
+                // 查看文件是否上传成功，如果不成功再传一次，如果二次上传仍不成功则记录失败日志
+                boolean isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+                if (isFileExists) {
+                    // 更新数据库数据
+                    secAlarmEventMapper.updatePath(secOverviewVO.getTime(), tarPath.replace(secFileServerProperties.getProfile(), ""), "month");
+                } else {
+                    // 二次上传
+                    minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
+                    isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+                    if (isFileExists) {
+                        // 更新数据库数据
+                        secAlarmEventMapper.updatePath(secOverviewVO.getTime(), tarPath.replace(secFileServerProperties.getProfile(), ""), "month");
+                    } else {
+                        logger.error(String.format(Locale.ROOT, "-------Failed to upload file %s", tarPath));
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "--------The generated monthly report table data is abnormal %s", e.getMessage()));

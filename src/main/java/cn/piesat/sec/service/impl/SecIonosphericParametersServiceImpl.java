@@ -78,16 +78,18 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecStations());
         if (setPicsPathofMinio(pictures)) return pictures;
-        String python = secFileServerProperties.getProfile() + "algorithm/stationtecpng/TEC_keshihua_03_png_creation.py";
+        String python = secFileServerProperties.getProfile() + secFileServerProperties.getTecStationPy();
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" ").append(targetDir);
         try {
             Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
             if (!process.waitFor(100, TimeUnit.SECONDS)) {
                 process.destroy();
+                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
             }
             setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecStations());
             updatePicsPathofMinio(pictures);
+            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -102,8 +104,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecTimes());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
-        if (setPicsPathofMinio(pictures)) return pictures;
-        String python = secFileServerProperties.getProfile() + "algorithm/tecpng/TEC/parameter_maps.py";
+//        if (setPicsPathofMinio(pictures)) return pictures;
+        String python = secFileServerProperties.getProfile() + secFileServerProperties.getTecGLStationPy();
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" \"")
                 .append(startTime).append("\" \"")
@@ -113,9 +115,11 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
             Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
             if (!process.waitFor(600, TimeUnit.SECONDS)) {
                 process.destroy();
+                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
             }
             setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
             updatePicsPathofMinio(pictures);
+            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -141,8 +145,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getRoti());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         setPicturesInfo(pictures, targetDir, secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
-        if (setPicsPathofMinio(pictures)) return pictures;
-        String python = secFileServerProperties.getProfile() + "algorithm/roti/ROTI/parameter_maps.py";
+//        if (setPicsPathofMinio(pictures)) return pictures;
+        String python = secFileServerProperties.getProfile() + secFileServerProperties.getRotiGLStationPy();
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" \"")
                 .append(startTime).append("\" \"")
@@ -152,10 +156,12 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
             Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
             if (!process.waitFor(600, TimeUnit.SECONDS)) {
                 process.destroy();
+                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
             }
             setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
             // 算法生成图片上传到文件服务器
             updatePicsPathofMinio(pictures);
+            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {

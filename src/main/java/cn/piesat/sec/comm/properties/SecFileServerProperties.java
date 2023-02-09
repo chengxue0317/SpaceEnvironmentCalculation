@@ -25,14 +25,29 @@ public class SecFileServerProperties {
     private String profile;
 
     /**
-     * 文件服务IP
+     * 周报算法脚本相对位置
      */
-    private String ip;
+    private String weekPngPy;
 
     /**
-     * 文件服务端口
+     * 周报算法脚本数据库配置相对位置
      */
-    private String port;
+    private String weekPngIni;
+
+    /**
+     * TEC全国站点出图算法脚本
+     */
+    private String tecStationPy;
+
+    /**
+     * TEC全球站点三维出图算法脚本
+     */
+    private String tecGLStationPy;
+
+    /**
+     * ROTI全球站点三维出图算法脚本
+     */
+    private String rotiGLStationPy;
 
     /**
      * TEC全国站点出图位置
@@ -52,7 +67,7 @@ public class SecFileServerProperties {
     /**
      * 电离层闪烁 时段出图位置
      */
-    private static String s4Times;
+    private String s4Times;
 
     /**
      * ROTI出图位置

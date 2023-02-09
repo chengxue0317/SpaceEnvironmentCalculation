@@ -77,7 +77,8 @@ public class SecEnvOverviewController {
         boolean exist = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), path);
         if (exist) {
             minioUtil.download(secMinioProperties.getBucketName(), path, response);
+        } else {
+            logger.error(String.format(Locale.ROOT, "=======File not exists !!!-- %s ", path));
         }
     }
-
 }
