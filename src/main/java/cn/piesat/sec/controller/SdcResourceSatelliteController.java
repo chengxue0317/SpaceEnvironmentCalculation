@@ -254,24 +254,24 @@ public class SdcResourceSatelliteController {
 
     }
 
-    @ApiOperation("辐射带高能粒子分布")
-    @GetMapping("/getRadiationEnergeticParticle")
-    public String getRadiationEnergeticParticle(@RequestParam("beginTime")String beginTime,
-                                   @RequestParam("endTime")String endTime,
-                                   @RequestParam("satId")String satId,
-                                   @RequestParam("material")Integer material,
-                                   @RequestParam("mode")Integer mode){
-
-        String command = "python3 "+pythonRadiationDose+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material+" "+mode;
-        log.info("执行Python命令：{}",command);
-//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
-        String result = ExecUtil.execCmdWithResult(command);
-        log.info("Python命令执行结果：{}",result);
-        String jsonStr = StrUtil.subBetween(result, "###", "###");
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
-        return jsonStr;
-
-    }
+//    @ApiOperation("辐射带高能粒子分布")
+//    @GetMapping("/getRadiationEnergeticParticle")
+//    public String getRadiationEnergeticParticle(@RequestParam("beginTime")String beginTime,
+//                                   @RequestParam("endTime")String endTime,
+//                                   @RequestParam("satId")String satId,
+//                                   @RequestParam("material")Integer material,
+//                                   @RequestParam("mode")Integer mode){
+//
+//        String command = "python3 "+pythonRadiationDose+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material+" "+mode;
+//        log.info("执行Python命令：{}",command);
+////        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+//        String result = ExecUtil.execCmdWithResult(command);
+//        log.info("Python命令执行结果：{}",result);
+//        String jsonStr = StrUtil.subBetween(result, "###", "###");
+//        JSONObject jsonObject = JSON.parseObject(jsonStr);
+//        return jsonStr;
+//
+//    }
 
 
     @ApiOperation("全球辐射环境")
