@@ -105,26 +105,26 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
 //        if (setPicsPathofMinio(pictures)) return pictures;
-        String python = secFileServerProperties.getProfile() + secFileServerProperties.getTecGLStationPy();
-        StringBuilder cmd = new StringBuilder("python ");
-        cmd.append(python).append(" \"")
-                .append(startTime).append("\" \"")
-                .append(endTime).append("\" ")
-                .append(targetDir);
-        try {
-            Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
-            if (!process.waitFor(600, TimeUnit.SECONDS)) {
-                process.destroy();
-                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
-            }
-            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
+//        String python = secFileServerProperties.getProfile() + secFileServerProperties.getTecGLStationPy();
+//        StringBuilder cmd = new StringBuilder("python ");
+//        cmd.append(python).append(" \"")
+//                .append(startTime).append("\" \"")
+//                .append(endTime).append("\" ")
+//                .append(targetDir);
+//        try {
+//            Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
+//            if (!process.waitFor(600, TimeUnit.SECONDS)) {
+//                process.destroy();
+//                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
+//            }
+//            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
             updatePicsPathofMinio(pictures);
-            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
-        } catch (IOException e) {
-            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
-        } catch (InterruptedException e) {
-            logger.info(String.format(Locale.ROOT, "-----The global tec site image is abnormal. %s", e.getMessage()));
-        }
+//            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
+//        } catch (IOException e) {
+//            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
+//        } catch (InterruptedException e) {
+//            logger.info(String.format(Locale.ROOT, "-----The global tec site image is abnormal. %s", e.getMessage()));
+//        }
         return pictures;
     }
 
@@ -146,27 +146,27 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         setPicturesInfo(pictures, targetDir, secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
 //        if (setPicsPathofMinio(pictures)) return pictures;
-        String python = secFileServerProperties.getProfile() + secFileServerProperties.getRotiGLStationPy();
-        StringBuilder cmd = new StringBuilder("python ");
-        cmd.append(python).append(" \"")
-                .append(startTime).append("\" \"")
-                .append(endTime).append("\" ")
-                .append(targetDir);
-        try {
-            Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
-            if (!process.waitFor(600, TimeUnit.SECONDS)) {
-                process.destroy();
-                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
-            }
-            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
+//        String python = secFileServerProperties.getProfile() + secFileServerProperties.getRotiGLStationPy();
+//        StringBuilder cmd = new StringBuilder("python ");
+//        cmd.append(python).append(" \"")
+//                .append(startTime).append("\" \"")
+//                .append(endTime).append("\" ")
+//                .append(targetDir);
+//        try {
+//            Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
+//            if (!process.waitFor(600, TimeUnit.SECONDS)) {
+//                process.destroy();
+//                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
+//            }
+//            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
             // 算法生成图片上传到文件服务器
             updatePicsPathofMinio(pictures);
-            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
-        } catch (IOException e) {
-            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
-        } catch (InterruptedException e) {
-            logger.info(String.format(Locale.ROOT, "-----The global tec site image is abnormal. %s", e.getMessage()));
-        }
+//            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
+//        } catch (IOException e) {
+//            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
+//        } catch (InterruptedException e) {
+//            logger.info(String.format(Locale.ROOT, "-----The global tec site image is abnormal. %s", e.getMessage()));
+//        }
         return pictures;
     }
 
