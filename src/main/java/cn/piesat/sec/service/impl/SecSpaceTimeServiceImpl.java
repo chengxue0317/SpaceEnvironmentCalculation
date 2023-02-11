@@ -4,6 +4,9 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.comm.constant.SpaceTimeConst;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
+import cn.piesat.sec.comm.properties.SecMinioProperties;
+import cn.piesat.sec.comm.util.DateUtil;
+import cn.piesat.sec.comm.util.FileUtil;
 import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.dao.mapper.SecSpaceTimeServiceMapper;
 import cn.piesat.sec.model.vo.SecSpaceTimeVO;
@@ -29,6 +32,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SecSpaceTimeServiceImpl implements SecSpaceTimeService {
@@ -48,6 +52,9 @@ public class SecSpaceTimeServiceImpl implements SecSpaceTimeService {
 
     @Resource
     private MinioUtil minioUtil;
+
+    @Autowired
+    private SecMinioProperties secMinioProperties;
 
     @Override
     public SecSpaceTimeVO getSpaceTimeFileInfo(String fileType, String startTime, String endTime) {
@@ -118,6 +125,29 @@ public class SecSpaceTimeServiceImpl implements SecSpaceTimeService {
             logger.error(String.format(Locale.ROOT, "----Select data to space time throw exception %s", e.getMessage()));
         }
         return vo;
+    }
+
+    @Override
+    public List<String> getSvtecData(String fileType, String localDate) {
+        String prefix = "vtec".concat(Constant.FILE_SEPARATOR).concat(localDate.replaceAll("-", "/"));
+        List<Item> items = minioUtil.listObjects(secMinioProperties.getBucketName(), prefix, true);
+        if (CollectionUtils.isNotEmpty(items)) {
+            return items.stream().map(item -> item.objectName()).collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public String uploadData(String fileType, String filePath, String localDate) {
+        File file = FileUtils.getFile(filePath);
+        String uploadPath = Constant.FILE_SEPARATOR.concat(fileType).concat(Constant.FILE_SEPARATOR).concat(localDate.replaceAll("-", "/")).concat(Constant.FILE_SEPARATOR).concat(file.getName());
+        minioUtil.upload(buketName, uploadPath, filePath);
+        if (minioUtil.doesObjectExist(buketName, uploadPath)) {
+            return uploadPath;
+        } else {
+            return null;
+        }
     }
 
     @Override

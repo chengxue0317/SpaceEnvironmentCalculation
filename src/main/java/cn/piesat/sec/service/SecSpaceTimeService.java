@@ -19,6 +19,25 @@ public interface SecSpaceTimeService {
      * 获取指定类型、时段的数据文件信息
      *
      * @param fileType  文件类型
+     * @param localDate 数据日期
+     * @return 文件信息对象
+     */
+    List<String> getSvtecData(String fileType, String localDate);
+
+    /**
+     * 获取指定类型、时段的数据文件信息
+     *
+     * @param fileType  文件类型
+     * @param filePath  文件路径
+     * @param localDate 数据日期
+     * @return 文件信息对象
+     */
+    String uploadData(String fileType, String filePath, String localDate);
+
+    /**
+     * 获取指定类型、时段的数据文件信息
+     *
+     * @param fileType  文件类型
      * @param startTime 开始时间
      * @param endTime   结束时间
      * @return 文件信息对象

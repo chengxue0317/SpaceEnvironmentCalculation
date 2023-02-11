@@ -120,6 +120,7 @@ public class SecIonosphericParametersController {
         return list;
     }
 
+    @ApiOperation("下载电离层参数文件")
     @GetMapping("ionosphericspngs")
     public void downloadPics(@RequestParam(value = "type", required = true) String type, HttpServletResponse response) {
         String path = null;

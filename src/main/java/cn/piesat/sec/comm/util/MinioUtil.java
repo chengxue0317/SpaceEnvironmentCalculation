@@ -134,8 +134,8 @@ public class MinioUtil {
      * 上传文件
      *
      * @param bucketName 文件存储桶
-     * @param objectName 文件在文件服务器上的相对路径
-     * @param fileName   上传文件全路径
+     * @param objectName 上传文件保存到minio的全路径
+     * @param fileName   本地文件路径
      * @return 上传文件路径
      */
     public String upload(String bucketName, String objectName, String fileName) {
