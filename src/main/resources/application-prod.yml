@@ -19,7 +19,7 @@ python:
     magnetic_global: /tmp/lizw/chaos_submit/magnetic_global_V1.py   #全球磁场分布算法
     orbital_magnetic: /tmp/lizw/chaos_submit/magnetic_orbit.py   #轨道磁场分布算法
     atmosphere_density: /tmp/yuechao/atm_density/msis_simu.py  #大气密度算法
-    single_event_effects: /tmp/yuechao/辐射剂量/seu/Single_events/seu_cal.py  #单粒子效应
+    single_event_effects: /tmp/yuechao/单粒子效应/seu/Single_events/seu_cal.py  #单粒子效应
     radiation_dose: /tmp/yuechao/辐射剂量/does_depth/does.py   #卫星辐射总剂量计算评估
     global_radiation_env: /tmp/yuechao/辐射环境/SRAD/global_radiation/global_radiation.py   #全球辐射环境算法
     orbit_reduction: /tmp/yuechao/轨道衰变效应/orbit_reduction/orbit_reduction.py   #轨道衰变效应算法
