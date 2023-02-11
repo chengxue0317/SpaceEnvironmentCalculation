@@ -325,7 +325,7 @@ public class SdcResourceSatelliteController {
         minioUtil.upload(secMinioProperties.getBucketName(), mainFigurePath, mainFigurePath);
         String mainFigure = minioUtil.preview(secMinioProperties.getBucketName(), mainFigurePath);
 
-        String colorbarPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/colorbar.jpg");
+        String colorbarPath = picturePathGlobalRadiationEnv.concat(substring).concat("/colorbar.jpg");
         minioUtil.upload(secMinioProperties.getBucketName(), colorbarPath, colorbarPath);
         String colorbar = minioUtil.preview(secMinioProperties.getBucketName(), colorbarPath);
 //        String mainFigure = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
