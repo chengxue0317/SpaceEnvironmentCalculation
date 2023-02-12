@@ -13,6 +13,45 @@ spring:
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
+    
+  kafka:
+    ###########【Kafka集群】###########
+    # 集群用逗号隔开
+    bootstrap-servers: 192.168.31.218:9092
+    ###########【初始化生产者配置】###########
+    producer:
+      # 重试次数,设置大于0的值，则客户端会将发送失败的记录重新发送
+      retries: 3
+      # 应答级别:多少个分区副本备份完成时向生产者发送ack确认(可选0、1、all/-1)
+      acks: all
+      # 批量大小
+      batch-size: 16384
+      # 生产端缓冲区大小
+      buffer-memory: 33554432
+      # Kafka提供的序列化和反序列化类
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    ###########【初始化消费者配置】###########
+    consumer:
+      # 提交offset延时(接收到消息后多久提交offset)
+      auto-commit-interval: 1000
+      # 当kafka中没有初始offset或offset超出范围时将自动重置offset
+      # earliest:重置为分区中最小的offset;
+      # latest:重置为分区中最新的offset(消费分区中新产生的数据);
+      # none:只要有一个分区不存在已提交的offset,就抛出异常;
+      auto-offset-reset: latest
+      # 是否自动提交offset
+      enable-auto-commit: false
+      # Kafka提供的序列化和反序列化类
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # 默认的消费组ID
+      group-id: cms-sdc-mq-consumer
+      # 批量消费每次最多消费多少条消息
+      max-poll-records: 50
+    # 消费端监听的topic不存在时，项目启动会报错(关掉)
+    listener:
+      missing-topics-fatal: false
 
 python:
   path:
@@ -63,4 +102,6 @@ minio:
   endpoint: http://127.0.0.1:9000
   accesskey: minioadmin
   secretkey: minioadmin
-  bucketName: htht
+  bucketName: htht 
+
+

@@ -15,102 +15,102 @@ public class Constant {
     /**
      * 编码格式-utf8
      */
-    public static String UTF8 = "utf-8";
+    public final static String UTF8 = "utf-8";
 
     /**
      * 编码格式-GBK
      */
-    public static String GBK = "GBK";
+    public final static String GBK = "GBK";
 
     /**
      * 文件后缀
      */
-    public static String SUFFIX_07 = ".docx";
+    public final static String SUFFIX_07 = ".docx";
 
     /**
      * 存放数据相对根文件夹
      */
-    public static String BASE_DIR = "/sec/";
+    public final static String BASE_DIR = "/sec/";
 
     /**
      * docx模板文件存放路径
      */
-    public static String MODEL_PATH = BASE_DIR + "doc/model/";
+    public final static String MODEL_PATH = BASE_DIR + "doc/model/";
 
     /**
      * 报文存放文件夹
      */
-    public static String REPORT = "report";
+    public final static String REPORT = "report";
 
     /**
      * 日报文件名称
      */
-    public static String DAILY_REPORT_NAME = "report";
+    public final static String DAILY_REPORT_NAME = "report";
 
     /**
      * 缓存大小
      */
-    public static int BUFFSIZE = 10240;
+    public final static int BUFFSIZE = 10240;
 
     /**
      * 文件分割符（win、linux都用/分隔）
      */
-    public static String FILE_SEPARATOR = "/";
+    public final static String FILE_SEPARATOR = "/";
 
     /**
      * 表格文字大小
      */
-    public static int TB_FONT_SIZE = 14; // 4号大小
+    public final static int TB_FONT_SIZE = 14; // 4号大小
 
     /**
      * 表格文字大小-偏小
      */
-    public static int TB_FONT_SMALL_SIZE = 10;
+    public final static int TB_FONT_SMALL_SIZE = 10;
 
     /**
      * 表格行高
      */
-    public static double TB_ROW_HEIGHT = 1;
+    public final static double TB_ROW_HEIGHT = 1;
 
     /**
      * 第一期开始日期
      */
-    public static String START_PERIOD = "2021-04-26";
+    public final static String START_PERIOD = "2021-04-26";
 
     /**
      * 图片后缀
      */
-    public static String PNG = ".png";
+    public final static String PNG = ".png";
 
     /**
      * 表格最大宽度
      */
-    public static double TB_MAX_WIDTH = 14.63;
+    public final static double TB_MAX_WIDTH = 14.63;
 
     /**
      * 无警报
      */
-    public static String DEFAULT_WARN_STR = "无警报";
+    public final static String DEFAULT_WARN_STR = "无警报";
 
     /**
      * 黄色警报
      */
-    public static String WARN_YELLOW = "黄色警报";
+    public final static String WARN_YELLOW = "黄色警报";
 
     /**
      * 橙色警报
      */
-    public static String WARN_ORANGE = "橙色警报";
+    public final static String WARN_ORANGE = "橙色警报";
 
     /**
      * 红色警报
      */
-    public static String WARN_RED = "红色警报";
+    public final static String WARN_RED = "红色警报";
 
     /**
      * 中国星网
      */
-    public static String UNIT = "中国星网";
+    public final static String UNIT = "中国星网";
 
     /**
      * 警报事件
