@@ -2,6 +2,7 @@ package cn.piesat.sec.comm.util;
 
 import cn.piesat.sec.comm.constant.Constant;
 import io.minio.*;
+import io.minio.errors.*;
 import io.minio.http.Method;
 import io.minio.messages.Bucket;
 import io.minio.messages.DeleteObject;
@@ -20,9 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -173,6 +177,35 @@ public class MinioUtil {
             logger.error(String.format(Locale.ROOT, "===preview %s", e.getMessage()));
         }
         return null;
+    }
+
+    /**
+     * 文件下载
+     *
+     * @param bucketName 文件存储桶
+     * @param fileName   文件名称
+     * @param tarDir     目标文件夹
+     */
+    public void download(String bucketName, String fileName, String tarDir) {
+        GetObjectArgs objectArgs = GetObjectArgs.builder().bucket(bucketName)
+                .object(fileName).build();
+        try (GetObjectResponse response = minioClient.getObject(objectArgs)) {
+            byte[] buf = new byte[1024];
+            int len;
+            try (FastByteArrayOutputStream os = new FastByteArrayOutputStream()) {
+                while ((len = response.read(buf)) != -1) {
+                    os.write(buf, 0, len);
+                }
+                os.flush();
+                byte[] bytes = os.toByteArray();
+                try (FileOutputStream stream = FileUtils.openOutputStream(FileUtils.getFile("/" + tarDir + fileName), true)) {
+                    stream.write(bytes);
+                    stream.flush();
+                }
+            }
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "===download %s", e.getMessage()));
+        }
     }
 
     /**
@@ -407,4 +440,5 @@ public class MinioUtil {
         }
         return false;
     }
+
 }
