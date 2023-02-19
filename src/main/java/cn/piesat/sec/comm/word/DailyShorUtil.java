@@ -32,31 +32,33 @@ public class DailyShorUtil {
             cellStyle.setVertAlign(XWPFTableCell.XWPFVertAlign.CENTER); // 单元格数据垂直居中
             for (int i = 0; i < data.length; i++) {
                 List<CellRenderData> cells = new ArrayList<>();
-                for (int j = 0; j < data[i].length; j++) {
-                    CellRenderData cell = new CellRenderData();
-                    List<ParagraphRenderData> pfcell = new ArrayList<>();
-                    ParagraphRenderData prd = new ParagraphRenderData();
-                    List<RenderData> contents = new ArrayList<>();
-                    TextRenderData trd = new TextRenderData();
-                    trd.setText(data[i][j]);
-                    contents.add(trd);
-                    prd.setContents(contents);
-                    pfcell.add(prd);
-                    cell.setParagraphs(pfcell);
-                    cell.setCellStyle(cellStyle);
-                    cells.add(cell);
-                }
-                // 表头居中、加粗
-                if (i == 0) {
-                    RowRenderData rowRenderData = Rows.of().textFontFamily("黑体").textFontSize(Constant.TB_FONT_SIZE).rowExactHeight(1.5).horizontalCenter().verticalCenter().create();
-                    rowRenderData.setCells(cells);
-                    rows.add(rowRenderData);
-                }
-                // 其它表行数据居中居对齐
-                else {
-                    RowRenderData rowRenderData = Rows.of().textFontFamily("仿宋").textFontSize(Constant.TB_FONT_SIZE).rowExactHeight(1.5).horizontalCenter().verticalCenter().create();
-                    rowRenderData.setCells(cells);
-                    rows.add(rowRenderData);
+                if(null != data[i]) {
+                    for (int j = 0; j < data[i].length; j++) {
+                        CellRenderData cell = new CellRenderData();
+                        List<ParagraphRenderData> pfcell = new ArrayList<>();
+                        ParagraphRenderData prd = new ParagraphRenderData();
+                        List<RenderData> contents = new ArrayList<>();
+                        TextRenderData trd = new TextRenderData();
+                        trd.setText(data[i][j]);
+                        contents.add(trd);
+                        prd.setContents(contents);
+                        pfcell.add(prd);
+                        cell.setParagraphs(pfcell);
+                        cell.setCellStyle(cellStyle);
+                        cells.add(cell);
+                    }
+                    // 表头居中、加粗
+                    if (i == 0) {
+                        RowRenderData rowRenderData = Rows.of().textFontFamily("黑体").textFontSize(Constant.TB_FONT_SIZE).rowExactHeight(1.5).horizontalCenter().verticalCenter().create();
+                        rowRenderData.setCells(cells);
+                        rows.add(rowRenderData);
+                    }
+                    // 其它表行数据居中居对齐
+                    else {
+                        RowRenderData rowRenderData = Rows.of().textFontFamily("仿宋").textFontSize(Constant.TB_FONT_SIZE).rowExactHeight(1.5).horizontalCenter().verticalCenter().create();
+                        rowRenderData.setCells(cells);
+                        rows.add(rowRenderData);
+                    }
                 }
             }
         }

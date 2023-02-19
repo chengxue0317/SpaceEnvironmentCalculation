@@ -1,18 +1,12 @@
 package cn.piesat.sec.controller;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.Inet4Address;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.logging.SimpleFormatter;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
@@ -20,16 +14,12 @@ import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
 import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
-import cn.piesat.sec.comm.properties.SecMinioProperties;
-import cn.piesat.sec.comm.util.MinioUtil;
+import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.model.dto.SdcResourceSatelliteDTO;
 import cn.piesat.sec.model.entity.SdcResourceSatelliteDO;
 import cn.piesat.sec.model.query.SdcResourceSatelliteQuery;
-import cn.piesat.sec.model.vo.MagneticOrbitVO;
 import cn.piesat.sec.model.vo.SdcResourceSatelliteVO;
-import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 import cn.piesat.sec.service.SdcResourceSatelliteService;
-import cn.piesat.sec.utils.Connection2Sever;
 import cn.piesat.sec.utils.ExecUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -38,12 +28,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -115,10 +102,8 @@ public class SdcResourceSatelliteController {
     @Value("${remote.password}")
     private String password;
 
-    @Autowired
-    private MinioUtil minioUtil;
-    @Autowired
-    private SecMinioProperties secMinioProperties;
+    @Value("${s3.bucketName}")
+    private String bucketName;
 
     @Value("${picture.path.magnetic_global}")
     private String picturePathMagneticGlobal;
@@ -196,8 +181,8 @@ public class SdcResourceSatelliteController {
         String picName = result.replaceAll("\\s*", "");
 
         String path = picturePathMagneticGlobal.concat(picName);
-        minioUtil.upload(secMinioProperties.getBucketName(), path, path);
-        return minioUtil.preview(secMinioProperties.getBucketName(), path);
+        OSSInstance.getOSSUtil().upload(bucketName, path, path);
+        return OSSInstance.getOSSUtil().preview(bucketName, path);
 //        return hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(picName);
 
     }
@@ -322,12 +307,12 @@ public class SdcResourceSatelliteController {
         String substring = jsonStr.substring(jsonStr.lastIndexOf(File.separator)+1);
 
         String mainFigurePath = picturePathGlobalRadiationEnv.concat(substring).concat("/main_figure.jpg");
-        minioUtil.upload(secMinioProperties.getBucketName(), mainFigurePath, mainFigurePath);
-        String mainFigure = minioUtil.preview(secMinioProperties.getBucketName(), mainFigurePath);
+        OSSInstance.getOSSUtil().upload(bucketName, mainFigurePath, mainFigurePath);
+        String mainFigure = OSSInstance.getOSSUtil().preview(bucketName, mainFigurePath);
 
         String colorbarPath = picturePathGlobalRadiationEnv.concat(substring).concat("/colorbar.jpg");
-        minioUtil.upload(secMinioProperties.getBucketName(), colorbarPath, colorbarPath);
-        String colorbar = minioUtil.preview(secMinioProperties.getBucketName(), colorbarPath);
+        OSSInstance.getOSSUtil().upload(bucketName, colorbarPath, colorbarPath);
+        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPath);
 //        String mainFigure = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
 //        String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
         map.put("mainFigure",mainFigure);
@@ -437,12 +422,12 @@ public class SdcResourceSatelliteController {
         String substring = resultHandle.substring(resultHandle.lastIndexOf(File.separator)+1);
 
         String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/log_plot.png");
-        minioUtil.upload(secMinioProperties.getBucketName(), logPlotPath, logPlotPath);
-        String logPlot = minioUtil.preview(secMinioProperties.getBucketName(), logPlotPath);
+        OSSInstance.getOSSUtil().upload(bucketName, logPlotPath, logPlotPath);
+        String logPlot = OSSInstance.getOSSUtil().preview(bucketName, logPlotPath);
 
         String colorbarPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/color_bar.png");
-        minioUtil.upload(secMinioProperties.getBucketName(), colorbarPath, colorbarPath);
-        String colorbar = minioUtil.preview(secMinioProperties.getBucketName(), colorbarPath);
+        OSSInstance.getOSSUtil().upload(bucketName, colorbarPath, colorbarPath);
+        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPath);
 
 //        String logPlot = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/log_plot.png");
 //        String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/color_bar.png");

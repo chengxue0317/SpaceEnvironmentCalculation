@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
   mvc:
     servlet:
       path: /sec
@@ -98,10 +102,24 @@ piesat:
   roti: ROTI/ #ROTI算法结果存储位置
   secondDir: maps/Medium/ # TEC、ROTI算法二级目录
 
+oss:
+  type: s3
+
 minio:
   endpoint: http://127.0.0.1:9000
   accesskey: minioadmin
   secretkey: minioadmin
-  bucketName: htht 
+  bucketName: htht
+
+s3:
+  endpoint: http://127.0.0.1:9000
+  accesskey: minioadmin
+  secretkey: minioadmin
+  bucketName: dlxjs
+
+logging:
+  level:
+    cn.piesat.sec: debug
+
 
 

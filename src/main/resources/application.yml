@@ -23,7 +23,3 @@ kjyy:
     update_time: updateTime
   date:
     format: yyyy-MM-dd HH:mm:ss
-
-logging:
-  level:
-    cn.piesat.sec: debug

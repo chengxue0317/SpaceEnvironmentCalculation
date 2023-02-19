@@ -1,8 +1,7 @@
-package cn.piesat.sec.comm.util;
+package cn.piesat.sec.comm.oss;
 
 import cn.piesat.sec.comm.constant.Constant;
 import io.minio.*;
-import io.minio.errors.*;
 import io.minio.http.Method;
 import io.minio.messages.Bucket;
 import io.minio.messages.DeleteObject;
@@ -20,27 +19,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 
 @Component
 @Slf4j
-public class MinioUtil {
-    private final Logger logger = LoggerFactory.getLogger(MinioUtil.class);
+public class MinioFileSystem implements IFileSystem {
+    private static final Logger logger = LoggerFactory.getLogger(MinioFileSystem.class);
 
-    @Autowired
+    @Autowired(required = false)
     private MinioClient minioClient;
 
     /**

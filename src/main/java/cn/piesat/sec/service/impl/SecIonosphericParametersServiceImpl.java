@@ -1,10 +1,9 @@
 package cn.piesat.sec.service.impl;
 
 import cn.piesat.sec.comm.constant.DateConstant;
+import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
-import cn.piesat.sec.comm.properties.SecMinioProperties;
 import cn.piesat.sec.comm.util.FileUtil;
-import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.comm.util.ProcessUtil;
 import cn.piesat.sec.dao.mapper.SecIonosphericParametersMapper;
 import cn.piesat.sec.model.entity.SecIonosphericParamtersDO;
@@ -16,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -36,11 +36,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
     @Autowired
     private SecIonosphericParametersMapper secIonoMapper;
 
-    @Autowired
-    private MinioUtil minioUtil;
-
-    @Autowired
-    private SecMinioProperties secMinioProperties;
+    @Value("${s3.bucketName}")
+    private String bucketName;
 
     @Override
     public SecEnvElementVO getBlinkData(String staId, String startTime, String endTime) {
@@ -118,7 +115,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 //                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
 //            }
 //            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
-            updatePicsPathofMinio(pictures);
+        updatePicsPathofMinio(pictures);
 //            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
 //        } catch (IOException e) {
 //            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
@@ -132,7 +129,7 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         if (CollectionUtils.isNotEmpty(pictures)) {
             for (SecIonosphericParametersVO pic : pictures) {
                 String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? pic.getSrc().substring(1) : pic.getSrc();
-                pic.setSrc(minioUtil.preview(secMinioProperties.getBucketName(), path));
+                pic.setSrc(OSSInstance.getOSSUtil().preview(bucketName, path));
             }
             return true;
         }
@@ -159,8 +156,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 //                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
 //            }
 //            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
-            // 算法生成图片上传到文件服务器
-            updatePicsPathofMinio(pictures);
+        // 算法生成图片上传到文件服务器
+        updatePicsPathofMinio(pictures);
 //            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
 //        } catch (IOException e) {
 //            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
@@ -173,9 +170,9 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
     private void updatePicsPathofMinio(List<SecIonosphericParametersVO> pictures) {
         if (CollectionUtils.isNotEmpty(pictures)) {
             for (SecIonosphericParametersVO pic : pictures) {
-                minioUtil.upload(secMinioProperties.getBucketName(), pic.getSrc(), pic.getSrc());
+                OSSInstance.getOSSUtil().upload(bucketName, pic.getSrc(), pic.getSrc());
                 String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? pic.getSrc().substring(1) : pic.getSrc();
-                pic.setSrc(minioUtil.preview(secMinioProperties.getBucketName(), path));
+                pic.setSrc(OSSInstance.getOSSUtil().preview(bucketName, path));
             }
         }
     }

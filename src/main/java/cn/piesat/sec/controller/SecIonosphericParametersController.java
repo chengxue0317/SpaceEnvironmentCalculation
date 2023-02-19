@@ -1,8 +1,7 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
-import cn.piesat.sec.comm.properties.SecMinioProperties;
-import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 import cn.piesat.sec.service.SecIonosphericParametersService;
@@ -12,12 +11,12 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +36,12 @@ import java.util.Locale;
 public class SecIonosphericParametersController {
     private static final Logger logger = LoggerFactory.getLogger(SecIonosphericParametersController.class);
     private final SecIonosphericParametersService secIPS;
-    @Resource
-    private MinioUtil minioUtil;
 
     @Autowired
     private SecFileServerProperties secFileServerProperties;
 
-    @Autowired
-    private SecMinioProperties secMinioProperties;
+    @Value("${s3.bucketName}")
+    private String bucketName;
 
     /**
      * 获取电离层闪烁数据
@@ -80,7 +77,7 @@ public class SecIonosphericParametersController {
                     break;
                 }
                 case "s4": {
-                    String preview = minioUtil.preview(secMinioProperties.getBucketName(), "line.png");
+                    String preview = OSSInstance.getOSSUtil().preview(bucketName, "sec/S4/stations/line.png");
                     SecIonosphericParametersVO v1 = new SecIonosphericParametersVO();
                     v1.setName("电离层闪烁现报区域分布图");
                     v1.setSrc(preview);
@@ -142,6 +139,6 @@ public class SecIonosphericParametersController {
                 break;
             }
         }
-        minioUtil.download(secMinioProperties.getBucketName(), path, response, true);
+        OSSInstance.getOSSUtil().download(bucketName, path, response, true);
     }
 }

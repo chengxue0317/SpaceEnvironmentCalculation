@@ -2,11 +2,10 @@ package cn.piesat.sec.service.impl;
 
 import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.comm.constant.DateConstant;
+import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
-import cn.piesat.sec.comm.properties.SecMinioProperties;
 import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.comm.util.FileUtil;
-import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.comm.util.ProcessUtil;
 import cn.piesat.sec.comm.word.CommonWordUtil;
 import cn.piesat.sec.comm.word.DailyShorUtil;
@@ -30,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -48,12 +48,6 @@ public class SecReportServiceImpl implements SecReportService {
     private SecFileServerProperties secFileServerProperties;
 
     @Autowired
-    private MinioUtil minioUtil;
-
-    @Autowired
-    private SecMinioProperties secMinioProperties;
-
-    @Autowired
     private SecAlarmEventMapper secAlarmEventMapper;
 
     @Autowired
@@ -61,6 +55,9 @@ public class SecReportServiceImpl implements SecReportService {
 
     @Autowired
     private SecReportMapper secReportMapper;
+
+    @Value("${s3.bucketName}")
+    private String bucketName;
 
     @Override
     public synchronized String makeReport(String type) {
@@ -93,7 +90,7 @@ public class SecReportServiceImpl implements SecReportService {
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         String fileName = "空间环境日报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
-        if (minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath)) {
+        if (OSSInstance.getOSSUtil().doesObjectExist(bucketName, tarPath)) {
             return tarPath;
         }
         DailyShortBean dailyshotBean = new DailyShortBean();
@@ -134,16 +131,16 @@ public class SecReportServiceImpl implements SecReportService {
 
         try {
             // 文件上传
-            minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
+            OSSInstance.getOSSUtil().upload(bucketName, tarPath, tarPath);
             // 查看文件是否上传成功，如果不成功再传一次，如果二次上传仍不成功则记录失败日志
-            boolean isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+            boolean isFileExists = OSSInstance.getOSSUtil().doesObjectExist(bucketName, tarPath);
             if (isFileExists) {
                 // 更新数据库数据
                 secAlarmEventMapper.updatePath(startTime, tarPath, "day");
             } else {
                 // 二次上传
-                minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
-                isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+                OSSInstance.getOSSUtil().upload(bucketName, tarPath, tarPath);
+                isFileExists = OSSInstance.getOSSUtil().doesObjectExist(bucketName, tarPath);
                 if (isFileExists) {
                     // 更新数据库数据
                     secAlarmEventMapper.updatePath(startTime, tarPath, "day");
@@ -169,7 +166,7 @@ public class SecReportServiceImpl implements SecReportService {
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         String fileName = "空间环境周报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
-        if (minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath)) {
+        if (OSSInstance.getOSSUtil().doesObjectExist(bucketName, tarPath)) {
             return tarPath;
         }
         WeekDetailBean weekDetailBean = new WeekDetailBean();
@@ -200,16 +197,16 @@ public class SecReportServiceImpl implements SecReportService {
             WeekDetailUtil.createDailyDetailDocx(model, tarPath, weekDetailBean);
 
             // 文件上传
-            minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
+            OSSInstance.getOSSUtil().upload(bucketName, tarPath, tarPath);
             // 查看文件是否上传成功，如果不成功再传一次，如果二次上传仍不成功则记录失败日志
-            boolean isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+            boolean isFileExists = OSSInstance.getOSSUtil().doesObjectExist(bucketName, tarPath);
             if (isFileExists) {
                 // 更新数据库数据
                 secAlarmEventMapper.updatePath(pointDay, tarPath.replace(secFileServerProperties.getProfile(), ""), "week");
             } else {
                 // 二次上传
-                minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
-                isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+                OSSInstance.getOSSUtil().upload(bucketName, tarPath, tarPath);
+                isFileExists = OSSInstance.getOSSUtil().doesObjectExist(bucketName, tarPath);
                 if (isFileExists) {
                     // 更新数据库数据
                     secAlarmEventMapper.updatePath(pointDay, tarPath.replace(secFileServerProperties.getProfile(), ""), "week");
@@ -262,7 +259,7 @@ public class SecReportServiceImpl implements SecReportService {
         FileUtil.mkdirs(targetDir);
         String fileName = "空间环境月报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
-        if (minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath)) {
+        if (OSSInstance.getOSSUtil().doesObjectExist(bucketName, tarPath)) {
             return tarPath;
         }
         MonthBean monthBean = new MonthBean();
@@ -308,16 +305,16 @@ public class SecReportServiceImpl implements SecReportService {
                 InputStream model = this.getClass().getResourceAsStream("/word/monthDetail.docx");
                 MonthUtil.createDailyMonthDocx(model, tarPath, monthBean);
                 // 文件上传
-                minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
+                OSSInstance.getOSSUtil().upload(bucketName, tarPath, tarPath);
                 // 查看文件是否上传成功，如果不成功再传一次，如果二次上传仍不成功则记录失败日志
-                boolean isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+                boolean isFileExists = OSSInstance.getOSSUtil().doesObjectExist(bucketName, tarPath);
                 if (isFileExists) {
                     // 更新数据库数据
                     secAlarmEventMapper.updatePath(secOverviewVO.getTime(), tarPath.replace(secFileServerProperties.getProfile(), ""), "month");
                 } else {
                     // 二次上传
-                    minioUtil.upload(secMinioProperties.getBucketName(), tarPath, tarPath);
-                    isFileExists = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), tarPath);
+                    OSSInstance.getOSSUtil().upload(bucketName, tarPath, tarPath);
+                    isFileExists = OSSInstance.getOSSUtil().doesObjectExist(bucketName, tarPath);
                     if (isFileExists) {
                         // 更新数据库数据
                         secAlarmEventMapper.updatePath(secOverviewVO.getTime(), tarPath.replace(secFileServerProperties.getProfile(), ""), "month");

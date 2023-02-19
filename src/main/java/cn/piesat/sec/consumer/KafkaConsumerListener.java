@@ -1,18 +1,16 @@
 package cn.piesat.sec.consumer;
 
 import cn.piesat.sec.comm.constant.KafkaConstant;
-import cn.piesat.sec.comm.properties.SecMinioProperties;
+import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.util.DateUtil;
-import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.model.vo.SecSpaceFileVO;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -28,11 +26,9 @@ import java.util.List;
 @Component
 @Slf4j
 public class KafkaConsumerListener {
-    @Autowired
-    private MinioUtil minioUtil;
 
-    @Autowired
-    private SecMinioProperties secMinioProperties;
+    @Value("${s3.bucketName}")
+    private String bucketName;
 
     /**
      * 时空文件更新消息监听
@@ -52,7 +48,7 @@ public class KafkaConsumerListener {
             if (CollectionUtils.isNotEmpty(filePath)) {
                 for (SecSpaceFileVO vo : filePath) {
                     String path = vo.getFilePath();
-                    minioUtil.download(secMinioProperties.getBucketName(), path, "testOut");
+                    OSSInstance.getOSSUtil().download(bucketName, path, "testOut");
                 }
             }
         }

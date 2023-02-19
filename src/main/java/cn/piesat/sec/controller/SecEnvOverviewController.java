@@ -1,26 +1,21 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
-import cn.piesat.sec.comm.constant.Constant;
-import cn.piesat.sec.comm.properties.SecMinioProperties;
-import cn.piesat.sec.comm.util.MinioUtil;
 import cn.piesat.sec.model.vo.SecEnvOverviewVO;
 import cn.piesat.sec.service.SecEnvOverviewService;
 import cn.piesat.sec.service.SecReportService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,11 +40,8 @@ public class SecEnvOverviewController {
     @Autowired
     private SecFileServerProperties secFileServerProperties;
 
-    @Autowired
-    private MinioUtil minioUtil;
-
-    @Autowired
-    private SecMinioProperties secMinioProperties;
+    @Value("${s3.bucketName}")
+    private String bucketName;
 
     @ApiOperation("查询一段时间内的F10.7数据")
     @PostMapping("/getEnvOverview")
@@ -74,9 +66,9 @@ public class SecEnvOverviewController {
             path = secFileServerProperties.getProfile().concat(path);
         }
         // 判断文件是否存在
-        boolean exist = minioUtil.doesObjectExist(secMinioProperties.getBucketName(), path);
+        boolean exist = OSSInstance.getOSSUtil().doesObjectExist(bucketName, path);
         if (exist) {
-            minioUtil.download(secMinioProperties.getBucketName(), path, response);
+            OSSInstance.getOSSUtil().download(bucketName, path, response);
         } else {
             logger.error(String.format(Locale.ROOT, "=======File not exists !!!-- %s ", path));
         }
