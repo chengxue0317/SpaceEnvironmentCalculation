@@ -7,6 +7,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,6 +128,7 @@ public class S3FileSystem implements IFileSystem {
     public String upload(String bucketName, String objectName, String fileName) {
         objectName = objectName.replaceAll("//", "/");
         fileName = fileName.replaceAll("//", "/");
+        objectName = checkPath(objectName);
         try {
             PutObjectRequest putOb = PutObjectRequest.builder()
                     .bucket(bucketName)
@@ -150,6 +152,7 @@ public class S3FileSystem implements IFileSystem {
      * @return
      */
     public String preview(String bucketName, String fileName) {
+        fileName = checkPath(fileName);
         GetObjectRequest objectRequest = GetObjectRequest
                 .builder()
                 .bucket(bucketName)
@@ -173,9 +176,7 @@ public class S3FileSystem implements IFileSystem {
      * @return 图片地址
      */
     public String preview2(String bucketName, String fileName) {
-        if (fileName.indexOf("/") == 0) {
-            fileName = fileName.replaceFirst("/", "");
-        }
+        fileName = checkPath(fileName);
 
         S3Presigner presigner = S3Presigner.builder()
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(secS3Properties.getAccesskey(), secS3Properties.getSecretkey())))
@@ -225,9 +226,7 @@ public class S3FileSystem implements IFileSystem {
      * @param tarDir     目标文件夹
      */
     public void download(String bucketName, String fileName, String tarDir) {
-        if (fileName.indexOf("/") == 0) {
-            fileName = fileName.replaceFirst("/", "");
-        }
+        fileName = checkPath(fileName);
         GetObjectRequest objectRequest = GetObjectRequest
                 .builder()
                 .bucket(bucketName)
@@ -260,9 +259,7 @@ public class S3FileSystem implements IFileSystem {
      * @param res        response
      */
     public void download(String bucketName, String fileName, HttpServletResponse res) {
-        if (fileName.indexOf("/") == 0) {
-            fileName = fileName.replaceFirst("/", "");
-        }
+        fileName = checkPath(fileName);
         GetObjectRequest objectRequest = GetObjectRequest
                 .builder()
                 .bucket(bucketName)
@@ -291,6 +288,14 @@ public class S3FileSystem implements IFileSystem {
         }
     }
 
+    @NotNull
+    private String checkPath(String fileName) {
+        if (fileName.indexOf("/") == 0) {
+            fileName = fileName.replaceFirst("/", "");
+        }
+        return fileName;
+    }
+
     /**
      * 文件下载
      *
@@ -311,13 +316,15 @@ public class S3FileSystem implements IFileSystem {
                 byte[] buff = new byte[Constant.BUFFSIZE];
                 int len;
                 for (S3Object item : items) {
+                    String key = item.key();
+                    key = checkPath(key);
                     GetObjectRequest objectRequest = GetObjectRequest
                             .builder()
                             .bucket(bucketName)
-                            .key(item.key())
+                            .key(key)
                             .build();
                     InputStream is = s3Client.getObject(objectRequest);
-                    zout.putNextEntry(new ZipEntry(item.key()));
+                    zout.putNextEntry(new ZipEntry(key));
                     while ((len = is.read(buff)) != -1) {
                         zout.write(buff, 0, len);
                     }
@@ -372,6 +379,7 @@ public class S3FileSystem implements IFileSystem {
      */
     public boolean doesObjectExist(String bucketName, String objectName) {
         boolean exist = true;
+        objectName = checkPath(objectName);
         GetObjectRequest objectRequest = GetObjectRequest
                 .builder()
                 .bucket(bucketName)
@@ -392,27 +400,14 @@ public class S3FileSystem implements IFileSystem {
     }
 
     private static byte[] getObjectFile(String filePath) {
-        FileInputStream fileInputStream = null;
-        byte[] bytesArray = null;
+        File file = FileUtils.getFile(filePath);
+        byte[] bytesArray = new byte[(int) file.length()];
 
-        try {
-            File file = new File(filePath);
-            bytesArray = new byte[(int) file.length()];
-            fileInputStream = new FileInputStream(file);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
             fileInputStream.read(bytesArray);
-
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fileInputStream != null) {
-                try {
-                    fileInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            logger.error(String.format(Locale.ROOT, "===getObjectFile %s", e.getMessage()));
         }
-
         return bytesArray;
     }
 }

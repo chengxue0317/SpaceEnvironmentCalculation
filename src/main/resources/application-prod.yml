@@ -110,8 +110,8 @@ s3:
   endpoint: http://127.0.0.1:9000
   accesskey: minioadmin
   secretkey: minioadmin
-  bucketName: htht
+  bucketName: xzgl
 
 logging:
   level:
-    cn.piesat.sec: info
+    cn.piesat.sec: warn
