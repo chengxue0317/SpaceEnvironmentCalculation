@@ -162,6 +162,13 @@
             <artifactId>aws-sdk-java</artifactId>
             <version>2.14.26</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>net.coobird</groupId>-->
+            <!--<artifactId>thumbnailator</artifactId>-->
+            <!--<version>0.4.17</version>-->
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${project.basedir}/src/main/resources/lib/thumbnailator-0.4.17.jar</systemPath>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>

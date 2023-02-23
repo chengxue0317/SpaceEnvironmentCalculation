@@ -269,4 +269,19 @@ public class DateUtil {
         }
         return dataList;
     }
+
+    /**
+     * 时间字符串转对象
+     *
+     * @param dateStr 时间字符串
+     * @param format  时间字符串格式
+     * @return 时间对象
+     */
+    public static LocalDateTime parseLocalDateTime(String dateStr, String format) {
+        if (StringUtils.isEmpty(dateStr) || StringUtils.isEmpty(format)) {
+            return null;
+        }
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
+        return LocalDateTime.parse(dateStr, dtf);
+    }
 }

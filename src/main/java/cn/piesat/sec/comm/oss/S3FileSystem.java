@@ -220,8 +220,7 @@ public class S3FileSystem implements IFileSystem {
 
     /**
      * 文件下载
-     *
-     * @param bucketName 文件存储桶
+     *  @param bucketName 文件存储桶
      * @param fileName   文件名称
      * @param tarDir     目标文件夹
      */
@@ -242,7 +241,9 @@ public class S3FileSystem implements IFileSystem {
             }
             os.flush();
             byte[] bytes = os.toByteArray();
-            try (FileOutputStream stream = FileUtils.openOutputStream(FileUtils.getFile("/" + tarDir + fileName), true)) {
+            String outPath = "/" + tarDir + "/" + fileName;
+            outPath = outPath.replaceAll("//", "/");
+            try (FileOutputStream stream = FileUtils.openOutputStream(FileUtils.getFile(outPath), true)) {
                 stream.write(bytes);
                 stream.flush();
             }

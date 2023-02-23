@@ -39,12 +39,12 @@ public class KafkaConstant {
     /**
      * 空间环境数据更新信息，按需发送，数据帧
      */
-    public static final String THEME_CSS_IIS_UpdateMsg = "CSS-IIS-UpdateMsg";
+//    public static final String THEME_CSS_IIS_UpdateMsg = "CSS-IIS-UpdateMsg";
 
-//    /**
-//     * 气象实况数据 更行频次24次 00-23逐小时实况数据
-//     */
-//    public static final String THEME_CSS_IIS_WeatherReal = "CSS-IIS-WeatherReal";
+    /**
+     * 气象实况数据 更行频次24次 00-23逐小时实况数据
+     */
+    public static final String THEME_CSS_IIS_WeatherReal = "CSS-IIS-WeatherReal";
 
     /**
      * 空间环境事件数据

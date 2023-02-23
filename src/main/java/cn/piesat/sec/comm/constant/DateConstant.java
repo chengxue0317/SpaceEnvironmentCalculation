@@ -57,4 +57,9 @@ public class DateConstant {
      * 日期格式
      */
     public static final String DATE_PATTERN = "yyyy-MM-dd";
+
+    /**
+     * 时间格式
+     */
+    public static final String DATE_TIME_PATTERN2 = "yyyyMMddHHmmss";
 }

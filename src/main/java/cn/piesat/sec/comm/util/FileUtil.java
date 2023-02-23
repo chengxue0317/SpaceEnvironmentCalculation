@@ -8,8 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -128,4 +127,39 @@ public class FileUtil {
             return path;
         }
     }
+
+    /**
+     * 读取txt文件数据
+     *
+     * @param path
+     * @return
+     */
+    public static List<String> readTxtFile2List(String path) {
+        List<String> list = new ArrayList<>();
+        try (FileInputStream inputStream = FileUtils.openInputStream(FileUtils.getFile(path));
+             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, Constant.UTF8))) {
+            String str;
+            while ((str = bufferedReader.readLine()) != null) {
+                if (StringUtils.isEmpty(str)) {
+                    continue;
+                } else {
+                    list.add(StringUtils.trim(str));
+                }
+            }
+        } catch (IOException e) {
+            logger.error(String.format(Locale.ROOT, "-------readTxtFile2List %s throws an exception %s", path, e.getMessage()));
+        }
+        return list;
+    }
+
+    /**
+     * 路径校验
+     *
+     * @param filePath 文件路径
+     * @return 返回路径
+     */
+    public static String checkPath(String filePath) {
+        return filePath.replaceAll("//", "/").replaceAll("[\\\\]+", "/");
+    }
+
 }

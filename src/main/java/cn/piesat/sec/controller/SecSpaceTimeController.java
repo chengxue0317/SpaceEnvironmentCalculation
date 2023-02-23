@@ -1,7 +1,6 @@
 package cn.piesat.sec.controller;
 
 import cn.piesat.sec.comm.constant.KafkaConstant;
-import cn.piesat.sec.comm.kafka.KafkaSendServiceImpl;
 import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.model.vo.SecSpaceEnvFileVO;
 import cn.piesat.sec.service.SecSpaceTimeService;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

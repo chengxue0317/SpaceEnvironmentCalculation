@@ -1,15 +1,19 @@
 package cn.piesat.sec.consumer;
 
 import cn.piesat.sec.comm.constant.KafkaConstant;
+import cn.piesat.sec.comm.factory.SecSpaceEnvDataFactory;
 import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.util.DateUtil;
+import cn.piesat.sec.model.vo.SecIISVO;
 import cn.piesat.sec.model.vo.SecSpaceFileVO;
+import cn.piesat.sec.service.impl.dataparse.HEParticalImpl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -26,9 +30,14 @@ import java.util.List;
 @Component
 @Slf4j
 public class KafkaConsumerListener {
-
     @Value("${s3.bucketName}")
     private String bucketName;
+
+    @Autowired
+    private HEParticalImpl hePartical;
+
+    public KafkaConsumerListener() {
+    }
 
     /**
      * 时空文件更新消息监听
@@ -76,5 +85,16 @@ public class KafkaConsumerListener {
         String jsonStr = record.value();
         // TODO 如何处理待定
         System.out.println("接收到空间环境AP/AP/F107文件更新新消息:========  " + jsonStr);
+    }
+
+    /**
+     * 卫星高能粒子数据
+     *
+     * @param record
+     */
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_HEPartical)
+    public int proEle(ConsumerRecord<String, String> record) {
+        SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
+        return hePartical.parseData(secIISVO);
     }
 }

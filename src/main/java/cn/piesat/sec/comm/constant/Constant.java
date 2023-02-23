@@ -137,5 +137,10 @@ public class Constant {
      * 分号分隔符
      */
     public static final String SEMICOLON = ";";
+
+    /**
+     * 数据分割符号
+     */
+    public static final String DATA_SEPERATOR = " ";
 }
 
