@@ -20,6 +20,7 @@ import java.util.Locale;
 @Api("文件工具类")
 public class FileUtil {
     private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
+
     /**
      * 今天文件路径
      *
@@ -108,6 +109,23 @@ public class FileUtil {
             } catch (IOException e) {
                 logger.error(String.format(Locale.ROOT, "-------Deleting a file %s throws an exception %s", file.getAbsolutePath(), e.getMessage()));
             }
+        }
+    }
+
+    /**
+     * 删除路径前分隔符
+     *
+     * @param path 文件路径
+     * @return 去除前缀
+     */
+    public static String rmPathPreSplit(String path) {
+        if (StringUtils.isEmpty(path)) {
+            return path;
+        } else {
+            if (path.indexOf("/") == 0) {
+                path = path.replaceFirst("/", "");
+            }
+            return path;
         }
     }
 }

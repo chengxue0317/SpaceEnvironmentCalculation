@@ -115,7 +115,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 //                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
 //            }
 //            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
-        updatePicsPathofMinio(pictures);
+//        updatePicsPathofMinio(pictures);
+        getExistsPicsPathofMinio(pictures); // 假设文件已经存在直接获取服务器文件
 //            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
 //        } catch (IOException e) {
 //            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
@@ -157,7 +158,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 //            }
 //            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
         // 算法生成图片上传到文件服务器
-        updatePicsPathofMinio(pictures);
+//        updatePicsPathofMinio(pictures);
+        getExistsPicsPathofMinio(pictures); // 假设文件已经存在直接获取服务器文件
 //            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
 //        } catch (IOException e) {
 //            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
@@ -171,7 +173,16 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         if (CollectionUtils.isNotEmpty(pictures)) {
             for (SecIonosphericParametersVO pic : pictures) {
                 OSSInstance.getOSSUtil().upload(bucketName, pic.getSrc(), pic.getSrc());
-                String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? pic.getSrc().substring(1) : pic.getSrc();
+                String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? FileUtil.rmPathPreSplit(pic.getSrc()) : pic.getSrc();
+                pic.setSrc(OSSInstance.getOSSUtil().preview(bucketName, path));
+            }
+        }
+    }
+
+    private void getExistsPicsPathofMinio(List<SecIonosphericParametersVO> pictures) {
+        if (CollectionUtils.isNotEmpty(pictures)) {
+            for (SecIonosphericParametersVO pic : pictures) {
+                String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? FileUtil.rmPathPreSplit(pic.getSrc()) : pic.getSrc();
                 pic.setSrc(OSSInstance.getOSSUtil().preview(bucketName, path));
             }
         }
