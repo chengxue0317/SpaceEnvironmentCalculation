@@ -65,7 +65,11 @@ public class HEParticalImpl implements SecSpaceEnvData {
         } catch (IOException e) {
             logger.warn("=====Failed to delete tmeplate dir {}", e.getMessage());
         }
-
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/testrecords.txt"), "更新数据N条：" + dataNum + "\n", Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return dataNum;
     }
 }

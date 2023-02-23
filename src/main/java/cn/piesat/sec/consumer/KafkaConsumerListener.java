@@ -1,7 +1,7 @@
 package cn.piesat.sec.consumer;
 
+import cn.piesat.sec.comm.constant.Constant;
 import cn.piesat.sec.comm.constant.KafkaConstant;
-import cn.piesat.sec.comm.factory.SecSpaceEnvDataFactory;
 import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.model.vo.SecIISVO;
@@ -12,12 +12,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,6 +97,11 @@ public class KafkaConsumerListener {
      */
     @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_HEPartical)
     public int proEle(ConsumerRecord<String, String> record) {
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/testrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
         return hePartical.parseData(secIISVO);
     }
