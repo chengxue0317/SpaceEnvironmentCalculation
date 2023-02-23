@@ -1,8 +1,11 @@
 package cn.piesat.sec.controller;
 
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +19,16 @@ import cn.piesat.sec.model.vo.PageVo;
 import cn.piesat.sec.model.vo.SearchParam;
 import cn.piesat.sec.service.FieldManageService;
 
+import cn.piesat.sec.utils.POIUtils;
 import cn.piesat.sec.utils.PageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +44,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 字段管理表
@@ -413,6 +423,12 @@ public class FieldManageController {
     @PostMapping("/insertData")
     public void insertData(@RequestBody List<Map<String,Object>> dataList){
         String tableName = "SEC_FAULT_DIAGNOSIS";
+        batchInsertList(dataList,tableName);
+
+    }
+
+
+    public void batchInsertList(List<Map<String,Object>> dataList,String tableName){
         //拼接insert语句，只执行一次
         boolean firstFlag = true;
         //字段名
@@ -456,7 +472,6 @@ public class FieldManageController {
         log.info("sql: " + sb);
         //sql,List<Object[]>
         jdbcTemplate.batchUpdate(sb.toString(), addResultList);
-
     }
 
     @Resource
@@ -488,5 +503,82 @@ public class FieldManageController {
     }
 
 
+    /**
+     * 导出模板
+     */
+    @ApiOperation("导出模板")
+    @PostMapping("/exportMode")
+    public void exportMode(HttpServletResponse response){
+        List<Map<String, Object>> data = jdbcTemplate.queryForList("select * from SEC_FAULT_DIAGNOSIS ");
+        exportExcel(response,data);
+    }
+
+    private void exportExcel(HttpServletResponse response, List<Map<String, Object>> list) {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("sheet1");
+        //表头
+        XSSFRow headRow = sheet.createRow(0);
+        //取List的第一个元素进行遍历，找出所有key作为表头
+        Iterator<Map.Entry<String, Object>> iterator = list.get(0).entrySet().iterator();
+        int i = 0;
+        //用于数据行查找
+        List<Object> headRowData = new ArrayList<>();
+        iterator.next();
+        while (iterator.hasNext()) {
+            String next = iterator.next().getKey();
+            //设置表头
+            headRow.createCell(i).setCellValue(new XSSFRichTextString(next));
+            headRowData.add(next);
+            i++;
+        }
+        //列表
+        int rowNUm = 1;
+        for (Map<String, Object> dataMap : list) {
+            //创建数据行
+            XSSFRow dataRow = sheet.createRow(rowNUm);
+            for (int j = 0, size = headRowData.size(); j < size; j++) {
+                //设置数据
+                dataRow.createCell(j).setCellValue(dataMap.get(headRowData.get(j)).toString());
+            }
+            rowNUm++;
+        }
+        //数据导出
+        response.setContentType("application/octet-stream;charset=UTF-8");
+        try {
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("excelName.xlsx", "UTF-8"));
+            workbook.write(response.getOutputStream());
+        } catch (Exception e) {
+        }
+    }
+
+
+    /**
+     * 导入数据
+     */
+    @ApiOperation("导入数据")
+    @PostMapping("/importData")
+    public void importData(@RequestParam("file") MultipartFile file){
+        if (file != null && file.getSize() > 0) {
+            //返回的第一条数据是表头信息
+            try {
+                List<Object[]> dataList = POIUtils.readExcel(file);
+                StringBuilder sb = new StringBuilder(200);
+                String tableName = "SEC_FAULT_DIAGNOSIS";
+                sb.append("insert into ").append(tableName).append(" values(");
+                for (int i=0;i<dataList.get(0).length;i++){
+                    sb.append("?,");
+                }
+                sb.deleteCharAt(sb.length() - 1).append(" )");
+                log.info("执行SQL语句----->{}", sb);
+                dataList.remove(0);
+                jdbcTemplate.batchUpdate(sb.toString(),dataList);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
 
 }
