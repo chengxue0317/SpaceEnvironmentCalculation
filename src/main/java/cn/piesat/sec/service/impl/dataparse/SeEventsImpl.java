@@ -5,9 +5,9 @@ import cn.piesat.sec.comm.constant.DateConstant;
 import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.comm.util.FileUtil;
-import cn.piesat.sec.dao.mapper.dataparse.HEParticalMapper;
+import cn.piesat.sec.dao.mapper.dataparse.SeEventlMapper;
 import cn.piesat.sec.model.vo.SecIISVO;
-import cn.piesat.sec.model.vo.dataparse.SecHEParticalVO;
+import cn.piesat.sec.model.vo.dataparse.SecEventsVO;
 import cn.piesat.sec.service.SecSpaceEnvData;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Service("heParticalService")
-public class HEParticalImpl implements SecSpaceEnvData {
-    private static final Logger logger = LoggerFactory.getLogger(HEParticalImpl.class);
+@Service("seEventsService")
+public class SeEventsImpl implements SecSpaceEnvData {
+    private static final Logger logger = LoggerFactory.getLogger(SeEventsImpl.class);
     @Autowired
-    private HEParticalMapper heParticalMapper;
+    private SeEventlMapper seEventlMapper;
 
     @Override
     public int parseData(SecIISVO secIISVO) {
@@ -39,20 +39,22 @@ public class HEParticalImpl implements SecSpaceEnvData {
         List<String> content = FileUtil.readTxtFile2List(filePath);
         int dataNum = 0;
         if (CollectionUtils.isNotEmpty(content)) {
-            List<SecHEParticalVO> objList = new ArrayList<>();
+            List<SecEventsVO> objList = new ArrayList<>();
             for (String line : content) {
                 String[] lineData = line.split(Constant.DATA_SEPERATOR);
-                if (lineData.length >= 5) { // 接口文件和数据库表不一致，这里的判断条件临时设置到E2数据
-                    SecHEParticalVO vo = new SecHEParticalVO();
-
+                if (lineData.length >= 3) {
+                    SecEventsVO vo = new SecEventsVO();
                     vo.setTime(DateUtil.parseLocalDateTime(lineData[0], DateConstant.DATE_TIME_PATTERN2));
-                    vo.setE2(Double.parseDouble(lineData[4]));
+                    vo.setContent(lineData[2]);
+                    int random = (int) Math.random() * 10;
+                    random = random > 5 ? random - 5 : random;
+                    vo.setLevel(random);
                     objList.add(vo);
                 }
             }
             // 数据入库
             try {
-                dataNum = heParticalMapper.save(objList);
+                dataNum = seEventlMapper.save(objList);
             } catch (Exception e) {
                 logger.warn("=====Failed to delete tmeplate dir {}", e.getMessage());
                 dataNum = -1;

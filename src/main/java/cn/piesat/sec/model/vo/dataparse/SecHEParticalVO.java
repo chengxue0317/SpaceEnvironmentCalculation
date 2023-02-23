@@ -15,106 +15,61 @@ import java.time.LocalDateTime;
  * @date 2022-11-13 20:02:03
  */
 @Data
-@ApiModel("")
+@ApiModel("高能粒子数据对象")
 public class SecHEParticalVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 时间
-     */
     @ApiModelProperty("时间")
     private LocalDateTime time;
 
-    /**
-     *
-     */
     @ApiModelProperty("")
     private Double p10;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double p50;
 
-    /**
-     *
-     */
     @ApiModelProperty("")
     private Double p100;
 
-    /**
-     *
-     */
     @ApiModelProperty("")
     private Double e2;
 
-    /**
-     *
-     */
     @ApiModelProperty("")
     private Double pdiff1;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double pdiff2a;
 
-    /**
-     *
-     */
     @ApiModelProperty("")
     private Double pdiff2b;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double pdiff3;
 
-    /**
-     *
-     */
     @ApiModelProperty("")
     private Double pdiff4;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double pdiff5;
 
-    /**
-     *
-     */
     @ApiModelProperty("")
     private Double pdiff6;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double pdiff7;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double pdiff8a;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double pdiff8b;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double pdiff8c;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double pdiff9;
-    /**
-     *
-     */
+
     @ApiModelProperty("")
     private Double pdiff10;
-
 }

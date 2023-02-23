@@ -6,7 +6,9 @@ import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.model.vo.SecIISVO;
 import cn.piesat.sec.model.vo.SecSpaceFileVO;
+import cn.piesat.sec.service.SecSpaceEnvData;
 import cn.piesat.sec.service.impl.dataparse.HEParticalImpl;
+import cn.piesat.sec.service.impl.dataparse.SeEventsImpl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.checkerframework.framework.qual.RequiresQualifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -38,6 +41,9 @@ public class KafkaConsumerListener {
 
     @Autowired
     private HEParticalImpl hePartical;
+
+    @Autowired
+    private SeEventsImpl seEventsImpl;
 
     public KafkaConsumerListener() {
     }
@@ -104,5 +110,21 @@ public class KafkaConsumerListener {
         }
         SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
         return hePartical.parseData(secIISVO);
+    }
+
+    /**
+     * 空间环境事件数据
+     *
+     * @param record
+     */
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_Event)
+    public int seEvents(ConsumerRecord<String, String> record) {
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/testrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
+        return seEventsImpl.parseData(secIISVO);
     }
 }

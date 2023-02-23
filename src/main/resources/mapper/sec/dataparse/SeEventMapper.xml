@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.dataparse.SeEventlMapper">
+    <insert id="save">
+        insert into SEC_XRAY_ALARM(PUBLISH_TIME, THRESHOLD_TIME, CONTENT, OVERVIEW, LEVEL ) values
+        <foreach item="item" index="index" collection="data" separator=",">
+            (#{item.time},#{item.time},#{item.content},#{item.content},#{item.level})
+        </foreach>
+    </insert>
+</mapper>
