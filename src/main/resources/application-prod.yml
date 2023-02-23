@@ -67,6 +67,8 @@ python:
     orbit_reduction: /tmp/yuechao/轨道衰变效应/orbit_reduction/orbit_reduction.py   #轨道衰变效应算法
     satellite_radiation_env: /tmp/wrry/pythonPlot/global_radiation_plot.py   #卫星辐射环境算法
     cross_anomaly: /tmp/wrry/AP8AE8/SatCrossSAATime/sat_cross_SAA_time.py   #穿越南大西洋异常区算法
+    surface_incharging: /export/yuechao_cal/surface_charging/surface_incharging.py   #穿卫星表面充电模块算法
+    satellite_time: /export/yuechao_cal/SAT_ID_TIME_SPAN.py   #确定卫星时间范围算法
 
 picture:
   path:

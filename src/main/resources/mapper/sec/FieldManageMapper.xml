@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.piesat.sec.dao.mapper.FieldManageMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="cn.piesat.sec.model.entity.FieldManageDO" id="fieldManageMap">
+        <result property="id" column="ID"/>
+        <result property="fieldName" column="FIELD_NAME"/>
+        <result property="dataType" column="DATA_TYPE"/>
+        <result property="precision" column="PRECISION"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="notNullConstraint" column="NOT_NULL_CONSTRAINT"/>
+        <result property="annotation" column="ANNOTATION"/>
+    </resultMap>
+
+
+</mapper>

@@ -112,6 +112,12 @@ public class SdcResourceSatelliteController {
     @Value("${picture.path.global_radiation_env}")
     private String picturePathGlobalRadiationEnv;
 
+    @Value("${python.path.surface_incharging}")
+    private String surfaceIncharging;
+
+    @Value("${python.path.satellite_time}")
+    private String satelliteTime;
+
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
 
@@ -313,6 +319,7 @@ public class SdcResourceSatelliteController {
         String colorbarPath = picturePathGlobalRadiationEnv.concat(substring).concat("/colorbar.jpg");
         OSSInstance.getOSSUtil().upload(bucketName, colorbarPath, colorbarPath);
         String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPath);
+
 //        String mainFigure = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
 //        String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
         map.put("mainFigure",mainFigure);
@@ -437,4 +444,38 @@ public class SdcResourceSatelliteController {
 
     }
 
+
+    @ApiOperation("卫星表面充电模块")
+    @GetMapping("/getSurfaceIncharging")
+    public JSONObject getSurfaceIncharging(@RequestParam("beginTime")String beginTime,
+                                           @RequestParam("endTime")String endTime,
+                                           @RequestParam("satId")String satId,
+                                           @RequestParam("material")Integer material){
+
+        String command = "python3 "+surfaceIncharging+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material;
+        log.info("执行Python命令：{}",command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        return jsonObject;
+
+    }
+
+
+    @ApiOperation("确定卫星时间范围")
+    @GetMapping("/getSatelliteTime")
+    public JSONObject getSatelliteTime(@RequestParam("satId")String satId){
+
+        String command = "python3 "+satelliteTime+" "+satId;
+        log.info("执行Python命令：{}",command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        return jsonObject;
+
+    }
 }
