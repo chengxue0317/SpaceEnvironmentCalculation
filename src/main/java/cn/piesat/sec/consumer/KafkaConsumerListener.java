@@ -6,9 +6,7 @@ import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.model.vo.SecIISVO;
 import cn.piesat.sec.model.vo.SecSpaceFileVO;
-import cn.piesat.sec.service.SecSpaceEnvData;
-import cn.piesat.sec.service.impl.dataparse.HEParticalImpl;
-import cn.piesat.sec.service.impl.dataparse.SeEventsImpl;
+import cn.piesat.sec.service.impl.dataparse.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -16,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.checkerframework.framework.qual.RequiresQualifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -44,6 +41,15 @@ public class KafkaConsumerListener {
 
     @Autowired
     private SeEventsImpl seEventsImpl;
+
+    @Autowired
+    private SoF107Impl soF107Impl;
+
+    @Autowired
+    private GmapImpl gmapImpl;
+
+    @Autowired
+    private GmkpImpl gmkpImpl;
 
     public KafkaConsumerListener() {
     }
@@ -97,6 +103,34 @@ public class KafkaConsumerListener {
     }
 
     /**
+     * 气象实况数据更新
+     *
+     * @param record
+     */
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_WeatherReal)
+    public void weatherReal(ConsumerRecord<String, String> record) {
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/testrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 空间环境数据更新信息
+     *
+     * @param record
+     */
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_UpdateMsg)
+    public void updateMsg(ConsumerRecord<String, String> record) {
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/testrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 卫星高能粒子数据
      *
      * @param record
@@ -126,5 +160,53 @@ public class KafkaConsumerListener {
         }
         SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
         return seEventsImpl.parseData(secIISVO);
+    }
+
+    /**
+     * 太阳F10.7指数数据
+     *
+     * @param record
+     */
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_F107)
+    public int soF107(ConsumerRecord<String, String> record) {
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/testrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
+        return soF107Impl.parseData(secIISVO);
+    }
+
+    /**
+     * AP指数数据
+     *
+     * @param record
+     */
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_AP)
+    public int gmap(ConsumerRecord<String, String> record) {
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/testrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
+        return gmapImpl.parseData(secIISVO);
+    }
+
+    /**
+     * KP指数数据
+     *
+     * @param record
+     */
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_KP)
+    public int gmkp(ConsumerRecord<String, String> record) {
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/testrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
+        return gmkpImpl.parseData(secIISVO);
     }
 }
