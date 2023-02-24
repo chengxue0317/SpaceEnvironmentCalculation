@@ -26,12 +26,12 @@ public class FileUtil {
      * @return
      */
     @ApiOperation("获得某天日期的文件路径")
-    public static String getAdayFilePath(int n) {
+    public static String getAdayFilePath(int n, String separator) {
         String toDay = DateUtil.getDaysLater(n);
         String year = toDay.substring(0, 4);
         String month = toDay.substring(5, 7);
         String day = toDay.substring(8, 10);
-        return year + Constant.FILE_SEPARATOR + month + Constant.FILE_SEPARATOR + day + Constant.FILE_SEPARATOR;
+        return year + separator + month + separator + day + separator;
     }
 
     /**

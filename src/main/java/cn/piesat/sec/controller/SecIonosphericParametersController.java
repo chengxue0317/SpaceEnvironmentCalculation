@@ -2,6 +2,7 @@ package cn.piesat.sec.controller;
 
 import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
+import cn.piesat.sec.comm.util.FileUtil;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 import cn.piesat.sec.service.SecIonosphericParametersService;
@@ -43,6 +44,9 @@ public class SecIonosphericParametersController {
     @Value("${s3.bucketName}")
     private String bucketName;
 
+    @Value("${piesat.profile}")
+    private String profile;
+
     /**
      * 获取电离层闪烁数据
      *
@@ -77,7 +81,7 @@ public class SecIonosphericParametersController {
                     break;
                 }
                 case "s4": {
-                    String preview = OSSInstance.getOSSUtil().preview(bucketName, "sec/S4/stations/line.png");
+                    String preview = OSSInstance.getOSSUtil().preview(bucketName, FileUtil.rmPathPreSplit(profile.concat("S4/stations/line.png")));
                     SecIonosphericParametersVO v1 = new SecIonosphericParametersVO();
                     v1.setName("电离层闪烁现报区域分布图");
                     v1.setSrc(preview);

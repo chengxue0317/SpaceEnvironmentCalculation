@@ -23,29 +23,9 @@ public class Constant {
     public final static String GBK = "GBK";
 
     /**
-     * 文件后缀
-     */
-    public final static String SUFFIX_07 = ".docx";
-
-    /**
-     * 存放数据相对根文件夹
-     */
-    public final static String BASE_DIR = "/sec/";
-
-    /**
-     * docx模板文件存放路径
-     */
-    public final static String MODEL_PATH = BASE_DIR + "doc/model/";
-
-    /**
      * 报文存放文件夹
      */
-    public final static String REPORT = "report";
-
-    /**
-     * 日报文件名称
-     */
-    public final static String DAILY_REPORT_NAME = "report";
+    public final static String REPORT = "/report";
 
     /**
      * 缓存大小

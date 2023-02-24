@@ -86,7 +86,7 @@ public class SecReportServiceImpl implements SecReportService {
 
     @Override
     public String makeShortDayReport() {
-        String targetDir = secFileServerProperties.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
+        String targetDir = secFileServerProperties.getProfile() + FileUtil.getAdayFilePath(0, StringUtils.EMPTY) + Constant.REPORT + Constant.FILE_SEPARATOR;
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         String fileName = "空间环境日报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
@@ -162,7 +162,7 @@ public class SecReportServiceImpl implements SecReportService {
 
     @Override
     public String makeWeekReport() {
-        String targetDir = secFileServerProperties.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
+        String targetDir = secFileServerProperties.getProfile() + FileUtil.getAdayFilePath(0, StringUtils.EMPTY) + Constant.REPORT + Constant.FILE_SEPARATOR;
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
         String fileName = "空间环境周报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;
@@ -255,7 +255,7 @@ public class SecReportServiceImpl implements SecReportService {
 
     @Override
     public String makeMonthReport() {
-        String targetDir = secFileServerProperties.getProfile() + FileUtil.getAdayFilePath(0) + Constant.REPORT + Constant.FILE_SEPARATOR;
+        String targetDir = secFileServerProperties.getProfile() + FileUtil.getAdayFilePath(0, StringUtils.EMPTY) + Constant.REPORT + Constant.FILE_SEPARATOR;
         FileUtil.mkdirs(targetDir);
         String fileName = "空间环境月报" + DateUtil.parseDate(LocalDateTime.now(), "yyyyMMdd") + ".docx"; // 输出文件名称和路径
         String tarPath = targetDir + fileName;

@@ -115,8 +115,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 //                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
 //            }
 //            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getTecTimes().concat(secFileServerProperties.getSecondDir()));
-//        updatePicsPathofMinio(pictures);
-        getExistsPicsPathofMinio(pictures); // 假设文件已经存在直接获取服务器文件
+        updatePicsPathofMinio(pictures);
+//        getExistsPicsPathofMinio(pictures); // 假设文件已经存在直接获取服务器文件
 //            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
 //        } catch (IOException e) {
 //            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
@@ -158,8 +158,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 //            }
 //            setPicturesInfo(pictures, targetDir.concat(secFileServerProperties.getSecondDir()), secFileServerProperties.getRoti().concat(secFileServerProperties.getSecondDir()));
         // 算法生成图片上传到文件服务器
-//        updatePicsPathofMinio(pictures);
-        getExistsPicsPathofMinio(pictures); // 假设文件已经存在直接获取服务器文件
+        updatePicsPathofMinio(pictures);
+//        getExistsPicsPathofMinio(pictures); // 假设文件已经存在直接获取服务器文件
 //            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
 //        } catch (IOException e) {
 //            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
