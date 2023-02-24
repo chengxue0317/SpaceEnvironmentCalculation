@@ -71,6 +71,7 @@ python:
     cross_anomaly: /export/SEC/AP8AE8/SatCrossSAATime/sat_cross_SAA_time.py   #穿越南大西洋异常区算法
     surface_incharging: /export/yuechao_cal/surface_charging/surface_incharging.py   #穿卫星表面充电模块算法
     satellite_time: /export/yuechao_cal/SAT_ID_TIME_SPAN.py   #确定卫星时间范围算法
+    orbital_spectrum: /export/yuechao_cal/sat_spectrum/sat_spectrum/sp.py   #卫星轨道能谱算法
 
 picture:
   path:

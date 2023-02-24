@@ -3,6 +3,8 @@ package cn.piesat.sec.controller;
 import java.io.File;
 import java.io.Serializable;
 import java.net.Inet4Address;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -118,6 +120,9 @@ public class SdcResourceSatelliteController {
     @Value("${python.path.satellite_time}")
     private String satelliteTime;
 
+    @Value("${python.path.orbital_spectrum}")
+    private String orbitalSpectrum;
+
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
 
@@ -186,9 +191,14 @@ public class SdcResourceSatelliteController {
         }
         String picName = result.replaceAll("\\s*", "");
 
-        String path = picturePathMagneticGlobal.concat(picName);
-        OSSInstance.getOSSUtil().upload(bucketName, path, path);
-        return OSSInstance.getOSSUtil().preview(bucketName, path);
+        String path = "/CMS-SDC/OP/TS/";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        String pathData = path.concat(LocalDate.now().format(formatter));
+
+        String previewPath = pathData.concat(File.separator).concat(picName);
+        String path2 = picturePathMagneticGlobal.concat(picName);
+        OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
+        return OSSInstance.getOSSUtil().preview(bucketName, previewPath);
 //        return hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(picName);
 
     }
@@ -293,9 +303,11 @@ public class SdcResourceSatelliteController {
     public Map<String, String> getGlobalRadiationEnv(@RequestParam("time")String time,
                                                 @RequestParam("height")Integer height,
                                                 @RequestParam("ionChannel")Integer ionChannel,
-                                                @RequestParam("resolutionRatio")Integer resolutionRatio){
+                                                @RequestParam("resolutionRatio")Integer resolutionRatio,
+                                                @RequestParam("startEnergyLevel")Integer startEnergyLevel,
+                                                @RequestParam("endEnergyLevel")Integer endEnergyLevel){
 
-        String command = "python3 "+pythonGlobalRadiationEnv+" '"+time+"' "+height+" "+ionChannel+" "+resolutionRatio;
+        String command = "python3 "+pythonGlobalRadiationEnv+" '"+time+"' "+height+" "+ionChannel+" "+resolutionRatio+" "+startEnergyLevel+" "+endEnergyLevel;
         log.info("执行Python命令：{}",command);
 //        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
         String result = ExecUtil.execCmdWithResult(command);
@@ -312,13 +324,19 @@ public class SdcResourceSatelliteController {
         Map<String, String> map = new HashMap<>();
         String substring = jsonStr.substring(jsonStr.lastIndexOf(File.separator)+1);
 
-        String mainFigurePath = picturePathGlobalRadiationEnv.concat(substring).concat("/main_figure.jpg");
-        OSSInstance.getOSSUtil().upload(bucketName, mainFigurePath, mainFigurePath);
-        String mainFigure = OSSInstance.getOSSUtil().preview(bucketName, mainFigurePath);
+        String path = "/CMS-SDC/OP/TS/";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        String pathData = path.concat(LocalDate.now().format(formatter));
 
+        String mainFigurePreviewPath = pathData.concat("/main_figure.jpg");
+        String mainFigurePath = picturePathGlobalRadiationEnv.concat(substring).concat("/main_figure.jpg");
+        OSSInstance.getOSSUtil().upload(bucketName, mainFigurePreviewPath, mainFigurePath);
+        String mainFigure = OSSInstance.getOSSUtil().preview(bucketName, mainFigurePreviewPath);
+
+        String colorbarPreviewPath = pathData.concat("/colorbar.jpg");
         String colorbarPath = picturePathGlobalRadiationEnv.concat(substring).concat("/colorbar.jpg");
-        OSSInstance.getOSSUtil().upload(bucketName, colorbarPath, colorbarPath);
-        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPath);
+        OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
+        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
 
 //        String mainFigure = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
 //        String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
@@ -428,13 +446,19 @@ public class SdcResourceSatelliteController {
         Map<String, String> map = new HashMap<>();
         String substring = resultHandle.substring(resultHandle.lastIndexOf(File.separator)+1);
 
-        String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/log_plot.png");
-        OSSInstance.getOSSUtil().upload(bucketName, logPlotPath, logPlotPath);
-        String logPlot = OSSInstance.getOSSUtil().preview(bucketName, logPlotPath);
+        String path = "/CMS-SDC/OP/TS/";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        String pathData = path.concat(LocalDate.now().format(formatter));
 
+        String logPlotPreviewPath = pathData.concat("/log_plot.png");
+        String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/log_plot.png");
+        OSSInstance.getOSSUtil().upload(bucketName, logPlotPreviewPath, logPlotPath);
+        String logPlot = OSSInstance.getOSSUtil().preview(bucketName, logPlotPreviewPath);
+
+        String colorbarPreviewPath = pathData.concat("/color_bar.png");
         String colorbarPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/color_bar.png");
-        OSSInstance.getOSSUtil().upload(bucketName, colorbarPath, colorbarPath);
-        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPath);
+        OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
+        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
 
 //        String logPlot = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/log_plot.png");
 //        String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/color_bar.png");
@@ -477,5 +501,31 @@ public class SdcResourceSatelliteController {
         JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
         return jsonObject;
 
+    }
+
+
+    @ApiOperation("卫星轨道能谱")
+    @GetMapping("/getOrbitalSpectrum")
+    public JSONObject getOrbitalSpectrum(@RequestParam("beginTime")String beginTime,
+                                         @RequestParam("endTime")String endTime,
+                                         @RequestParam("particleType")String particleType,
+                                         @RequestParam("satId")String satId,
+                                         @RequestParam("startEnergyLevel")Integer startEnergyLevel,
+                                         @RequestParam("endEnergyLevel")Integer endEnergyLevel){
+
+        String command = "python3 "+orbitalSpectrum+" "+beginTime+" "+endTime+" "+satId+" "+particleType+" "+startEnergyLevel+" "+endEnergyLevel;
+        log.info("执行Python命令：{}",command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        return jsonObject;
+
+    }
+
+    public static void main(String[] args) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        System.out.println(LocalDate.now().format(formatter));
     }
 }
