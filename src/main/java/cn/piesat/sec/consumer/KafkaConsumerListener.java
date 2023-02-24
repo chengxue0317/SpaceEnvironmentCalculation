@@ -51,6 +51,19 @@ public class KafkaConsumerListener {
     @Autowired
     private GmkpImpl gmkpImpl;
 
+    @Autowired
+    private IonoTecImpl ionoTecImpl;
+
+    @Autowired
+    private DayForeImpl dayForeImpl;
+
+    @Autowired
+    private WeekForeImpl weekForeImpl;
+
+    @Autowired
+    private MonthForeImpl monthForeImpl;
+
+
     public KafkaConsumerListener() {
     }
 
@@ -208,5 +221,69 @@ public class KafkaConsumerListener {
         }
         SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
         return gmkpImpl.parseData(secIISVO);
+    }
+
+    /**
+     *电离层TEC数据
+     * @param record
+     * @return
+     */
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_TEC)
+    public int tonoTec(ConsumerRecord<String,String> record){
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/tecTestrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
+        return ionoTecImpl.parseData(secIISVO);
+    }
+
+    /**
+     *空间环境每日预报预制备数据
+     * @param record
+     * @return*/
+
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_DayFore)
+    public int dayFore(ConsumerRecord<String,String> record){
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/dayForeTestrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
+        return dayForeImpl.parseData(secIISVO);
+    }
+
+    /**
+     *空间环境周报预制备数据
+     * @param record
+     * @return*/
+
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_WeekFore)
+    public int weekFore(ConsumerRecord<String,String> record){
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/weekForeTestrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
+        return weekForeImpl.parseData(secIISVO);
+    }
+
+    /**
+     *空间环境月报预制备数据
+     * @param record
+     * @return*/
+
+    @KafkaListener(topics = KafkaConstant.THEME_CSS_IIS_MonthFore)
+    public int monthFore(ConsumerRecord<String,String> record){
+        try {
+            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/mornthForeTestrecords.txt"), LocalDateTime.now() + record.value(), Constant.UTF8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SecIISVO secIISVO = JSON.parseObject(record.value(), SecIISVO.class);
+        return monthForeImpl.parseData(secIISVO);
     }
 }
