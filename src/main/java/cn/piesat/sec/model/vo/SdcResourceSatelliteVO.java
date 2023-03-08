@@ -40,7 +40,7 @@ public class SdcResourceSatelliteVO implements Serializable {
      * 卫星名称
      */
     @ApiModelProperty("卫星名称")
-    private String satName;
+    private String satelliteName;
 
     /**
      * 卫星PRN号

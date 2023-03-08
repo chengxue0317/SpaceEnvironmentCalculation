@@ -7,7 +7,7 @@
     <resultMap type="cn.piesat.sec.model.entity.SdcResourceSatelliteDO" id="sdcResourceSatelliteMap">
         <result property="id" column="ID"/>
         <result property="satId" column="SAT_ID"/>
-        <result property="satName" column="SAT_NAME"/>
+        <result property="satelliteName" column="SATELLITE_NAME"/>
         <result property="satPrn" column="SAT_PRN"/>
         <result property="satStatus" column="SAT_STATUS"/>
         <result property="sendTime" column="SEND_TIME"/>
@@ -26,6 +26,6 @@
     </resultMap>
 
     <select id="getAllList" resultMap="sdcResourceSatelliteMap">
-        SELECT DISTINCT SAT_ID,SAT_NAME FROM SDC_RESOURCE_SATELLITE
+        SELECT DISTINCT SAT_ID,SATELLITE_NAME FROM SDC_RESOURCE_SATELLITE
     </select>
 </mapper>

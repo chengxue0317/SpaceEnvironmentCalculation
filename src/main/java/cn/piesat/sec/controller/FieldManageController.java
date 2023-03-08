@@ -1,24 +1,32 @@
 package cn.piesat.sec.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup ;
 import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean ;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.entity.FieldManageDO;
+import cn.piesat.sec.model.vo.FaultDiagnosisM2VO;
 import cn.piesat.sec.model.vo.PageVo;
 import cn.piesat.sec.model.vo.SearchParam;
 import cn.piesat.sec.service.FieldManageService;
 
+import cn.piesat.sec.utils.ExecUtil;
 import cn.piesat.sec.utils.POIUtils;
 import cn.piesat.sec.utils.PageUtil;
 import io.swagger.annotations.Api;
@@ -32,8 +40,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,6 +73,12 @@ import javax.servlet.http.HttpServletResponse;
 public class FieldManageController {
 
     private static final Logger log = LoggerFactory.getLogger(FieldManageController.class);
+
+    @Value("${python.path.fault_diagnosis}")
+    private String faultDiagnosis;
+
+    @Value("${python.path.fault_diagnosis_m2}")
+    private String faultDiagnosisM2;
 
     @Autowired
     private final FieldManageService fieldManageService;
@@ -241,6 +257,7 @@ public class FieldManageController {
      */
     @ApiOperation("新增字段")
     @PostMapping("/addField")
+    @Transactional
     public void addField(@Validated(AddGroup.class) @RequestBody FieldManageDO fieldManageDO){
         String tableName = "SEC_FAULT_DIAGNOSIS";
         StringBuilder sqlBuilder = new StringBuilder();
@@ -273,6 +290,8 @@ public class FieldManageController {
         String commentSql = commentBuilder.toString();
         log.info("执行SQL语句----->{}",commentSql);
         jdbcTemplate.execute(commentSql);
+
+        fieldManageService.add(fieldManageDO);
     }
 
 
@@ -281,7 +300,9 @@ public class FieldManageController {
      */
     @ApiOperation("修改字段名称")
     @PostMapping("/changeFieldName")
-    public void changeFieldName(@RequestParam("oldFieldName") String oldFieldName,
+    @Transactional
+    public void changeFieldName(@RequestParam("id") Long id,
+                                @RequestParam("oldFieldName") String oldFieldName,
                                 @RequestParam("newFieldName") String newFieldName
                                 ){
         String tableName = "SEC_FAULT_DIAGNOSIS";
@@ -297,6 +318,11 @@ public class FieldManageController {
         String sql = sqlBuilder.toString();
         log.info("执行SQL语句----->{}", sql);
         jdbcTemplate.execute(sql);
+
+        FieldManageDO fieldManageDO =new FieldManageDO();
+        fieldManageDO.setId(id);
+        fieldManageDO.setFieldName(newFieldName);
+        fieldManageService.update(fieldManageDO);
     }
 
 
@@ -305,7 +331,9 @@ public class FieldManageController {
      */
     @ApiOperation("修改字段类型")
     @PostMapping("/changeDataType")
-    public void changeDataType(@RequestParam("fieldName") String fieldName,
+    @Transactional
+    public void changeDataType(@RequestParam("id") Long id,
+                               @RequestParam("fieldName") String fieldName,
                                 @RequestParam("dataType") String dataType
     ){
         String tableName = "SEC_FAULT_DIAGNOSIS";
@@ -320,6 +348,11 @@ public class FieldManageController {
         String sql = sqlBuilder.toString();
         log.info("执行SQL语句----->{}", sql);
         jdbcTemplate.execute(sql);
+
+        FieldManageDO fieldManageDO =new FieldManageDO();
+        fieldManageDO.setId(id);
+        fieldManageDO.setDataType(dataType);
+        fieldManageService.update(fieldManageDO);
     }
 
 
@@ -328,7 +361,9 @@ public class FieldManageController {
      */
     @ApiOperation("修改约束")
     @PostMapping("/changeConstraint")
-    public void changeConstraint(@RequestParam("oldFieldName") String oldFieldName,
+    @Transactional
+    public void changeConstraint(@RequestParam("id") Long id,
+                                 @RequestParam("oldFieldName") String oldFieldName,
                                  @RequestParam("notNullConstraint") Integer notNullConstraint
     ){
         String tableName = "SEC_FAULT_DIAGNOSIS";
@@ -347,6 +382,11 @@ public class FieldManageController {
         String sql = sqlBuilder.toString();
         log.info("执行SQL语句----->{}", sql);
         jdbcTemplate.execute(sql);
+
+        FieldManageDO fieldManageDO =new FieldManageDO();
+        fieldManageDO.setId(id);
+        fieldManageDO.setNotNullConstraint(notNullConstraint);
+        fieldManageService.update(fieldManageDO);
     }
 
 
@@ -355,9 +395,11 @@ public class FieldManageController {
      */
     @ApiOperation("修改精度")
     @PostMapping("/changePrecision")
-    public void changePrecision(@RequestParam("fieldName") String fieldName,
-                               @RequestParam("dataType") String dataType,
-                               @RequestParam("precision") Integer precision
+    @Transactional
+    public void changePrecision(@RequestParam("id") Long id,
+                                @RequestParam("fieldName") String fieldName,
+                                @RequestParam("dataType") String dataType,
+                                @RequestParam("precision") Integer precision
     ){
         String tableName = "SEC_FAULT_DIAGNOSIS";
         StringBuilder sqlBuilder = new StringBuilder();
@@ -373,6 +415,11 @@ public class FieldManageController {
         String sql = sqlBuilder.toString();
         log.info("执行SQL语句----->{}", sql);
         jdbcTemplate.execute(sql);
+
+        FieldManageDO fieldManageDO =new FieldManageDO();
+        fieldManageDO.setId(id);
+        fieldManageDO.setPrecision(precision);
+        fieldManageService.update(fieldManageDO);
     }
 
     /**
@@ -380,7 +427,9 @@ public class FieldManageController {
      */
     @ApiOperation("修改注释")
     @PostMapping("/changeAnnotation")
-    public void changeAnnotation(@RequestParam("fieldName") String fieldName,
+    @Transactional
+    public void changeAnnotation(@RequestParam("id") Long id,
+                                @RequestParam("fieldName") String fieldName,
                                 @RequestParam("annotation") String annotation
     ){
         String tableName = "SEC_FAULT_DIAGNOSIS";
@@ -395,6 +444,11 @@ public class FieldManageController {
         String sql = sqlBuilder.toString();
         log.info("执行SQL语句----->{}", sql);
         jdbcTemplate.execute(sql);
+
+        FieldManageDO fieldManageDO =new FieldManageDO();
+        fieldManageDO.setId(id);
+        fieldManageDO.setAnnotation(annotation);
+        fieldManageService.update(fieldManageDO);
     }
 
     /**
@@ -402,7 +456,9 @@ public class FieldManageController {
      */
     @ApiOperation("删除字段")
     @PostMapping("/delField")
-    public void delField(@RequestParam("fieldName") String fieldName){
+    @Transactional
+    public void delField(@RequestParam("id") Long id,
+                        @RequestParam("fieldName") String fieldName){
         String tableName = "SEC_FAULT_DIAGNOSIS";
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("alter table \"SDC\".\"");
@@ -414,6 +470,8 @@ public class FieldManageController {
         String sql = sqlBuilder.toString();
         log.info("执行SQL语句----->{}", sql);
         jdbcTemplate.execute(sql);
+
+        fieldManageService.delete(id);
     }
 
     /**
@@ -538,7 +596,12 @@ public class FieldManageController {
             XSSFRow dataRow = sheet.createRow(rowNUm);
             for (int j = 0, size = headRowData.size(); j < size; j++) {
                 //设置数据
-                dataRow.createCell(j).setCellValue(dataMap.get(headRowData.get(j)).toString());
+                System.out.println(dataMap.get(headRowData.get(j)));
+                Object value = dataMap.get(headRowData.get(j));
+                if (value!=null){
+                    dataRow.createCell(j).setCellValue(value.toString());
+                }
+
             }
             rowNUm++;
         }
@@ -578,6 +641,72 @@ public class FieldManageController {
             }
 
         }
+
+    }
+
+
+    /**
+     * 删除数据
+     */
+    @ApiOperation("删除数据")
+    @PostMapping("/delData")
+    public void delData(@RequestBody List<Object[]> ids){
+        String sql = "delete from SEC_FAULT_DIAGNOSIS where ID = ?";
+        jdbcTemplate.batchUpdate(sql,ids);
+
+    }
+
+
+    @ApiOperation("卫星空间环境故障诊断M1")
+    @GetMapping("/faultDiagnosis")
+    public String faultDiagnosis(){
+        String nowtime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String command = "python3 "+faultDiagnosis+" "+nowtime+" /export/故障诊断多参数/xw.ini SEC_FAULT_DIAGNOSIS_COPY";
+        log.info("执行Python命令：{}",command);
+//        ExecUtil.execAsync(command);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                String result = ExecUtil.execCmdWithResult(command);
+                log.info("Python命令执行结果：{}",result);
+            }
+        }).start();
+
+        return nowtime;
+
+    }
+
+    @ApiOperation("获取故障诊断M2模型路径")
+    @GetMapping("/getModel")
+    public List<String> getModel(String type){
+        List<String> list = FileUtil.listFileNames("/export/故障诊断多参数/model/".concat(type));
+        return list;
+
+    }
+
+    @ApiOperation("获取故障诊断M2模型类型")
+    @GetMapping("/getModelType")
+    public List<String> getModelType(){
+        File[] files = FileUtil.ls("/export/故障诊断多参数/model/");
+        List<String> names = new ArrayList<>();
+        for (int i=0;i<files.length;i++){
+            names.add(files[i].getName());
+        }
+        return names;
+
+    }
+
+    @ApiOperation("卫星空间环境故障诊断M2")
+    @PostMapping("/faultDiagnosisM2")
+    public String faultDiagnosisM2(@RequestBody FaultDiagnosisM2VO faultDiagnosisM2VO){
+        String modelPath = "/export/故障诊断多参数/model/".concat(faultDiagnosisM2VO.getType()).concat(File.separator).concat(faultDiagnosisM2VO.getFileName());
+        String command = "python3 "+faultDiagnosisM2+" "+modelPath+" "+Arrays.toString(faultDiagnosisM2VO.getData()).replaceAll("\\s*", "");
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        return jsonStr;
 
     }
 

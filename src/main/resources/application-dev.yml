@@ -72,16 +72,21 @@ python:
     surface_incharging: /export/yuechao_cal/surface_charging/surface_incharging.py   #穿卫星表面充电模块算法
     satellite_time: /export/yuechao_cal/SAT_ID_TIME_SPAN.py   #确定卫星时间范围算法
     orbital_spectrum: /export/yuechao_cal/sat_spectrum/sat_spectrum/sp.py   #卫星轨道能谱算法
+    fault_diagnosis: /export/故障诊断多参数/M01_Model_Creation_release_V1.0.py   #故障诊断算法M1
+    fault_diagnosis_m2: /export/故障诊断多参数/M02_Model_Prediction_V1.0.py   #故障诊断算法M2
+    magnetic_global_v2: /export/chaos_submit/magnetic_global_V2.py   #全球磁场内源场和外源场分布算法
 
 picture:
   path:
     magnetic_global: /export/magnetic_global/     #全球磁场分布图片存储路径
     global_radiation_env: /export/yuechao_cal/SRAD/AP8AE8/     #全球辐射环境图片存储路径
     satellite_radiation_env: /export/SEC/AP8AE8/     #全球辐射环境图片存储路径
+    magnetic_global_v2: /export/magnetic_global/v2/     #全球磁场内源场和外源场分布图片存储路径
   url:
     magnetic_global: /png/magnetic_global/             #全球磁场分布图片映射路径
     global_radiation_env: /png/global_radiation_env/             #全球辐射环境图片映射路径
     satellite_radiation_env: /png/satellite_radiation_env/             #全球辐射环境图片映射路径
+    magnetic_global_v2: /png/magnetic_global/v2/             #全球磁场内源场和外源场分布图片映射路径
 
 #python docker
 remote:

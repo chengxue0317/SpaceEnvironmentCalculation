@@ -71,7 +71,7 @@ public class SdcResourceSatelliteServiceImpl extends ServiceImpl<SdcResourceSate
                 for (SdcResourceSatelliteDO sdo : allList) {
                     SdcResourceSatelliteVO vo = new SdcResourceSatelliteVO();
                     vo.setSatId(sdo.getSatId());
-                    vo.setSatName(sdo.getSatName());
+                    vo.setSatelliteName(sdo.getSatelliteName());
                     resList.add(vo);
                 }
             }

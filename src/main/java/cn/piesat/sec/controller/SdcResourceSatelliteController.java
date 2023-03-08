@@ -3,9 +3,12 @@ package cn.piesat.sec.controller;
 import java.io.File;
 import java.io.Serializable;
 import java.net.Inet4Address;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +36,10 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +50,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 /**
  * 卫星基本信息
@@ -123,6 +131,13 @@ public class SdcResourceSatelliteController {
     @Value("${python.path.orbital_spectrum}")
     private String orbitalSpectrum;
 
+    @Value("${python.path.magnetic_global_v2}")
+    private String pythonMagneticGlobalV2;
+    @Value("${picture.path.magnetic_global_v2}")
+    private String pictureMagneticGlobalV2;
+    @Value("${picture.url.magnetic_global_v2}")
+    private String pictureUrlMagneticGlobalV2;
+
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
 
@@ -166,7 +181,7 @@ public class SdcResourceSatelliteController {
     @GetMapping("/getSatellites")
     public List<SdcResourceSatelliteDO> getSatellites(){
         QueryWrapper<SdcResourceSatelliteDO> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("SAT_NAME").isNotNull("SAT_NAME");
+        queryWrapper.select("SATELLITE_NAME").isNotNull("SATELLITE_NAME");
         return sdcResourceSatelliteService.list(queryWrapper);
     }
 
@@ -231,7 +246,6 @@ public class SdcResourceSatelliteController {
 //            magneticOrbitVO.setMagnetic(Float.parseFloat(jsonObject.get("B").toString()));
 //            magneticOrbitVOS.add(magneticOrbitVO);
 //        }
-
 
 //        return magneticOrbitVOS;
         return jsonArray;
@@ -524,8 +538,71 @@ public class SdcResourceSatelliteController {
 
     }
 
+    @Autowired
+    private StaticResourceDynamicRegistryController staticResourceDynamicRegistryController;
+
+    @ApiOperation("全球磁场内源场和外源场分布")
+    @GetMapping("/drawGlobalMagneticV2")
+    public List<String> drawGlobalMagneticV2(@RequestParam("beginTime")String beginTime,
+                                     @RequestParam("endTime")String endTime,
+                                     @RequestParam("height")Integer height){
+
+        FileUtil.mkdir(pictureMagneticGlobalV2);
+//        String command = "python3 "+pythonMagneticGlobal+" \"'"+time+"'\" "+height+" "+pictureMagneticGlobal;
+        String command = "python3 "+pythonMagneticGlobalV2+" '"+beginTime+"' "+"'"+endTime+"' "+height+" "+pictureMagneticGlobalV2;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String hostAddress = null;
+        try {
+            hostAddress = Inet4Address.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String picPath = result.replaceAll("\\s*", "");
+//        String picPath = "F:\\code-sw\\20120118000000-20121111000001-10km";
+        staticResourceDynamicRegistryController.registry(pictureUrlMagneticGlobalV2,picPath.concat(File.separator));
+        List<String> list = FileUtil.listFileNames(picPath);
+        List<String> allPath = new ArrayList<>();
+        for (String picName:list){
+            allPath.add("http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobalV2).concat(picName));
+        }
+
+//        String path = "/CMS-SDC/OP/TS/";
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+//        String pathData = path.concat(LocalDate.now().format(formatter));
+//
+//        String previewPath = pathData.concat(File.separator).concat(picName);
+//        String path2 = picturePathMagneticGlobal.concat(picName);
+//        OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
+//        return OSSInstance.getOSSUtil().preview(bucketName, previewPath);
+        return allPath;
+
+    }
+
+    public static void update(ApplicationContext ctx, String url, String resource) {
+        SimpleUrlHandlerMapping mapping = (SimpleUrlHandlerMapping) ctx.getBean("resourceHandlerMapping");
+        ResourceHttpRequestHandler handler = (ResourceHttpRequestHandler) mapping.getUrlMap().get(url);
+        if (handler != null) {
+            handler.setLocationValues(Arrays.asList(resource));
+            handler.getLocations().clear();
+            handler.getResourceResolvers().clear();
+            try {
+                handler.afterPropertiesSet();
+            } catch (Throwable ex) {
+                throw new BeanInitializationException("Failed to init ResourceHttpRequestHandler", ex);
+            }
+        }
+    }
+
+
+
+
+
     public static void main(String[] args) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        String nowtime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         System.out.println(LocalDate.now().format(formatter));
+        System.out.println(nowtime);
     }
 }
