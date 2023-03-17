@@ -272,7 +272,9 @@ public class FieldManageController {
         sqlBuilder.append(fieldManageDO.getPrecision());
         sqlBuilder.append(") ");
         if (fieldManageDO.getNotNullConstraint() ==1){
-            sqlBuilder.append(" not null ");
+            sqlBuilder.append("default (");
+            sqlBuilder.append(fieldManageDO.getDefaultValue());
+            sqlBuilder.append(") not null ");
         }
         sqlBuilder.append(");");
         String sql = sqlBuilder.toString();
@@ -291,6 +293,7 @@ public class FieldManageController {
         log.info("执行SQL语句----->{}",commentSql);
         jdbcTemplate.execute(commentSql);
 
+        fieldManageDO.setCreateTime(LocalDateTime.now());
         fieldManageService.add(fieldManageDO);
     }
 
@@ -659,11 +662,10 @@ public class FieldManageController {
 
     @ApiOperation("卫星空间环境故障诊断M1")
     @GetMapping("/faultDiagnosis")
-    public String faultDiagnosis(){
+    public String faultDiagnosis(String fields){
         String nowtime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        String command = "python3 "+faultDiagnosis+" "+nowtime+" /export/故障诊断多参数/xw.ini SEC_FAULT_DIAGNOSIS_COPY";
+        String command = "python3 "+faultDiagnosis+" \""+nowtime+"\" \"/export/故障诊断多参数/xw.ini\" \"SEC_FAULT_DIAGNOSIS\" \""+fields+"\" \"Error_ID\"";
         log.info("执行Python命令：{}",command);
-//        ExecUtil.execAsync(command);
         new Thread(new Runnable() {
             @Override
             public void run() {

@@ -3,6 +3,7 @@ package cn.piesat.sec.controller;
 import java.io.File;
 import java.io.Serializable;
 import java.net.Inet4Address;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
 import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
+import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.model.dto.SecAtmosphereDensityDTO;
 import cn.piesat.sec.model.entity.SecAtmosphereDensityDO;
 import cn.piesat.sec.model.query.SecAtmosphereDensityQuery;
@@ -25,12 +27,15 @@ import cn.piesat.sec.service.SecAtmosphereDensityService;
 import cn.piesat.sec.model.vo.SecAtmosphereDensityVO;
 import cn.piesat.sec.utils.Connection2Sever;
 import cn.piesat.sec.utils.ExecUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -65,6 +70,9 @@ public class SecAtmosphereDensityController {
     @Value("${python.path.atmosphere_density}")
     private String pythonAtmosphereDensity;
 
+    @Value("${python.path.atmosphere_density_global}")
+    private String pythonAtmosphereDensityGlobal;
+
     @Value("${remote.ip}")
     private String ip;
     @Value("${remote.port}")
@@ -73,6 +81,15 @@ public class SecAtmosphereDensityController {
     private String userName;
     @Value("${remote.password}")
     private String password;
+
+    @Value("${server.port}")
+    private String port;
+
+    @Value("${picture.url.atmosphere_density_global}")
+    private String pictureUrlAtmosphereDensityGlobal;
+
+    @Value("${s3.bucketName}")
+    private String bucketName;
 
     private final SecAtmosphereDensityService secAtmosphereDensityService;
 
@@ -134,41 +151,83 @@ public class SecAtmosphereDensityController {
 
     @ApiOperation("大气密度曲线图")
     @PostMapping("/getDataByArithmetic")
-    public Map getData1(@RequestParam("beginTime")String beginTime,
+    public JSONObject getDataByArithmetic(@RequestParam("beginTime")String beginTime,
                         @RequestParam("endTime")String endTime,
-                        @RequestParam("satId")String satId) throws Exception {
-        String command = "python3 "+pythonAtmosphereDensity+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId;
+                        @RequestParam("satId")String satId,
+                        @RequestParam("sign")Integer sign) throws Exception {
+        String command = "python3 "+pythonAtmosphereDensity+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+sign;
         log.info("执行Python命令：{}",command);
         String result = ExecUtil.execCmdWithResult(command);
 //        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
-        log.info("数据文件路径：{}",jsonStr);
-        if ("Fail".equals(jsonStr)){
-             throw new Exception("大气密度曲线图算法内部错误！");
-        }else {
-            List<String> readLines = FileUtil.readLines(jsonStr, CharsetUtil.CHARSET_UTF_8);
-            List<String> times = new ArrayList<>();
-            List<String> densitys = new ArrayList<>();
-            for (String line:readLines){
-                String[] split = line.split(",");
-                densitys.add(split[0]);
-                times.add(split[1]);
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
+        Object obj = jsonObject.get("colorbar");
+        if (obj != null){
+            String colorbar = obj.toString();
+            String hostAddress = null;
+            try {
+                hostAddress = Inet4Address.getLocalHost().getHostAddress();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            Map map = new HashMap();
-            map.put("times",times);
-            map.put("densitys",densitys);
-            File file = new File(jsonStr);
-            String parent = file.getParent();
-            boolean del = FileUtil.del(parent);
-            if (del){
-                log.info("数据文件路径：{}删除成功！",parent);
-            }else {
-                log.info("数据文件路径：{}删除失败！",parent);
-            }
-            return map;
+            String substring = colorbar.substring(colorbar.lastIndexOf(File.separator)+1);
+
+            String path = "/CMS-SDC/OP/TS/";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+            String pathData = path.concat(LocalDate.now().format(formatter));
+
+            String colorbarPreviewPath = pathData.concat("/colorbar.jpg");
+            String colorbarPath = colorbar.concat("/colorbar.jpg");
+            OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
+            jsonObject.put("colorbar",OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath));
+
+//            jsonObject.put("colorbar","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg"));
         }
 
+        return jsonObject;
+    }
+
+    @ApiOperation("全球大气密度曲线图")
+    @PostMapping("/getDataByArithmeticGlobal")
+    public Map<String, String> getDataByArithmeticGlobal(@RequestParam("time")String time,
+                                                @RequestParam("height")Integer height){
+        String command = "python3 "+pythonAtmosphereDensityGlobal+" '"+time+"' "+height;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        String hostAddress = null;
+        try {
+            hostAddress = Inet4Address.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Map<String, String> map = new HashMap<>();
+        String substring = jsonStr.substring(jsonStr.lastIndexOf(File.separator)+1);
+
+        String path = "/CMS-SDC/OP/TS/";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        String pathData = path.concat(LocalDate.now().format(formatter));
+
+        String mainFigurePreviewPath = pathData.concat("/main_figure.jpg");
+        String mainFigurePath = jsonStr.concat("/main_figure.jpg");
+        OSSInstance.getOSSUtil().upload(bucketName, mainFigurePreviewPath, mainFigurePath);
+        String mainFigure = OSSInstance.getOSSUtil().preview(bucketName, mainFigurePreviewPath);
+
+        String colorbarPreviewPath = pathData.concat("/colorbar.jpg");
+        String colorbarPath = jsonStr.concat("/colorbar.jpg");
+        OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
+        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
+
+        //图片映射方式有两种：1.动态映射 2.半映射半拼串
+//        String mainFigure = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/main_figure.jpg");
+//        String colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg");
+        map.put("mainFigure",mainFigure);
+        map.put("colorbar",colorbar);
+        return map;
     }
 
 

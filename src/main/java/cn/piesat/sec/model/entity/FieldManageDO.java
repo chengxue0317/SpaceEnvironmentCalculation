@@ -58,4 +58,9 @@ public class FieldManageDO implements Serializable {
      */
     @ApiModelProperty("注释")
     private String annotation;
+    /**
+     * 默认值
+     */
+    @ApiModelProperty("默认值")
+    private String defaultValue;
 }

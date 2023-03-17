@@ -1,17 +1,27 @@
 package cn.piesat.sec.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.Inet4Address;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
@@ -23,6 +33,7 @@ import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.model.dto.SdcResourceSatelliteDTO;
 import cn.piesat.sec.model.entity.SdcResourceSatelliteDO;
 import cn.piesat.sec.model.query.SdcResourceSatelliteQuery;
+import cn.piesat.sec.model.vo.RadioWaveEffectVO;
 import cn.piesat.sec.model.vo.SdcResourceSatelliteVO;
 import cn.piesat.sec.service.SdcResourceSatelliteService;
 import cn.piesat.sec.utils.ExecUtil;
@@ -138,6 +149,18 @@ public class SdcResourceSatelliteController {
     @Value("${picture.url.magnetic_global_v2}")
     private String pictureUrlMagneticGlobalV2;
 
+    @Value("${python.path.in_charging}")
+    private String incharging;
+
+    @Value("${python.path.satellite_radiation_env_orbit}")
+    private String pythonSatelliteRadiationEnvOrbit;
+
+    @Value("${python.path.satellite_radiation_env_orbit_plane}")
+    private String pythonSatelliteRadiationEnvOrbitPlane;
+
+    @Value("${python.path.s4_satellite}")
+    private String s4Satellite;
+
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
 
@@ -187,7 +210,7 @@ public class SdcResourceSatelliteController {
 
     @ApiOperation("全球磁场分布")
     @GetMapping("/drawGlobalMagnetic")
-    public String drawGlobalMagnetic(@RequestParam("time")String time,
+    public Map<String, String> drawGlobalMagnetic(@RequestParam("time")String time,
                                      @RequestParam("height")Integer height){
 
         FileUtil.mkdir(pictureMagneticGlobal);
@@ -197,24 +220,42 @@ public class SdcResourceSatelliteController {
 //        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
         String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
-//        String picName = time.replace(":", "-").replace(" ","_").concat("_").concat(height.toString()).concat("km.png");
+        JSONObject jsonObject = JSON.parseObject(result.replace("\\s*", ""));
+        Object fig = jsonObject.get("fig");
+        Object bar = jsonObject.get("bar");
         String hostAddress = null;
         try {
             hostAddress = Inet4Address.getLocalHost().getHostAddress();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String picName = result.replaceAll("\\s*", "");
+
+
+        Map<String, String> map = new HashMap<>();
 
         String path = "/CMS-SDC/OP/TS/";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String pathData = path.concat(LocalDate.now().format(formatter));
 
-        String previewPath = pathData.concat(File.separator).concat(picName);
-        String path2 = picturePathMagneticGlobal.concat(picName);
-        OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
-        return OSSInstance.getOSSUtil().preview(bucketName, previewPath);
-//        return hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(picName);
+
+        if (fig != null){
+            String previewPath = pathData.concat(File.separator).concat(fig.toString());
+            String path2 = picturePathMagneticGlobal.concat(fig.toString());
+            OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
+            map.put("fig",OSSInstance.getOSSUtil().preview(bucketName, previewPath));
+
+//            map.put("fig","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(fig.toString()));
+        }
+
+        if (bar != null){
+            String previewPath = pathData.concat(File.separator).concat(bar.toString());
+            String path2 = picturePathMagneticGlobal.concat(bar.toString());
+            OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
+            map.put("bar",OSSInstance.getOSSUtil().preview(bucketName, previewPath));
+
+//            map.put("bar","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(bar.toString()));
+        }
+        return map;
 
     }
 
@@ -235,19 +276,6 @@ public class SdcResourceSatelliteController {
         String jsonStr = StrUtil.subBetween(result, "%%", "%%");
         String trim = jsonStr.trim();
         JSONArray jsonArray = JSON.parseArray(trim);
-//        List<MagneticOrbitVO> magneticOrbitVOS = new ArrayList<>();
-//        for (int i = 0;i<jsonArray.size();i++){
-//            JSONObject jsonObject = jsonArray.getJSONObject(i);
-//            MagneticOrbitVO magneticOrbitVO = new MagneticOrbitVO();
-//            magneticOrbitVO.setTime(jsonObject.get("time").toString());
-//            magneticOrbitVO.setHei(Float.parseFloat(jsonObject.get("alt").toString()));
-//            magneticOrbitVO.setLon(Float.parseFloat(jsonObject.get("lon").toString()));
-//            magneticOrbitVO.setLat(Float.parseFloat(jsonObject.get("lat").toString()));
-//            magneticOrbitVO.setMagnetic(Float.parseFloat(jsonObject.get("B").toString()));
-//            magneticOrbitVOS.add(magneticOrbitVO);
-//        }
-
-//        return magneticOrbitVOS;
         return jsonArray;
 
     }
@@ -287,7 +315,7 @@ public class SdcResourceSatelliteController {
         String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
-        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
         return jsonObject;
 
     }
@@ -318,8 +346,8 @@ public class SdcResourceSatelliteController {
                                                 @RequestParam("height")Integer height,
                                                 @RequestParam("ionChannel")Integer ionChannel,
                                                 @RequestParam("resolutionRatio")Integer resolutionRatio,
-                                                @RequestParam("startEnergyLevel")Integer startEnergyLevel,
-                                                @RequestParam("endEnergyLevel")Integer endEnergyLevel){
+                                                @RequestParam("startEnergyLevel")Double startEnergyLevel,
+                                                @RequestParam("endEnergyLevel")Double endEnergyLevel){
 
         String command = "python3 "+pythonGlobalRadiationEnv+" '"+time+"' "+height+" "+ionChannel+" "+resolutionRatio+" "+startEnergyLevel+" "+endEnergyLevel;
         log.info("执行Python命令：{}",command);
@@ -352,8 +380,8 @@ public class SdcResourceSatelliteController {
         OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
         String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
 
-//        String mainFigure = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
-//        String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
+//        String mainFigure = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
+//        String colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
         map.put("mainFigure",mainFigure);
         map.put("colorbar",colorbar);
         return map;
@@ -373,7 +401,7 @@ public class SdcResourceSatelliteController {
         String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
-        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
         return jsonObject;
 
     }
@@ -474,8 +502,8 @@ public class SdcResourceSatelliteController {
         OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
         String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
 
-//        String logPlot = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/log_plot.png");
-//        String colorbar = hostAddress.concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/color_bar.png");
+//        String logPlot = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/log_plot.png");
+//        String colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/color_bar.png");
         map.put("logPlot",logPlot);
         map.put("colorbar",colorbar);
         return map;
@@ -496,7 +524,7 @@ public class SdcResourceSatelliteController {
         String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
-        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
         return jsonObject;
 
     }
@@ -512,7 +540,7 @@ public class SdcResourceSatelliteController {
         String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
-        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
         return jsonObject;
 
     }
@@ -524,8 +552,8 @@ public class SdcResourceSatelliteController {
                                          @RequestParam("endTime")String endTime,
                                          @RequestParam("particleType")String particleType,
                                          @RequestParam("satId")String satId,
-                                         @RequestParam("startEnergyLevel")Integer startEnergyLevel,
-                                         @RequestParam("endEnergyLevel")Integer endEnergyLevel){
+                                         @RequestParam("startEnergyLevel")Double startEnergyLevel,
+                                         @RequestParam("endEnergyLevel")Double endEnergyLevel){
 
         String command = "python3 "+orbitalSpectrum+" "+beginTime+" "+endTime+" "+satId+" "+particleType+" "+startEnergyLevel+" "+endEnergyLevel;
         log.info("执行Python命令：{}",command);
@@ -533,7 +561,7 @@ public class SdcResourceSatelliteController {
         String result = ExecUtil.execCmdWithResult(command);
         log.info("Python命令执行结果：{}",result);
         String jsonStr = StrUtil.subBetween(result, "###", "###");
-        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\\s*", ""));
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
         return jsonObject;
 
     }
@@ -543,12 +571,11 @@ public class SdcResourceSatelliteController {
 
     @ApiOperation("全球磁场内源场和外源场分布")
     @GetMapping("/drawGlobalMagneticV2")
-    public List<String> drawGlobalMagneticV2(@RequestParam("beginTime")String beginTime,
+    public Map<String,List<String>> drawGlobalMagneticV2(@RequestParam("beginTime")String beginTime,
                                      @RequestParam("endTime")String endTime,
                                      @RequestParam("height")Integer height){
 
         FileUtil.mkdir(pictureMagneticGlobalV2);
-//        String command = "python3 "+pythonMagneticGlobal+" \"'"+time+"'\" "+height+" "+pictureMagneticGlobal;
         String command = "python3 "+pythonMagneticGlobalV2+" '"+beginTime+"' "+"'"+endTime+"' "+height+" "+pictureMagneticGlobalV2;
         log.info("执行Python命令：{}",command);
         String result = ExecUtil.execCmdWithResult(command);
@@ -561,42 +588,38 @@ public class SdcResourceSatelliteController {
         }
         String picPath = result.replaceAll("\\s*", "");
 //        String picPath = "F:\\code-sw\\20120118000000-20121111000001-10km";
+        File[] files = orderByName(picPath);
         staticResourceDynamicRegistryController.registry(pictureUrlMagneticGlobalV2,picPath.concat(File.separator));
-        List<String> list = FileUtil.listFileNames(picPath);
-        List<String> allPath = new ArrayList<>();
-        for (String picName:list){
-            allPath.add("http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobalV2).concat(picName));
-        }
+        Map<String,List<String>> map = new HashMap<>();
+        List<String> extPath = new ArrayList<>();
+        List<String> intPath = new ArrayList<>();
 
-//        String path = "/CMS-SDC/OP/TS/";
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-//        String pathData = path.concat(LocalDate.now().format(formatter));
-//
-//        String previewPath = pathData.concat(File.separator).concat(picName);
-//        String path2 = picturePathMagneticGlobal.concat(picName);
-//        OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
-//        return OSSInstance.getOSSUtil().preview(bucketName, previewPath);
-        return allPath;
+        String path = "/CMS-SDC/OP/TS/";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        String pathData = path.concat(LocalDate.now().format(formatter));
 
-    }
+        for (File file:files){
+            String picName = file.getName();
 
-    public static void update(ApplicationContext ctx, String url, String resource) {
-        SimpleUrlHandlerMapping mapping = (SimpleUrlHandlerMapping) ctx.getBean("resourceHandlerMapping");
-        ResourceHttpRequestHandler handler = (ResourceHttpRequestHandler) mapping.getUrlMap().get(url);
-        if (handler != null) {
-            handler.setLocationValues(Arrays.asList(resource));
-            handler.getLocations().clear();
-            handler.getResourceResolvers().clear();
-            try {
-                handler.afterPropertiesSet();
-            } catch (Throwable ex) {
-                throw new BeanInitializationException("Failed to init ResourceHttpRequestHandler", ex);
+            String previewPath = pathData.concat(File.separator).concat(picName);
+            String path2 = picPath.concat(File.separator).concat(picName);
+            OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
+
+            if (picName.contains("ext")){
+                extPath.add(OSSInstance.getOSSUtil().preview(bucketName, previewPath));
+//                extPath.add("http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobalV2).concat(picName));
             }
+            if (picName.contains("int")){
+                intPath.add(OSSInstance.getOSSUtil().preview(bucketName, previewPath));
+//                intPath.add("http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobalV2).concat(picName));
+            }
+
         }
+        map.put("extPath",extPath);
+        map.put("intPath",intPath);
+        return map;
+
     }
-
-
-
 
 
     public static void main(String[] args) {
@@ -604,5 +627,166 @@ public class SdcResourceSatelliteController {
         String nowtime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         System.out.println(LocalDate.now().format(formatter));
         System.out.println(nowtime);
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println(now);
     }
+
+    public File[] orderByName(String filePath) {
+        File file = new File(filePath);
+        File[] files = file.listFiles();
+        List fileList = Arrays.asList(files);
+        Collections.sort(fileList, new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                if (o1.isDirectory() && o2.isFile())
+                    return -1;
+                if (o1.isFile() && o2.isDirectory())
+                    return 1;
+
+                String regEx = "[^0-9]";
+                Pattern p = Pattern.compile(regEx);
+                Matcher m1 = p.matcher(o1.getName());
+                String name1 = m1.replaceAll("").trim();
+
+                Matcher m2 = p.matcher(o2.getName());
+                String name2 = m2.replaceAll("").trim();
+
+                Integer v1 = Integer.valueOf(name1);
+                Integer v2 = Integer.valueOf(name2);
+
+                return v1.compareTo(v2);
+            }
+        });
+       return files;
+    }
+
+
+    @ApiOperation("卫星深层充电模块")
+    @GetMapping("/getIncharging")
+    public JSONObject getIncharging(@RequestParam("beginTime")String beginTime,
+                                           @RequestParam("endTime")String endTime,
+                                           @RequestParam("satId")String satId,
+                                           @RequestParam("data")String data){
+
+        String command = "python3 "+incharging+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+data;
+        log.info("执行Python命令：{}",command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
+        return jsonObject;
+
+    }
+
+
+    @ApiOperation("卫星沿轨道辐射环境")
+    @GetMapping("/getSatelliteRadiationEnvByOrbit")
+    public JSONArray getSatelliteRadiationEnvByOrbit(@RequestParam(value = "name",required = false)String name,
+                                                        @RequestParam(value = "start",required = false)String start,
+                                                        @RequestParam(value = "end",required = false)String end,
+                                                        @RequestParam(value = "whatf",required = false)String whatf,
+                                                        @RequestParam(value = "whichm",required = false)String whichm){
+
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotEmpty(name)){
+            sb.append(" -n ").append("'").append(name).append("'");
+        }else if (StringUtils.isNotEmpty(start)){
+            sb.append(" -s ").append(start);
+        }else if (StringUtils.isNotEmpty(end)){
+            sb.append(" -e ").append(end);
+        }else if (StringUtils.isNotEmpty(whatf)){
+            sb.append(" -f ").append(whatf);
+        }else if (StringUtils.isNotEmpty(whichm)){
+            sb.append(" -m ").append(whichm);
+        }
+        String command = "python3 "+pythonSatelliteRadiationEnvOrbit+sb.toString();
+        log.info("执行Python命令：{}",command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        JSONArray jsonArray = JSON.parseArray(result.replaceAll("\n", ""));
+        return jsonArray;
+    }
+
+
+    @ApiOperation("卫星轨道面辐射环境")
+    @GetMapping("/getSatelliteRadiationEnvByOrbitPlane")
+    public String getSatelliteRadiationEnvByOrbitPlane(@RequestParam(value = "name",required = false)String name,
+                                                                    @RequestParam(value = "start",required = false)String start,
+                                                                    @RequestParam(value = "end",required = false)String end,
+                                                                    @RequestParam(value = "whatf",required = false)String whatf,
+                                                                    @RequestParam(value = "whichm",required = false)String whichm,
+                                                                    @RequestParam(value = "channel",required = false)String channel){
+
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotEmpty(name)){
+            sb.append(" -n ").append("'").append(name).append("'");
+        }else if (StringUtils.isNotEmpty(start)){
+            sb.append(" -s ").append(start);
+        }else if (StringUtils.isNotEmpty(end)){
+            sb.append(" -e ").append(end);
+        }else if (StringUtils.isNotEmpty(whatf)){
+            sb.append(" -f ").append(whatf);
+        }else if (StringUtils.isNotEmpty(whichm)){
+            sb.append(" -m ").append(whichm);
+        }else if (StringUtils.isNotEmpty(channel)){
+            sb.append(" -c ").append(channel);
+        }
+        String command = "python3 "+pythonSatelliteRadiationEnvOrbitPlane+sb.toString();
+        log.info("执行Python命令：{}",command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String resultHandle = result.replaceAll("\\s*", "");
+        if (StringUtils.isEmpty(resultHandle)){
+            return "无数据！";
+        }
+        String hostAddress = null;
+        try {
+            hostAddress = Inet4Address.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String substring = resultHandle.substring(resultHandle.lastIndexOf(File.separator)+1);
+
+        String path = "/CMS-SDC/OP/TS/";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        String pathData = path.concat(LocalDate.now().format(formatter));
+
+        String logPlotPreviewPath = pathData.concat("/profile.png");
+        String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/profile.png");
+        OSSInstance.getOSSUtil().upload(bucketName, logPlotPreviewPath, logPlotPath);
+        return OSSInstance.getOSSUtil().preview(bucketName, logPlotPreviewPath);
+
+//        return "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/profile.png");
+
+    }
+
+
+    @ApiOperation("电波传播影响")
+    @GetMapping("/getRadioWaveEffect")
+    public JSONObject getRadioWaveEffect(@RequestParam("time")String time,
+                                         @RequestParam("system")String system,
+                                         @RequestParam("prn")String prn,
+                                         @RequestParam("interval")String interval,
+                                         @RequestParam("forecastPeriod")String forecastPeriod,
+                                         @RequestParam("paramsSystem")String paramsSystem,
+                                         @RequestParam("p1Channel")String p1Channel,
+                                         @RequestParam("p2Channel")String p2Channel,
+                                         @RequestParam("statTime")String statTime,
+                                         @RequestParam("endTime")String endTime){
+
+        String command = "python3 "+s4Satellite+" '/export/S4_satellite/data/' '"+endTime+"' '"+forecastPeriod+"' '"+interval+"' '"+p1Channel+"' '"+p2Channel+"' '"+prn+"' '"+statTime+"' '"+system+"' '"+time+"' '"+paramsSystem+"'";
+        log.info("执行Python命令：{}",command);
+//        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        JSONObject jsonObject = JSON.parseObject(result.replaceAll("\n", ""));
+        return jsonObject;
+
+    }
+
+
 }

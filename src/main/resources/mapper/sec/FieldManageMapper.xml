@@ -12,6 +12,7 @@
         <result property="createTime" column="CREATE_TIME"/>
         <result property="notNullConstraint" column="NOT_NULL_CONSTRAINT"/>
         <result property="annotation" column="ANNOTATION"/>
+        <result property="defaultValue" column="DEFAULT_VALUE"/>
     </resultMap>
 
 

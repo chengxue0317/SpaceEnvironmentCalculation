@@ -27,7 +27,7 @@ public class WebSocketController {
      * 新的WebSocket请求开启
      */
     @OnOpen
-    public void onOpen(@PathParam("logPath") String logPath, Session session) throws Exception {
+    public void onOpen(@PathParam("logPath") String logPath, Session session) {
         try {
             String command = "tail -f ".concat("/export/故障诊断多参数/log/").concat(logPath).concat(".log");
             log.info("查看日志命令执行：{}",command);

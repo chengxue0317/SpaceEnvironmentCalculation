@@ -38,6 +38,11 @@ public class ResourcesConfig implements WebMvcConfigurer {
     private String picturePathMagneticGlobalV2;
     @Value("${picture.url.magnetic_global_v2}")
     private String pictureUrlMagneticGlobalV2;
+
+    @Value("${picture.path.atmosphere_density_global}")
+    private String picturePathAtmosphereDensityGlobal;
+    @Value("${picture.url.atmosphere_density_global}")
+    private String pictureUrlAtmosphereDensityGlobal;
     /**
      * 跨域配置
      */
@@ -71,6 +76,7 @@ public class ResourcesConfig implements WebMvcConfigurer {
         registry.addResourceHandler(pictureUrlGlobalRadiationEnv+"/**").addResourceLocations("file:"+picturePathGlobalRadiationEnv);
         registry.addResourceHandler(pictureUrlSatelliteRadiationEnv+"/**").addResourceLocations("file:"+picturePathSatelliteRadiationEnv);
         registry.addResourceHandler(pictureUrlMagneticGlobalV2+"/**").addResourceLocations("file:"+picturePathMagneticGlobalV2);
+        registry.addResourceHandler(pictureUrlAtmosphereDensityGlobal+"/**").addResourceLocations("file:"+picturePathAtmosphereDensityGlobal);
     }
 
 }
