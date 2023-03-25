@@ -10,7 +10,7 @@ spring:
       matching-strategy: ANT_PATH_MATCHER
   datasource:
     driverClassName: dm.jdbc.driver.DmDriver
-    url: jdbc:dm://kjsf-dm-pod.kjsf.svc.cluster.local:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:dm://dm-00be70edf4aa439f-inner.zone-01.yxregion01.cecloudcs.com:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: SDC
     password: sdc123456
   jackson:
@@ -19,7 +19,7 @@ spring:
   kafka:
     ###########【Kafka集群】###########
     # 集群用逗号隔开
-    bootstrap-servers: 192.168.43.193:9092
+    bootstrap-servers: 172.20.27.17:9094,172.20.27.18:9094,172.20.27.19:9094
     ###########【初始化生产者配置】###########
     producer:
       # 重试次数,设置大于0的值，则客户端会将发送失败的记录重新发送
@@ -33,6 +33,10 @@ spring:
       # Kafka提供的序列化和反序列化类
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        sasl.mechanism: PLAIN
+        security.protocol: SASL_PLAINTEXT
+        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="cmq-kafka-333zeuydby" password="laLaroCJXl";
     ###########【初始化消费者配置】###########
     consumer:
       # 提交offset延时(接收到消息后多久提交offset)
@@ -47,6 +51,10 @@ spring:
       # Kafka提供的序列化和反序列化类
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        sasl.mechanism: PLAIN
+        security.protocol: SASL_PLAINTEXT
+        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="cmq-kafka-333zeuydby" password="laLaroCJXl";
       # 默认的消费组ID
       group-id: cms-sec-kf-consumer
       # 批量消费每次最多消费多少条消息
@@ -115,16 +123,19 @@ piesat:
   roti: ROTI/ #ROTI算法结果存储位置
   secondDir: maps/Medium/ # TEC、ROTI算法二级目录
 
+oss:
+  type: s3
+
 minio:
-  endpoint: http://172.6.10.34:9000
-  accesskey: minioadmin
-  secretkey: miniostorage
-  bucketName: htht
+  endpoint: http://oss-yxregion01-internal.cecloudcs.com
+  accesskey: oUNRZbuqcMgy6RVvnmwJ
+  secretkey: p7WdXXNaGUuqzNAr0BITRzKoXQVjJVr1un0q7gAf
+  bucketName: xzgl
 
 s3:
-  endpoint: http://127.0.0.1:9000
-  accesskey: minioadmin
-  secretkey: minioadmin
+  endpoint: http://oss-yxregion01-internal.cecloudcs.com
+  accesskey: oUNRZbuqcMgy6RVvnmwJ
+  secretkey: p7WdXXNaGUuqzNAr0BITRzKoXQVjJVr1un0q7gAf
   bucketName: xzgl
 
 logging:
