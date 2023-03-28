@@ -27,6 +27,7 @@ import cn.piesat.sec.service.SecAtmosphereDensityService;
 import cn.piesat.sec.model.vo.SecAtmosphereDensityVO;
 import cn.piesat.sec.utils.Connection2Sever;
 import cn.piesat.sec.utils.ExecUtil;
+import cn.piesat.sec.utils.SpringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -173,16 +174,20 @@ public class SecAtmosphereDensityController {
             }
             String substring = colorbar.substring(colorbar.lastIndexOf(File.separator)+1);
 
-            String path = "/CMS-SDC/OP/TS/";
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-            String pathData = path.concat(LocalDate.now().format(formatter));
+            if (SpringUtil.isProd()){
+                String path = "/CMS-SDC/OP/TS/";
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+                String pathData = path.concat(LocalDate.now().format(formatter));
 
-            String colorbarPreviewPath = pathData.concat("/colorbar.jpg");
-            String colorbarPath = colorbar.concat("/colorbar.jpg");
-            OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
-            jsonObject.put("colorbar",OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath));
+                String colorbarPreviewPath = pathData.concat("/colorbar").concat(substring).concat(".jpg");
+                String colorbarPath = colorbar.concat("/colorbar.jpg");
+                OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
+                jsonObject.put("colorbar",OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath));
 
-//            jsonObject.put("colorbar","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg"));
+            }else if (SpringUtil.isDev()){
+                jsonObject.put("colorbar","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg"));
+            }
+
         }
 
         return jsonObject;
@@ -208,23 +213,28 @@ public class SecAtmosphereDensityController {
         Map<String, String> map = new HashMap<>();
         String substring = jsonStr.substring(jsonStr.lastIndexOf(File.separator)+1);
 
-        String path = "/CMS-SDC/OP/TS/";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        String pathData = path.concat(LocalDate.now().format(formatter));
+        String mainFigure = null;
+        String colorbar = null;
+        if (SpringUtil.isProd()){
+            String path = "/CMS-SDC/OP/TS/";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+            String pathData = path.concat(LocalDate.now().format(formatter));
 
-        String mainFigurePreviewPath = pathData.concat("/main_figure.jpg");
-        String mainFigurePath = jsonStr.concat("/main_figure.jpg");
-        OSSInstance.getOSSUtil().upload(bucketName, mainFigurePreviewPath, mainFigurePath);
-        String mainFigure = OSSInstance.getOSSUtil().preview(bucketName, mainFigurePreviewPath);
+            String mainFigurePreviewPath = pathData.concat("/main_figure").concat(substring).concat(".jpg");
+            String mainFigurePath = jsonStr.concat("/main_figure.jpg");
+            OSSInstance.getOSSUtil().upload(bucketName, mainFigurePreviewPath, mainFigurePath);
+            mainFigure = OSSInstance.getOSSUtil().preview(bucketName, mainFigurePreviewPath);
 
-        String colorbarPreviewPath = pathData.concat("/colorbar.jpg");
-        String colorbarPath = jsonStr.concat("/colorbar.jpg");
-        OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
-        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
+            String colorbarPreviewPath = pathData.concat("/colorbar").concat(substring).concat(".jpg");
+            String colorbarPath = jsonStr.concat("/colorbar.jpg");
+            OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
+            colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
+        }else if (SpringUtil.isDev()){
+            //图片映射方式有两种：1.动态映射 2.半映射半拼串
+            mainFigure = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/main_figure.jpg");
+            colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg");
+        }
 
-        //图片映射方式有两种：1.动态映射 2.半映射半拼串
-//        String mainFigure = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/main_figure.jpg");
-//        String colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg");
         map.put("mainFigure",mainFigure);
         map.put("colorbar",colorbar);
         return map;

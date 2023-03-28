@@ -29,6 +29,7 @@ import cn.piesat.sec.service.FieldManageService;
 import cn.piesat.sec.utils.ExecUtil;
 import cn.piesat.sec.utils.POIUtils;
 import cn.piesat.sec.utils.PageUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -94,6 +95,22 @@ public class FieldManageController {
         return fieldManageService.list(pageBean,fieldManageDO);
 
     }
+
+    /**
+     * 获取特征量
+     */
+    @ApiOperation("获取特征量")
+    @GetMapping("/getFeatureData")
+    public List<FieldManageDO> getFeatureData(){
+        QueryWrapper<FieldManageDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("FIELD_NAME")
+                .ne("FIELD_NAME","ID")
+                .ne("FIELD_NAME","CREATE_TIME")
+                .ne("FIELD_NAME","Error_ID");
+        return fieldManageService.list(queryWrapper);
+
+    }
+
     /**
      * 信息
      */

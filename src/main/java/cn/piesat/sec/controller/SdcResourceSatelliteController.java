@@ -37,6 +37,7 @@ import cn.piesat.sec.model.vo.RadioWaveEffectVO;
 import cn.piesat.sec.model.vo.SdcResourceSatelliteVO;
 import cn.piesat.sec.service.SdcResourceSatelliteService;
 import cn.piesat.sec.utils.ExecUtil;
+import cn.piesat.sec.utils.SpringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -230,30 +231,37 @@ public class SdcResourceSatelliteController {
             e.printStackTrace();
         }
 
-
         Map<String, String> map = new HashMap<>();
 
-        String path = "/CMS-SDC/OP/TS/";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        String pathData = path.concat(LocalDate.now().format(formatter));
+        if (SpringUtil.isProd()){
+            String path = "/CMS-SDC/OP/TS/";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+            String pathData = path.concat(LocalDate.now().format(formatter));
 
+            if (fig != null){
+                String previewPath = pathData.concat(File.separator).concat(fig.toString());
+                String path2 = picturePathMagneticGlobal.concat(fig.toString());
+                OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
+                map.put("fig",OSSInstance.getOSSUtil().preview(bucketName, previewPath));
 
-        if (fig != null){
-            String previewPath = pathData.concat(File.separator).concat(fig.toString());
-            String path2 = picturePathMagneticGlobal.concat(fig.toString());
-            OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
-            map.put("fig",OSSInstance.getOSSUtil().preview(bucketName, previewPath));
+            }
 
-//            map.put("fig","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(fig.toString()));
-        }
+            if (bar != null){
+                String previewPath = pathData.concat(File.separator).concat(bar.toString());
+                String path2 = picturePathMagneticGlobal.concat(bar.toString());
+                OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
+                map.put("bar",OSSInstance.getOSSUtil().preview(bucketName, previewPath));
+            }
 
-        if (bar != null){
-            String previewPath = pathData.concat(File.separator).concat(bar.toString());
-            String path2 = picturePathMagneticGlobal.concat(bar.toString());
-            OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
-            map.put("bar",OSSInstance.getOSSUtil().preview(bucketName, previewPath));
+        }else if (SpringUtil.isDev()){
 
-//            map.put("bar","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(bar.toString()));
+            if (fig != null){
+                map.put("fig","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(fig.toString()));
+            }
+
+            if (bar != null){
+                map.put("bar","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(bar.toString()));
+            }
         }
         return map;
 
@@ -366,22 +374,26 @@ public class SdcResourceSatelliteController {
         Map<String, String> map = new HashMap<>();
         String substring = jsonStr.substring(jsonStr.lastIndexOf(File.separator)+1);
 
-        String path = "/CMS-SDC/OP/TS/";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        String pathData = path.concat(LocalDate.now().format(formatter));
+        String mainFigure = null;
+        String colorbar = null;
+        if (SpringUtil.isProd()){
+            String path = "/CMS-SDC/OP/TS/";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+            String pathData = path.concat(LocalDate.now().format(formatter));
 
-        String mainFigurePreviewPath = pathData.concat("/main_figure.jpg");
-        String mainFigurePath = picturePathGlobalRadiationEnv.concat(substring).concat("/main_figure.jpg");
-        OSSInstance.getOSSUtil().upload(bucketName, mainFigurePreviewPath, mainFigurePath);
-        String mainFigure = OSSInstance.getOSSUtil().preview(bucketName, mainFigurePreviewPath);
+            String mainFigurePreviewPath = pathData.concat("/main_figure").concat(substring).concat(".jpg");
+            String mainFigurePath = picturePathGlobalRadiationEnv.concat(substring).concat("/main_figure.jpg");
+            OSSInstance.getOSSUtil().upload(bucketName, mainFigurePreviewPath, mainFigurePath);
+            mainFigure = OSSInstance.getOSSUtil().preview(bucketName, mainFigurePreviewPath);
 
-        String colorbarPreviewPath = pathData.concat("/colorbar.jpg");
-        String colorbarPath = picturePathGlobalRadiationEnv.concat(substring).concat("/colorbar.jpg");
-        OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
-        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
-
-//        String mainFigure = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
-//        String colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
+            String colorbarPreviewPath = pathData.concat("/colorbar").concat(substring).concat(".jpg");
+            String colorbarPath = picturePathGlobalRadiationEnv.concat(substring).concat("/colorbar.jpg");
+            OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
+            colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
+        }else if (SpringUtil.isDev()){
+            mainFigure = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
+            colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
+        }
         map.put("mainFigure",mainFigure);
         map.put("colorbar",colorbar);
         return map;
@@ -419,17 +431,23 @@ public class SdcResourceSatelliteController {
         StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotEmpty(s)){
             sb.append(" -s ").append("'").append(s).append("'");
-        }else if (StringUtils.isNotEmpty(st)){
-            sb.append(" -st ").append(st);
-        }else if (StringUtils.isNotEmpty(et)){
-            sb.append(" -et ").append(et);
-        }else if (StringUtils.isNotEmpty(a)){
+        }
+        if (StringUtils.isNotEmpty(st)){
+            sb.append(" -st ").append("\"").append(st).append("\"");
+        }
+        if (StringUtils.isNotEmpty(et)){
+            sb.append(" -et ").append("\"").append(et).append("\"");
+        }
+        if (StringUtils.isNotEmpty(a)){
             sb.append(" -a ").append(a);
-        }else if (StringUtils.isNotEmpty(f)){
+        }
+        if (StringUtils.isNotEmpty(f)){
             sb.append(" -f ").append(f);
-        }else if (StringUtils.isNotEmpty(m)){
+        }
+        if (StringUtils.isNotEmpty(m)){
             sb.append(" -m ").append(m);
-        }else if (StringUtils.isNotEmpty(c)){
+        }
+        if (StringUtils.isNotEmpty(c)){
             sb.append(" -c ").append(c);
         }
         String command = "python3 "+pythonCrossAnomaly+sb.toString();
@@ -448,28 +466,26 @@ public class SdcResourceSatelliteController {
 
     @ApiOperation("卫星辐射环境")
     @GetMapping("/getSatelliteRadiationEnv")
-    public Map<String, String> getSatelliteRadiationEnv(@RequestParam(value = "s",required = false)String s,
-                                        @RequestParam(value = "st",required = false)String st,
-                                        @RequestParam(value = "et",required = false)String et,
-                                        @RequestParam(value = "a",required = false)String a,
+    public String getSatelliteRadiationEnv(@RequestParam(value = "dt",required = false)String dt,
+                                        @RequestParam(value = "sn",required = false)String sn,
                                         @RequestParam(value = "f",required = false)String f,
                                         @RequestParam(value = "m",required = false)String m,
                                         @RequestParam(value = "c",required = false)String c){
 
         StringBuilder sb = new StringBuilder();
-        if (StringUtils.isNotEmpty(s)){
-            sb.append(" -s ").append("'").append(s).append("'");
-        }else if (StringUtils.isNotEmpty(st)){
-            sb.append(" -st ").append(st);
-        }else if (StringUtils.isNotEmpty(et)){
-            sb.append(" -et ").append(et);
-        }else if (StringUtils.isNotEmpty(a)){
-            sb.append(" -a ").append(a);
-        }else if (StringUtils.isNotEmpty(f)){
+        if (StringUtils.isNotEmpty(dt)){
+            sb.append(" -dt ").append("\"").append(dt).append("\"");
+        }
+        if (StringUtils.isNotEmpty(sn)){
+            sb.append(" -sn ").append(sn);
+        }
+        if (StringUtils.isNotEmpty(f)){
             sb.append(" -f ").append(f);
-        }else if (StringUtils.isNotEmpty(m)){
+        }
+        if (StringUtils.isNotEmpty(m)){
             sb.append(" -m ").append(m);
-        }else if (StringUtils.isNotEmpty(c)){
+        }
+        if (StringUtils.isNotEmpty(c)){
             sb.append(" -c ").append(c);
         }
         String command = "python3 "+pythonSatelliteRadiationEnv+sb.toString();
@@ -488,26 +504,19 @@ public class SdcResourceSatelliteController {
         Map<String, String> map = new HashMap<>();
         String substring = resultHandle.substring(resultHandle.lastIndexOf(File.separator)+1);
 
-        String path = "/CMS-SDC/OP/TS/";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        String pathData = path.concat(LocalDate.now().format(formatter));
+        if (SpringUtil.isProd()){
+            String path = "/CMS-SDC/OP/TS/";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+            String pathData = path.concat(LocalDate.now().format(formatter));
 
-        String logPlotPreviewPath = pathData.concat("/log_plot.png");
-        String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/log_plot.png");
-        OSSInstance.getOSSUtil().upload(bucketName, logPlotPreviewPath, logPlotPath);
-        String logPlot = OSSInstance.getOSSUtil().preview(bucketName, logPlotPreviewPath);
-
-        String colorbarPreviewPath = pathData.concat("/color_bar.png");
-        String colorbarPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/color_bar.png");
-        OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
-        String colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
-
-//        String logPlot = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/log_plot.png");
-//        String colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/color_bar.png");
-        map.put("logPlot",logPlot);
-        map.put("colorbar",colorbar);
-        return map;
-
+            String logPlotPreviewPath = pathData.concat("/satellite_radiation").concat(substring).concat(".png");
+            String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/satellite_radiation.png");
+            OSSInstance.getOSSUtil().upload(bucketName, logPlotPreviewPath, logPlotPath);
+            return OSSInstance.getOSSUtil().preview(bucketName, logPlotPreviewPath);
+        }else if (SpringUtil.isDev()){
+            return  "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/satellite_radiation.png");
+        }
+        return "请配置项目环境！";
     }
 
 
@@ -594,27 +603,40 @@ public class SdcResourceSatelliteController {
         List<String> extPath = new ArrayList<>();
         List<String> intPath = new ArrayList<>();
 
-        String path = "/CMS-SDC/OP/TS/";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        String pathData = path.concat(LocalDate.now().format(formatter));
+        if (SpringUtil.isProd()){
+            String path = "/CMS-SDC/OP/TS/";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+            String pathData = path.concat(LocalDate.now().format(formatter));
 
-        for (File file:files){
-            String picName = file.getName();
+            for (File file:files){
+                String picName = file.getName();
 
             String previewPath = pathData.concat(File.separator).concat(picName);
             String path2 = picPath.concat(File.separator).concat(picName);
             OSSInstance.getOSSUtil().upload(bucketName, previewPath, path2);
 
-            if (picName.contains("ext")){
-                extPath.add(OSSInstance.getOSSUtil().preview(bucketName, previewPath));
-//                extPath.add("http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobalV2).concat(picName));
-            }
-            if (picName.contains("int")){
-                intPath.add(OSSInstance.getOSSUtil().preview(bucketName, previewPath));
-//                intPath.add("http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobalV2).concat(picName));
-            }
+                if (picName.contains("ext")){
+                    extPath.add(OSSInstance.getOSSUtil().preview(bucketName, previewPath));
+                }
+                if (picName.contains("int")){
+                    intPath.add(OSSInstance.getOSSUtil().preview(bucketName, previewPath));
+                }
 
+            }
+        }else if (SpringUtil.isDev()){
+            for (File file:files){
+                String picName = file.getName();
+
+                if (picName.contains("ext")){
+                    extPath.add("http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobalV2).concat(picName));
+                }
+                if (picName.contains("int")){
+                    intPath.add("http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobalV2).concat(picName));
+                }
+
+            }
         }
+
         map.put("extPath",extPath);
         map.put("intPath",intPath);
         return map;
@@ -691,13 +713,17 @@ public class SdcResourceSatelliteController {
         StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotEmpty(name)){
             sb.append(" -n ").append("'").append(name).append("'");
-        }else if (StringUtils.isNotEmpty(start)){
+        }
+        if (StringUtils.isNotEmpty(start)){
             sb.append(" -s ").append(start);
-        }else if (StringUtils.isNotEmpty(end)){
+        }
+        if (StringUtils.isNotEmpty(end)){
             sb.append(" -e ").append(end);
-        }else if (StringUtils.isNotEmpty(whatf)){
+        }
+        if (StringUtils.isNotEmpty(whatf)){
             sb.append(" -f ").append(whatf);
-        }else if (StringUtils.isNotEmpty(whichm)){
+        }
+        if (StringUtils.isNotEmpty(whichm)){
             sb.append(" -m ").append(whichm);
         }
         String command = "python3 "+pythonSatelliteRadiationEnvOrbit+sb.toString();
@@ -714,7 +740,6 @@ public class SdcResourceSatelliteController {
     @GetMapping("/getSatelliteRadiationEnvByOrbitPlane")
     public String getSatelliteRadiationEnvByOrbitPlane(@RequestParam(value = "name",required = false)String name,
                                                                     @RequestParam(value = "start",required = false)String start,
-                                                                    @RequestParam(value = "end",required = false)String end,
                                                                     @RequestParam(value = "whatf",required = false)String whatf,
                                                                     @RequestParam(value = "whichm",required = false)String whichm,
                                                                     @RequestParam(value = "channel",required = false)String channel){
@@ -722,15 +747,17 @@ public class SdcResourceSatelliteController {
         StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotEmpty(name)){
             sb.append(" -n ").append("'").append(name).append("'");
-        }else if (StringUtils.isNotEmpty(start)){
-            sb.append(" -s ").append(start);
-        }else if (StringUtils.isNotEmpty(end)){
-            sb.append(" -e ").append(end);
-        }else if (StringUtils.isNotEmpty(whatf)){
+        }
+        if (StringUtils.isNotEmpty(start)){
+            sb.append(" -s ").append("\"").append(start).append("\"");
+        }
+        if (StringUtils.isNotEmpty(whatf)){
             sb.append(" -f ").append(whatf);
-        }else if (StringUtils.isNotEmpty(whichm)){
+        }
+        if (StringUtils.isNotEmpty(whichm)){
             sb.append(" -m ").append(whichm);
-        }else if (StringUtils.isNotEmpty(channel)){
+        }
+        if (StringUtils.isNotEmpty(channel)){
             sb.append(" -c ").append(channel);
         }
         String command = "python3 "+pythonSatelliteRadiationEnvOrbitPlane+sb.toString();
@@ -751,16 +778,21 @@ public class SdcResourceSatelliteController {
 
         String substring = resultHandle.substring(resultHandle.lastIndexOf(File.separator)+1);
 
-        String path = "/CMS-SDC/OP/TS/";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        String pathData = path.concat(LocalDate.now().format(formatter));
+        if (SpringUtil.isProd()){
+            String path = "/CMS-SDC/OP/TS/";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+            String pathData = path.concat(LocalDate.now().format(formatter));
 
-        String logPlotPreviewPath = pathData.concat("/profile.png");
-        String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/profile.png");
-        OSSInstance.getOSSUtil().upload(bucketName, logPlotPreviewPath, logPlotPath);
-        return OSSInstance.getOSSUtil().preview(bucketName, logPlotPreviewPath);
+            String logPlotPreviewPath = pathData.concat("/profile").concat(substring).concat(".png");
+            String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/profile.png");
+            OSSInstance.getOSSUtil().upload(bucketName, logPlotPreviewPath, logPlotPath);
+            return OSSInstance.getOSSUtil().preview(bucketName, logPlotPreviewPath);
+        }else if (SpringUtil.isDev()){
+            return "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/profile.png");
+        }
 
-//        return "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/profile.png");
+
+        return "请配置项目环境！";
 
     }
 
