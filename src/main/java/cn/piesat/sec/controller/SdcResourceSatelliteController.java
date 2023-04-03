@@ -715,10 +715,10 @@ public class SdcResourceSatelliteController {
             sb.append(" -n ").append("'").append(name).append("'");
         }
         if (StringUtils.isNotEmpty(start)){
-            sb.append(" -s ").append(start);
+            sb.append(" -s ").append("\"").append(start).append("\"");
         }
         if (StringUtils.isNotEmpty(end)){
-            sb.append(" -e ").append(end);
+            sb.append(" -e ").append("\"").append(end).append("\"");
         }
         if (StringUtils.isNotEmpty(whatf)){
             sb.append(" -f ").append(whatf);
