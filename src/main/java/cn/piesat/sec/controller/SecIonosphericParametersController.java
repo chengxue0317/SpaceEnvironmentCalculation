@@ -50,16 +50,20 @@ public class SecIonosphericParametersController {
     /**
      * 获取电离层闪烁数据
      *
-     * @param staId 站点ID
+     * @param satcode      站点ID
+     * @param satno        站点ID
+     * @param satfrequency 站点ID
      * @return 电离层参数站点数据
      */
     @ApiOperation("获取电离层闪烁数据")
     @GetMapping("blinkData")
-    public SecEnvElementVO getBlinkData(@RequestParam("staId") String staId,
+    public SecEnvElementVO getBlinkData(@RequestParam("satcode") String satcode,
+                                        @RequestParam("satno") String satno,
+                                        @RequestParam("satfrequency") String satfrequency,
                                         @RequestParam("startTime") String startTime,
                                         @RequestParam("endTime") String endTime) {
 
-        return secIPS.getBlinkData(staId, startTime, endTime);
+        return secIPS.getBlinkData(satcode, satno, satfrequency, startTime, endTime);
     }
 
     /**
@@ -70,7 +74,11 @@ public class SecIonosphericParametersController {
      */
     @ApiOperation("获取电离层参数站点数据")
     @GetMapping("ionosphericparametersStationData")
-    public List<SecIonosphericParametersVO> getIonosphericparametersStationData(@RequestParam("type") String type) {
+    public List<SecIonosphericParametersVO> getIonosphericparametersStationData(
+            @RequestParam("altitude") String altitude,
+            @RequestParam("startTime") String startTime,
+            @RequestParam("endTime") String endTime,
+            @RequestParam("type") String type) {
         List<SecIonosphericParametersVO> list = new ArrayList<SecIonosphericParametersVO>();
         if (null == type) {
             return list;
@@ -89,7 +97,7 @@ public class SecIonosphericParametersController {
                     break;
                 }
                 default: {
-                    list = secIPS.getIonosphericStationsTECPngs();
+                    list = secIPS.getIonosphericChineseTECPngs(altitude, startTime, endTime);
                     break;
                 }
             }
@@ -101,7 +109,7 @@ public class SecIonosphericParametersController {
      * 获取电离层参数数据
      *
      * @param type      电离层参数类型
-     * @param staId     台站id
+     * @param altitude  高度
      * @param startTime 开始时间
      * @param endTime   结束时间
      * @return
@@ -109,14 +117,14 @@ public class SecIonosphericParametersController {
     @ApiOperation("获取电离层参数数据")
     @GetMapping("ionosphericparametersData")
     public List<SecIonosphericParametersVO> getIonosphericparametersData(@RequestParam(value = "type", required = true) String type,
-                                                                         @RequestParam(value = "staId", required = false) String staId,
+                                                                         @RequestParam(value = "altitude", required = false) String altitude,
                                                                          @RequestParam("startTime") String startTime,
                                                                          @RequestParam("endTime") String endTime) {
         List list = new ArrayList();
         if (type.toLowerCase(Locale.ROOT).equals("roti")) {
-            list = secIPS.getIonosphericRotiPngs(startTime, endTime, staId);
+            list = secIPS.getIonosphericRotiPngs(startTime, endTime);
         } else {
-            list = secIPS.getIonosphericTecPngs(startTime, endTime);
+            list = secIPS.getIonosphericGlobalTecPngs(altitude, startTime, endTime);
         }
         return list;
     }
@@ -127,19 +135,19 @@ public class SecIonosphericParametersController {
         String path = null;
         switch (type) {
             case "s4": {
-                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getS4Stations());
+                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getS4PicPath());
                 break;
             }
             case "globleTEC": {
-                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecTimes());
+                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecGlobal());
                 break;
             }
-            case "globleROTI": {
-                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getRoti());
+            case "chineseROTI": {
+                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getRotiPics());
                 break;
             }
             default: {
-                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecStations());
+                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecChina());
                 break;
             }
         }

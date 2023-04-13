@@ -107,15 +107,17 @@ piesat:
   profile: /secwin/
   weekPngPy: algorithm/weekpng/analyse_t.py #周报算法图
   weekPngIni: algorithm/weekpng/xw.ini #周报算法数据库配置
-  tecStationPy: algorithm/stationtecpng/TEC_keshihua_03_png_creation.py # 全国站点二维算法脚本
-  tecStations: TEC/stations/ #TEC全国站点出图位置
-  tecGLStationPy: algorithm/tecpng/TEC/parameter_maps.py #TEC全球站点三维算法脚本
-  rotiGLStationPy: algorithm/roti/ROTI/parameter_maps.py #TEC全球站点三维算法脚本
-  tecTimes: TEC/time/ #TEC时间段绘图数据
-  s4Stations: S4/stations/ #闪烁指数全国站点出图位置
-  s4Times: S4/time/ #闪烁指数时间段绘图数据
-  roti: ROTI/ #ROTI算法结果存储位置
-  secondDir: maps/Medium/ # TEC、ROTI算法二级目录
+  tecChinaPy: algorithm/TEC/iri_tecV3.py # 全国站点二维算法脚本
+  tecChina: TEC/china/ #TEC全国站点出图位置
+  tecGlobalPy: algorithm/TEC/iri_tec.py #TEC全球站点三维算法脚本
+  tecGlobal: TEC/global/ #TEC全国站点出图位置
+  rotiGlobalPy: algorithm/ROTI/code/satellite.py #ROTI算法脚本
+  rotiPics: ROTI/pictrues/ #ROTI算法结果存储位置
+  rotiSatelliteData: algorithm/ROTI/Satellite_data/
+  rotiEphemerisData: algorithm/ROTI/Ephemeris_data/
+  s4FlickerIndexPy: algorithm/S4/code/satellite.py # S4闪烁指数算法脚本
+  s4DataPath: algorithm/S4/data/ #闪烁指数数据所在位置
+  s4PicPath: s4/area/ # 闪烁区域分布图
 
 oss:
   type: s3

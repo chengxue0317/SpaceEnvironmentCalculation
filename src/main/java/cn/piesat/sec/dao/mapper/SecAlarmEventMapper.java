@@ -82,13 +82,46 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
     List<SecAlarmForecastDO> getAlarmEvent3daysForecast();
 
     /**
-     * 获取四种警报事件
+     * 获取X射线警报事件
      *
      * @param startTime 开始时间
      * @param endTime   结束时间
-     * @return 四种警报事件结果
+     * @return X射线警报事件
      */
-    Map<String, Object> getFourthAlramEventsBef24h(@Param("startTime") String startTime, @Param("endTime") String endTime) throws Exception;
+    Map<String, Object> getXrayAlramEventsBef24h(@Param("startTime") String startTime, @Param("endTime") String endTime) throws Exception;
+
+    /**
+     * 获取质子事件
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 质子事件
+     */
+    Map<String, Object> getProtonAlramEventsBef24h(@Param("startTime") String startTime, @Param("endTime") String endTime) throws Exception;
+    /**
+     * 获取高能电子暴事件
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 高能电子暴事件
+     */
+    Map<String, Object> getEleAlramEventsBef24h(@Param("startTime") String startTime, @Param("endTime") String endTime) throws Exception;
+    /**
+     * 获取地磁警报事件
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 地磁警报事件
+     */
+    Map<String, Object> getDstAlramEventsBef24h(@Param("startTime") String startTime, @Param("endTime") String endTime) throws Exception;
+    /**
+     * 获取24小时综述
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 24小时综述
+     */
+    Map<String, Object> getOverviewEvents24h(@Param("startTime") String startTime, @Param("endTime") String endTime) throws Exception;
 
     /**
      * 更新报文路径

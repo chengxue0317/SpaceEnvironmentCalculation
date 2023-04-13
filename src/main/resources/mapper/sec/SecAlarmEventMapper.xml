@@ -202,32 +202,39 @@
           and THRESHOLD_TIME <![CDATA[<]]> ADD_DAYS(SYSDATE(), 1)
     </select>
 
-    <select id="getFourthAlramEventsBef24h" resultType="java.util.HashMap">
-        select T.LEVEL xray, T1.LEVEL proton, T2.LEVEL ele, T3.LEVEL dst, bef24h, aft3day
-        from (select LEVEL
-              from SEC_XRAY_ALARM
-              where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
-                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
-             ) T,
-             (select LEVEL
-              from SEC_PROTON_ALARM
-              where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
-                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
-             ) T1,
-             (select LEVEL
-              from SEC_ELE_ALARM
-              where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
-                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
-             ) T2,
-             (select LEVEL
-              from SEC_DST_ALARM
-              where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
-                AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
-             ) T3,
-             (select PAST_REVIEW bef24h, FUTURE_REVIEW aft3day
-              FROM SEC_DAILY_OVERVIEW
-              where TIME <![CDATA[>=]]> #{startTime}
-                AND TIME <![CDATA[<=]]> #{endTime}) T4
+    <select id="getXrayAlramEventsBef24h" resultType="java.util.HashMap">
+        select LEVEL xray
+        from SEC_XRAY_ALARM
+        where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+        AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+    </select>
+
+    <select id="getProtonAlramEventsBef24h" resultType="java.util.HashMap">
+        select LEVEL proton
+        from SEC_XRAY_ALARM
+        where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+        AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+    </select>
+
+    <select id="getEleAlramEventsBef24h" resultType="java.util.HashMap">
+        select LEVEL ele
+        from SEC_XRAY_ALARM
+        where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+        AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+    </select>
+
+    <select id="getDstAlramEventsBef24h" resultType="java.util.HashMap">
+        select LEVEL dst
+        from SEC_XRAY_ALARM
+        where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+        AND THRESHOLD_TIME <![CDATA[<=]]> #{endTime}
+    </select>
+
+    <select id="getOverviewEvents24h" resultType="java.util.HashMap">
+        select PAST_REVIEW bef24h, FUTURE_REVIEW aft3day
+        FROM SEC_DAILY_OVERVIEW
+        where TIME <![CDATA[>=]]> #{startTime}
+        AND TIME <![CDATA[<=]]> #{endTime}
     </select>
 
     <update id="updatePath">

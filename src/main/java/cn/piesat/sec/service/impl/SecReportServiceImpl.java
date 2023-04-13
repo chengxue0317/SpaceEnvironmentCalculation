@@ -104,8 +104,7 @@ public class SecReportServiceImpl implements SecReportService {
         String[][] arr = bef24EnvDefaultWarnData();
         Map<String, Object> fourthAlramEventsLevel = checkBef24WarnInfo(startTime, endTime);
 
-        if (null != fourthAlramEventsLevel && fourthAlramEventsLevel.size() > 0) {
-            // 过去24小时、未来3天综述
+        if (fourthAlramEventsLevel.size() > 0) {
             setOverviewTxt(dailyshotBean, fourthAlramEventsLevel);
             setBef24Table(arr, fourthAlramEventsLevel);
         }
@@ -216,7 +215,7 @@ public class SecReportServiceImpl implements SecReportService {
             }
             FileUtils.deleteQuietly(FileUtils.getFile(targetDir.concat("week1.png"))); // 生成文件后删除图片
         } catch (Exception e) {
-            logger.error(String.format(Locale.ROOT, "-----method makeShortDayReport----Insert message data exception  %s", e.getMessage()));
+            logger.error(String.format(Locale.ROOT, "-----method makeWeekReport----Insert message data exception  %s", e.getMessage()));
         } finally {
             return tarPath;
         }
@@ -353,6 +352,19 @@ public class SecReportServiceImpl implements SecReportService {
         List<Map<String, Object>> data = secReportMapper.getCombinData(startTime, endTime);
         if (CollectionUtils.isNotEmpty(data)) {
             data = data.size() > 7 ? data.subList(0, 7) : data;
+            while (data.size() < 7) {
+                data.add(new HashMap<String, Object>() {
+                    {
+                        put("TIME", "");
+                        put("F107", "");
+                        put("SSN", "");
+                        put("E2", "");
+                        put("PROTON", "");
+                        put("KP", "");
+                        put("AP", "");
+                    }
+                });
+            }
             String[][] table = new String[9][];
             String[] row0 = new String[]{"日期", "M级以上X射线耀斑", "", "", "", "F10.7射电流量", "黑子数", "是否发生质子事件", "高能电子通量(Electrons/cm2-day-sr)", "地磁Ap指数(Kp)"};
             String[] row1 = new String[]{"", "开始", "最大", "结束", "级别", "", "", "", "", ""};
@@ -382,7 +394,7 @@ public class SecReportServiceImpl implements SecReportService {
                 e2 = strObjMap.get("E2");
                 strE2 = e2 == null ? "" : e2.toString();
                 proton = strObjMap.get("PROTON");
-                strProton = proton == null || Integer.parseInt(proton.toString()) < 1 ? "否" : "是";
+                strProton = proton == null || proton.toString().length() == 0 || Integer.parseInt(proton.toString()) < 1 ? "否" : "是";
                 kp = strObjMap.get("KP");
                 strKp = kp == null ? "" : kp.toString();
                 ap = strObjMap.get("AP");
@@ -518,8 +530,10 @@ public class SecReportServiceImpl implements SecReportService {
             List<SecOverviewVO> weekOverview = secOverviewMapper.getPeriodOverview("SEC_WEEK_OVERVIEW", startTime, endTime);
             if (CollectionUtils.isNotEmpty(weekOverview)) {
                 SecOverviewVO secOverviewVO = weekOverview.get(0);
-                weekDetailBean.setPastOverView(secOverviewVO.getPastReview());
-                weekDetailBean.setFutureOverView(secOverviewVO.getFutureReview());
+                String befweek = secOverviewVO.getPastReview() == null ? "" : secOverviewVO.getPastReview().toString().replaceAll("</br>", "\n    ");
+                String aftweek = secOverviewVO.getFutureReview() == null ? "" : secOverviewVO.getFutureReview().toString().replaceAll("</br>", "\n    ");
+                weekDetailBean.setPastOverView(befweek);
+                weekDetailBean.setFutureOverView(aftweek);
             }
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "---Getting a weekly review throws an exception %s", e.getMessage()));
@@ -534,8 +548,8 @@ public class SecReportServiceImpl implements SecReportService {
     }
 
     private void setOverviewTxt(DailyShortBean dailyshotBean, Map<String, Object> fourthAlramEventsLevel) {
-        Object bef24hObj = fourthAlramEventsLevel.get("BEF24H");
-        Object aft3dayObj = fourthAlramEventsLevel.get("AFT3DAY");
+        Object bef24hObj = fourthAlramEventsLevel.get("bef24h");
+        Object aft3dayObj = fourthAlramEventsLevel.get("aft3day");
         String bef24h = bef24hObj == null ? "" : bef24hObj.toString().replaceAll("</br>", "\n    ");
         String aft3day = aft3dayObj == null ? "" : aft3dayObj.toString().replaceAll("</br>", "\n    ");
         dailyshotBean.setTextBef24(bef24h);
@@ -579,9 +593,28 @@ public class SecReportServiceImpl implements SecReportService {
 
 
     private Map<String, Object> checkBef24WarnInfo(String startTime, String endTime) {
-        Map<String, Object> fourthAlramEventsLevel = null;
+        Map<String, Object> fourthAlramEventsLevel = new HashMap<>();
         try {
-            fourthAlramEventsLevel = secAlarmEventMapper.getFourthAlramEventsBef24h(startTime, endTime);
+            Map<String, Object> map = secAlarmEventMapper.getXrayAlramEventsBef24h(startTime, endTime);
+            if (map != null) {
+                fourthAlramEventsLevel.putAll(map);
+            }
+            map = secAlarmEventMapper.getProtonAlramEventsBef24h(startTime, endTime);
+            if (null != map) {
+                fourthAlramEventsLevel.putAll(map);
+            }
+            map = secAlarmEventMapper.getEleAlramEventsBef24h(startTime, endTime);
+            if (null != map) {
+                fourthAlramEventsLevel.putAll(map);
+            }
+            map = secAlarmEventMapper.getDstAlramEventsBef24h(startTime, endTime);
+            if (null != map) {
+                fourthAlramEventsLevel.putAll(map);
+            }
+            map = secAlarmEventMapper.getOverviewEvents24h(startTime, endTime);
+            if (null != map) {
+                fourthAlramEventsLevel.putAll(map);
+            }
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "---------Get Daily Newsletter Data Abnormal  %s", e.getMessage()));
             fourthAlramEventsLevel = new HashMap<>();

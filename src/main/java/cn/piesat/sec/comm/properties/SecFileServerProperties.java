@@ -37,45 +37,56 @@ public class SecFileServerProperties {
     /**
      * TEC全国站点出图算法脚本
      */
-    private String tecStationPy;
+    private String tecChinaPy;
 
     /**
      * TEC全球站点三维出图算法脚本
      */
-    private String tecGLStationPy;
+    private String tecGlobalPy;
 
     /**
      * ROTI全球站点三维出图算法脚本
      */
-    private String rotiGLStationPy;
+    private String rotiGlobalPy;
 
     /**
      * TEC全国站点出图位置
      */
-    private String tecStations;
+    private String tecChina;
 
     /**
-     * TEC 时段出图位置
+     * TEC 全球出图位置
      */
-    private String tecTimes;
+    private String tecGlobal;
 
     /**
-     * 电离层闪烁 全国站点出图位置
+     * 4s闪烁指数
      */
-    private String s4Stations;
+    private String s4FlickerIndexPy;
 
     /**
-     * 电离层闪烁 时段出图位置
+     * S4闪烁指数数据
      */
-    private String s4Times;
+    private String s4DataPath;
 
     /**
      * ROTI出图位置
      */
-    private String roti;
+    private String rotiPics;
 
     /**
-     * 算法二级目录
+     * 闪烁区域分布图
      */
-    private String secondDir;
+    private String s4PicPath;
+
+    /**
+     * roti算法卫星数据
+     */
+    private String rotiSatelliteData;
+
+    /**
+     * roti 星历数据
+     */
+    private String rotiEphemerisData;
+
 }
