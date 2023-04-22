@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -162,4 +164,78 @@ public class FileUtil {
         return filePath.replaceAll("//", "/").replaceAll("[\\\\]+", "/");
     }
 
+    /**
+     * 根据时间范围得到该段时间内应该生成的图片有哪些
+     *
+     * @param altitude  高度
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 文件名称
+     */
+    public static List<String> picsNames(String altitude, String startTime, String endTime) {
+        if (StringUtils.isNotEmpty(altitude)) {
+            return picturesNames(altitude, startTime, endTime);
+        } else {
+            return picturesNames(startTime, endTime);
+        }
+    }
+
+    /**
+     * 根据时间范围得到该段时间内应该生成的图片有哪些
+     *
+     * @param altitude  高度
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 文件名称
+     */
+    public static List<String> picturesNames(String altitude, String startTime, String endTime) {
+        LocalDateTime ts = LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        long betweenHours = DateUtil.bwtHours(startTime, endTime);
+        List<String> namges = new ArrayList<>();
+        for (int i = 0; i < betweenHours; i++) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            namges.add(altitude.concat("_").concat(ts.format(formatter)).concat(".jpg"));
+            ts = ts.plusHours(1);
+        }
+        return namges;
+    }
+
+
+    /**
+     * 根据时间范围得到该段时间内应该生成的图片有哪些
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 文件名称
+     */
+    public static List<String> picturesNamesMinutes(String startTime, String endTime) {
+        LocalDateTime ts = LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        long betweenMinutes = DateUtil.bwtMinutes(startTime, endTime);
+        List<String> namges = new ArrayList<>();
+        for (int i = 0; i < (betweenMinutes / 10); i++) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            namges.add(ts.format(formatter).concat(".png"));
+            ts = ts.plusMinutes(10);
+        }
+        return namges;
+    }
+
+    /**
+     * 根据时间范围得到该段时间内应该生成的图片有哪些
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 文件名称
+     */
+    public static List<String> picturesNames(String startTime, String endTime) {
+        LocalDateTime ts = LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        long betweenHours = DateUtil.bwtHours(startTime, endTime);
+        List<String> namges = new ArrayList<>();
+        for (int i = 0; i < betweenHours; i++) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            namges.add(ts.format(formatter).concat(".jpg"));
+            ts = ts.plusHours(1);
+        }
+        return namges;
+    }
 }

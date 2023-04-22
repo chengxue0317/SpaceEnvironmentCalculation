@@ -16,6 +16,7 @@ import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.regions.Region;
@@ -220,7 +221,8 @@ public class S3FileSystem implements IFileSystem {
 
     /**
      * 文件下载
-     *  @param bucketName 文件存储桶
+     *
+     * @param bucketName 文件存储桶
      * @param fileName   文件名称
      * @param tarDir     目标文件夹
      */
@@ -349,6 +351,59 @@ public class S3FileSystem implements IFileSystem {
             return;
         }
     }
+
+    /**
+     * 文件下载
+     *
+     * @param bucketName 数据桶名称
+     * @param filePaths  文件路径
+     * @param response   浏览器响应对象
+     */
+    public void download(String bucketName, List<String> filePaths, HttpServletResponse response) {
+        ZipOutputStream zout = null;
+        try {
+            response.setCharacterEncoding(Constant.UTF8);
+            response.setContentType("multipart/form-data;application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(System.currentTimeMillis() + ".zip", "UTF-8"));
+            zout = new ZipOutputStream(response.getOutputStream());
+            if (CollectionUtils.isNotEmpty(filePaths)) {
+                byte[] buff = new byte[Constant.BUFFSIZE];
+                int len;
+                for (String path : filePaths) {
+                    path = checkPath(path);
+                    GetObjectRequest objectRequest = GetObjectRequest
+                            .builder()
+                            .bucket(bucketName)
+                            .key(path)
+                            .build();
+                    if (null != objectRequest) {
+                        InputStream is = s3Client.getObject(objectRequest);
+                        zout.putNextEntry(new ZipEntry(path));
+                        while ((len = is.read(buff)) != -1) {
+                            zout.write(buff, 0, len);
+                        }
+                        zout.flush();
+                        zout.closeEntry();
+                        is.close();
+                    }
+                }
+                zout.flush();
+                zout.finish();
+            }
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "========File download exception %s", e.getMessage()));
+        } finally {
+            if (null != zout) {
+                try {
+                    zout.close();
+                } catch (IOException e) {
+                    logger.error("--------Failed to close ZipoutputStream. %s", e.getMessage());
+                }
+            }
+            return;
+        }
+    }
+
 
     /**
      * 获取路径下所有文件列表

@@ -10,8 +10,10 @@ spring:
       matching-strategy: ANT_PATH_MATCHER
   datasource:
     driverClassName: dm.jdbc.driver.DmDriver
-    url: jdbc:dm://219.145.62.54:15236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+#    url: jdbc:dm://219.145.62.54:15236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
 #    url: jdbc:dm://127.0.0.1:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+#    url: jdbc:dm://192.168.8.9:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:dm://192.168.31.218:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: SDC
     password: sdc123456
   jackson:
@@ -104,17 +106,17 @@ remote:
 
 #配置文件路径
 piesat:
-  profile: /secwin/
+  profile: /CMS-SDC/
   weekPngPy: algorithm/weekpng/analyse_t.py #周报算法图
   weekPngIni: algorithm/weekpng/xw.ini #周报算法数据库配置
-  tecChinaPy: algorithm/TEC/iri_tecV3.py # 全国站点二维算法脚本
+  tecChinaPy: algorithm/TEC/iri_tecChina.py # 全国站点二维算法脚本
   tecChina: TEC/china/ #TEC全国站点出图位置
-  tecGlobalPy: algorithm/TEC/iri_tec.py #TEC全球站点三维算法脚本
+  tecGlobalPy: algorithm/TEC/iri_tecGlobal.py #TEC全球站点三维算法脚本
   tecGlobal: TEC/global/ #TEC全国站点出图位置
-  rotiGlobalPy: algorithm/ROTI/code/satellite.py #ROTI算法脚本
-  rotiPics: ROTI/pictrues/ #ROTI算法结果存储位置
-  rotiSatelliteData: algorithm/ROTI/Satellite_data/
-  rotiEphemerisData: algorithm/ROTI/Ephemeris_data/
+  rotiGlobalPy: algorithm/ROTI/roti/code/satellite.py #ROTI算法脚本
+  rotiPics: ROTI/china/ #ROTI算法结果存储位置
+  rotiSatelliteData: algorithm/ROTI/roti/Satellite_data/
+  rotiEphemerisData: algorithm/ROTI/roti/Ephemeris_data/
   s4FlickerIndexPy: algorithm/S4/code/satellite.py # S4闪烁指数算法脚本
   s4DataPath: algorithm/S4/data/ #闪烁指数数据所在位置
   s4PicPath: s4/area/ # 闪烁区域分布图
@@ -126,13 +128,21 @@ minio:
   endpoint: http://127.0.0.1:9000
   accesskey: minioadmin
   secretkey: minioadmin
-  bucketName: htht
+  bucketName: dlxjs
 
 s3:
-  endpoint: http://127.0.0.1:9000
+  endpoint: http://192.168.238.100:9000
   accesskey: minioadmin
   secretkey: minioadmin
   bucketName: dlxjs
+
+thread:
+  param:
+    corePoolSize: 8
+    maxPoolSize: 16
+    keepAliveSeconds: 60
+    queueCapacity: 160
+    allowCoreThreadTimeout: false
 
 logging:
   level:

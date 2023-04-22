@@ -14,18 +14,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class SecIonosphericParametersServiceImpl implements SecIonosphericParametersService {
@@ -33,6 +39,10 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 
     @Autowired
     private SecFileServerProperties secFileServerProperties;
+
+    @Autowired
+    @Qualifier("asyncExecutor")
+    private Executor executor;
 
     @Value("${s3.bucketName}")
     private String bucketName;
@@ -85,11 +95,56 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 
     @Override
     public List<SecIonosphericParametersVO> getIonosphericChineseTECPngs(String altitude, String startTime, String endTime) {
-        List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecChina());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
-        setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecChina());
-        if (setPicsPathofMinio(pictures)) return pictures; // 如果已经有图片了就返回图片在oss中的图片数据
+        List<String> fileNames = FileUtil.picsNames(altitude, startTime, endTime);
+        boolean allPicturesExists = isAllPicturesExists(fileNames, targetDir);
+        List<SecIonosphericParametersVO> pictures = new ArrayList<>();
+        if (allPicturesExists) {
+            System.out.println("-----------真是太幸运了，所有的文件都存在");
+            setOSSPicturesInfo(pictures, fileNames, targetDir);
+            return pictures;
+        }
+
+        // 根据时间拆分算法
+        List<String> timesArr = splitLocalDateTimeByHour(
+                LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                3);
+        List<CompletableFuture<List<SecIonosphericParametersVO>>> completableFutures = new ArrayList<>();
+
+        for (int i = 0; i < timesArr.size() - 1; i++) {
+            String st = timesArr.get(i);
+            String se = timesArr.get(i + 1);
+            CompletableFuture<List<SecIonosphericParametersVO>> completableFuture = CompletableFuture.supplyAsync(() -> drawTecChinaPictures(st, se, altitude, targetDir), executor);
+            completableFutures.add(completableFuture);
+        }
+        CompletableFuture completableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{})).exceptionally(e -> {
+            logger.error("生成TEC全国图片========", e.getMessage());
+            return null;
+        });
+        try {
+            completableFuture.get(600, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.error("生成TEC全国图片========", e.getMessage());
+            return new ArrayList<>();
+        }
+
+        for (CompletableFuture<List<SecIonosphericParametersVO>> future : completableFutures) {
+            try {
+                List<SecIonosphericParametersVO> secVoslist = future.get();
+                if (CollectionUtils.isNotEmpty(secVoslist)) {
+                    pictures.addAll(secVoslist);
+                }
+            } catch (Exception e) {
+                logger.error("======" + e.getMessage());
+            }
+        }
+        return dataClean(pictures);
+    }
+
+    private List<SecIonosphericParametersVO> drawTecChinaPictures(String startTime, String endTime, String altitude, String targetDir) {
+        List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String python = secFileServerProperties.getProfile() + secFileServerProperties.getTecChinaPy();
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" ")
@@ -100,31 +155,77 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         System.out.println("===========" + cmd);
         try {
             Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
-            if (!process.waitFor(100, TimeUnit.SECONDS)) {
+            if (!process.waitFor(300, TimeUnit.SECONDS)) {
                 process.destroy();
-                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
+                logger.error(String.format(Locale.ROOT, "====Execution algorithm drawTecChinaPictures timeout!!! %s", cmd.toString()));
             }
+            List<String> names = FileUtil.picsNames(altitude, startTime, endTime);
             // 设置文件路径
-            setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecChina());
-            // 上传文件
+            setPicturesInfo(pictures, names, targetDir);
             updatePicsPathofMinio(pictures);
-            // 删除文件
-//            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件每次都会调用python算法重新生成图片
+            names.forEach(name -> {
+                FileUtils.deleteQuietly(FileUtils.getFile(targetDir.concat(name)));
+            });
+
         } catch (IOException e) {
-            logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
+            logger.error(String.format(Locale.ROOT, "-------The chinese tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
-            logger.info(String.format(Locale.ROOT, "-----The global tec site image is abnormal. %s", e.getMessage()));
+            logger.info(String.format(Locale.ROOT, "-----The chinese tec site image is abnormal. %s", e.getMessage()));
         }
         return pictures;
     }
 
     @Override
     public List<SecIonosphericParametersVO> getIonosphericGlobalTecPngs(String altitude, String startTime, String endTime) {
-        List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecGlobal());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
-        setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecGlobal());
-        if (setPicsPathofMinio(pictures)) return pictures;
+        List<String> fileNames = FileUtil.picsNames(altitude, startTime, endTime);
+        boolean allPicturesExists = isAllPicturesExists(fileNames, targetDir);
+        List<SecIonosphericParametersVO> pictures = new ArrayList<>();
+        if (allPicturesExists) {
+            System.out.println("-----------真是太幸运了，所有的文件都存在");
+            setOSSPicturesInfo(pictures, fileNames, targetDir);
+            return pictures;
+        }
+        // 根据时间拆分算法
+        List<String> timesArr = splitLocalDateTimeByHour(
+                LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                3);
+        List<CompletableFuture<List<SecIonosphericParametersVO>>> completableFutures = new ArrayList<>();
+
+        for (int j = 0; j < timesArr.size() - 1; j++) {
+            String st = timesArr.get(j);
+            String se = timesArr.get(j + 1);
+            CompletableFuture<List<SecIonosphericParametersVO>> completableFuture = CompletableFuture.supplyAsync(() -> drawTecglobalPictures(st, se, altitude, targetDir), executor);
+            completableFutures.add(completableFuture);
+        }
+        CompletableFuture completableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{})).exceptionally(e -> {
+            logger.error("生成TEC全球图片========", e.getMessage());
+            return null;
+        });
+        try {
+            completableFuture.get(600, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.error("生成TEC全球图片========", e.getMessage());
+            return new ArrayList<>();
+        }
+
+        for (CompletableFuture<List<SecIonosphericParametersVO>> future : completableFutures) {
+            try {
+                List<SecIonosphericParametersVO> secVoslist = future.get();
+                if (CollectionUtils.isNotEmpty(secVoslist)) {
+                    pictures.addAll(secVoslist);
+                }
+            } catch (Exception e) {
+                logger.error("======" + e.getMessage());
+            }
+        }
+        return dataClean(pictures);
+    }
+
+    private List<SecIonosphericParametersVO> drawTecglobalPictures(String startTime, String endTime, String altitude, String targetDir) {
+        List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String python = secFileServerProperties.getProfile() + secFileServerProperties.getTecGlobalPy();
         StringBuilder cmd = new StringBuilder("python ");
         cmd.append(python).append(" ")
@@ -132,16 +233,20 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
                 .append(startTime).append("\" \"")
                 .append(endTime).append("\" ")
                 .append(targetDir);
-        System.out.println("=========" + cmd.toString());
+        System.out.println("===========" + cmd);
         try {
             Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
-            if (!process.waitFor(100, TimeUnit.SECONDS)) {
+            if (!process.waitFor(500, TimeUnit.SECONDS)) {
                 process.destroy();
-                logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
+                logger.error(String.format(Locale.ROOT, "====Execution algorithm drawTecglobalPictures timeout!!! %s", cmd.toString()));
             }
-            setPicturesInfo(pictures, targetDir, secFileServerProperties.getTecGlobal());
+            List<String> names = FileUtil.picsNames(altitude, startTime, endTime);
+            // 设置文件路径
+            setPicturesInfo(pictures, names, targetDir);
             updatePicsPathofMinio(pictures);
-//            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
+            names.forEach(name -> {
+                FileUtils.deleteQuietly(FileUtils.getFile(targetDir.concat(name)));
+            });
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The global tec site image is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -150,24 +255,59 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
         return pictures;
     }
 
-    private boolean setPicsPathofMinio(List<SecIonosphericParametersVO> pictures) {
-        if (CollectionUtils.isNotEmpty(pictures)) {
-            for (SecIonosphericParametersVO pic : pictures) {
-                String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? pic.getSrc().substring(1) : pic.getSrc();
-                pic.setSrc(OSSInstance.getOSSUtil().preview(bucketName, path));
-            }
-            return true;
-        }
-        return false;
-    }
-
     @Override
     public List<SecIonosphericParametersVO> getIonosphericRotiPngs(String startTime, String endTime) {
         List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String targetDir = secFileServerProperties.getProfile().concat(secFileServerProperties.getRotiPics());
         FileUtil.mkdirs(targetDir); // 如果文件夹不存在则创建文件夹
-        setPicturesInfo(pictures, targetDir, secFileServerProperties.getRotiPics());
-        if (setPicsPathofMinio(pictures)) return pictures;
+        List<String> fileNames = FileUtil.picturesNamesMinutes(startTime, endTime);
+        boolean allPicturesExists = isAllPicturesExists(fileNames, targetDir);
+        if (allPicturesExists) {
+            System.out.println("-----------真是太幸运了，所有的文件都存在");
+            setOSSPicturesInfo(pictures, fileNames, targetDir);
+            return pictures;
+        }
+
+        // 根据时间拆分算法
+        List<String> timesArr = splitLocalDateTimeByHour(
+                LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                24);
+        List<CompletableFuture<List<SecIonosphericParametersVO>>> completableFutures = new ArrayList<>();
+
+        for (int j = 0; j < timesArr.size() - 1; j++) {
+            String st = timesArr.get(j);
+            String se = timesArr.get(j + 1);
+            CompletableFuture<List<SecIonosphericParametersVO>> completableFuture = CompletableFuture.supplyAsync(() -> drawROTIPictures(st, se, targetDir), executor);
+            completableFutures.add(completableFuture);
+        }
+        CompletableFuture completableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{})).exceptionally(e -> {
+            logger.error("生成ROTI图片========", e.getMessage());
+            return null;
+        });
+        try {
+            completableFuture.get(300, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.error("生成ROTI图片========", e.getMessage());
+            return new ArrayList<>();
+        }
+
+        for (CompletableFuture<List<SecIonosphericParametersVO>> future : completableFutures) {
+            try {
+                List<SecIonosphericParametersVO> secVoslist = future.get();
+                if (CollectionUtils.isNotEmpty(secVoslist)) {
+                    pictures.addAll(secVoslist);
+                }
+            } catch (Exception e) {
+                logger.error("======" + e.getMessage());
+            }
+        }
+
+        return dataClean(pictures);
+    }
+
+    private List<SecIonosphericParametersVO> drawROTIPictures(String startTime, String endTime, String targetDir) {
+        List<SecIonosphericParametersVO> pictures = new ArrayList<>();
         String python = secFileServerProperties.getProfile() + secFileServerProperties.getRotiGlobalPy();
         String satelliteData = secFileServerProperties.getProfile() + secFileServerProperties.getRotiSatelliteData();
         String ephemerisData = secFileServerProperties.getProfile() + secFileServerProperties.getRotiEphemerisData();
@@ -185,10 +325,12 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
                 process.destroy();
                 logger.error(String.format(Locale.ROOT, "====Execution algorithm timeout!!! %s", cmd.toString()));
             }
-            setPicturesInfo(pictures, targetDir, secFileServerProperties.getRotiPics());
-            // 算法生成图片上传到文件服务器
+            List<String> fileNames = FileUtil.picturesNamesMinutes(startTime, endTime);
+            setPicturesInfo(pictures, fileNames, targetDir);
             updatePicsPathofMinio(pictures);
-//            FileUtils.deleteQuietly(FileUtils.getFile(targetDir)); // 删除文件
+            fileNames.forEach(name -> {
+                FileUtils.deleteQuietly(FileUtils.getFile(targetDir.concat(name)));
+            });
         } catch (IOException e) {
             logger.error(String.format(Locale.ROOT, "-------The ROTI is abnormal. %s", e.getMessage()));
         } catch (InterruptedException e) {
@@ -200,36 +342,76 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
     private void updatePicsPathofMinio(List<SecIonosphericParametersVO> pictures) {
         if (CollectionUtils.isNotEmpty(pictures)) {
             for (SecIonosphericParametersVO pic : pictures) {
-                OSSInstance.getOSSUtil().upload(bucketName, pic.getSrc(), pic.getSrc());
-                String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? FileUtil.rmPathPreSplit(pic.getSrc()) : pic.getSrc();
-                pic.setSrc(OSSInstance.getOSSUtil().preview(bucketName, path));
-            }
-        }
-    }
-
-    private void getExistsPicsPathofMinio(List<SecIonosphericParametersVO> pictures) {
-        if (CollectionUtils.isNotEmpty(pictures)) {
-            for (SecIonosphericParametersVO pic : pictures) {
-                String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? FileUtil.rmPathPreSplit(pic.getSrc()) : pic.getSrc();
-                pic.setSrc(OSSInstance.getOSSUtil().preview(bucketName, path));
-            }
-        }
-    }
-
-    private void setPicturesInfo(List<SecIonosphericParametersVO> pictures, String targetDir, String pkgs) {
-        List<String> pics = FileUtil.getFilePaths(targetDir);
-        if (CollectionUtils.isNotEmpty(pics)) {
-            pics.forEach(item -> {
-                if (item.toLowerCase(Locale.ROOT).endsWith(".png") || item.toLowerCase(Locale.ROOT).endsWith(".jpg") || item.toLowerCase(Locale.ROOT).endsWith(".jpeg")) {
-                    SecIonosphericParametersVO ispvo = new SecIonosphericParametersVO();
-                    File file = FileUtils.getFile(item);
-                    ispvo.setName(file.getName().substring(0, file.getName().indexOf(".")));
-                    ispvo.setSrc(secFileServerProperties.getProfile().concat(pkgs).concat(file.getName()));
-                    pictures.add(ispvo);
+                System.out.println("---上传文件路径---" + pic.getSrc());
+                if (FileUtils.getFile(pic.getSrc()).exists()) {
+                    OSSInstance.getOSSUtil().upload(bucketName, pic.getSrc(), pic.getSrc());
+                    String path = pic.getSrc() != null && pic.getSrc().length() > 0 ? FileUtil.rmPathPreSplit(pic.getSrc()) : pic.getSrc();
+                    pic.setSrc(OSSInstance.getOSSUtil().preview(bucketName, path));
                 }
-            });
-        } else {
-            logger.info(String.format(Locale.ROOT, "=====路径%s下没有找到文件=====", targetDir));
+            }
         }
     }
+
+    private void setOSSPicturesInfo(List<SecIonosphericParametersVO> pictures, List<String> fileNames, String targetDir) {
+        fileNames.forEach(name -> {
+            SecIonosphericParametersVO pic = new SecIonosphericParametersVO();
+            pic.setName(name.substring(0, name.indexOf(".")));
+            pic.setSrc(OSSInstance.getOSSUtil().preview(bucketName, targetDir.concat(name)));
+            pictures.add(pic);
+        });
+    }
+
+    private void setPicturesInfo(List<SecIonosphericParametersVO> pictures, List<String> fileNames, String targetDir) {
+        fileNames.forEach(name -> {
+            SecIonosphericParametersVO pic = new SecIonosphericParametersVO();
+            pic.setName(name.substring(0, name.indexOf(".")));
+            pic.setSrc(targetDir.concat(name));
+            pictures.add(pic);
+        });
+    }
+
+    private static List<String> splitLocalDateTimeByHour(LocalDateTime start, LocalDateTime end, int hour) {
+        List<String> list = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        int between = (int) ChronoUnit.HOURS.between(start, end);
+        if (hour > 0 && between > hour) {
+            int num = (int) Math.ceil(between / (hour * 1.0));
+            if (num > 1) {
+                LocalDateTime temp = LocalDateTime.of(start.getYear(), start.getMonth(), start.getDayOfMonth(), start.getHour(), 0, 0);
+                list.add(start.format(formatter));
+                for (int i = 0; i < num - 1; i++) {
+                    temp = temp.plusHours(hour);
+                    list.add(temp.format(formatter));
+                }
+                list.add(end.format(formatter));
+            }
+        } else {
+            list.add(start.format(formatter));
+            list.add(end.format(formatter));
+        }
+        return list;
+    }
+
+    /**
+     * 判断本次要生成的图片是否全都存在
+     *
+     * @param nameList 文件命令
+     * @param tardir   目标文件所在位置
+     * @return 文件是否都存在
+     */
+    private boolean isAllPicturesExists(List<String> nameList, String tardir) {
+        for (String name : nameList) {
+            boolean b = OSSInstance.getOSSUtil().doesObjectExist(bucketName, tardir.concat(name));
+            if (!b) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    private List<SecIonosphericParametersVO> dataClean(List<SecIonosphericParametersVO> list) {
+        return list.stream().filter(item -> item.getSrc().startsWith("data:")).collect(Collectors.toList());
+    }
+
 }

@@ -10,6 +10,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -283,5 +284,31 @@ public class DateUtil {
         }
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
         return LocalDateTime.parse(dateStr, dtf);
+    }
+
+    /**
+     * 获取两个时间字符串
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 小时差
+     */
+    public static long bwtHours(String startTime, String endTime) {
+        LocalDateTime ts = LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime te = LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return ChronoUnit.HOURS.between(ts, te);
+    }
+
+    /**
+     * 获取两个时间字符串
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 分钟差
+     */
+    public static long bwtMinutes(String startTime, String endTime) {
+        LocalDateTime ts = LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime te = LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return ChronoUnit.MINUTES.between(ts, te);
     }
 }

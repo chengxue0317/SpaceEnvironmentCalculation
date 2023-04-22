@@ -4,6 +4,7 @@ import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 public interface SecIonosphericParametersService {
     /**
@@ -21,7 +22,7 @@ public interface SecIonosphericParametersService {
     /**
      * 获取全国多站TEC效果图
      *
-     * @param altitude    高度
+     * @param altitude  高度
      * @param startTime 开始时间
      * @param endTime   结束时间
      * @return TEC效果图

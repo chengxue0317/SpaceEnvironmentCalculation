@@ -283,6 +283,48 @@ public class MinioFileSystem implements IFileSystem {
         }
     }
 
+    @Override
+    public void download(String bucketName, List<String> pathList, HttpServletResponse response) {
+        ZipOutputStream zout = null;
+        try {
+            response.setCharacterEncoding(Constant.UTF8);
+            response.setContentType("multipart/form-data;application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(String.valueOf(System.currentTimeMillis()), "UTF-8"));
+            zout = new ZipOutputStream(response.getOutputStream());
+            if (CollectionUtils.isNotEmpty(pathList)) {
+                byte[] buff = new byte[Constant.BUFFSIZE];
+                int len;
+                for (String path : pathList) {
+                    GetObjectArgs objectArgs = GetObjectArgs.builder().bucket(bucketName)
+                            .object(path).build();
+                    if (null != objectArgs) {
+                        GetObjectResponse objresp = minioClient.getObject(objectArgs);
+                        zout.putNextEntry(new ZipEntry(path));
+                        while ((len = objresp.read(buff)) != -1) {
+                            zout.write(buff, 0, len);
+                        }
+                        zout.flush();
+                        zout.closeEntry();
+                        objresp.close();
+                    }
+                }
+                zout.flush();
+                zout.finish();
+            }
+        } catch (Exception e) {
+            logger.error(String.format(Locale.ROOT, "========File download exception %s", e.getMessage()));
+        } finally {
+            if (null != zout) {
+                try {
+                    zout.close();
+                } catch (IOException e) {
+                    logger.error("--------Failed to close ZipoutputStream. %s", e.getMessage());
+                }
+            }
+            return;
+        }
+    }
+
     /**
      * 获取路径下文件列表
      *

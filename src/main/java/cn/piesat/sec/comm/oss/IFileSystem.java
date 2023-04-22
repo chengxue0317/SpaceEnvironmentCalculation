@@ -3,6 +3,7 @@ package cn.piesat.sec.comm.oss;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 public interface IFileSystem {
     Boolean bucketExists(String bucketName);
@@ -20,6 +21,8 @@ public interface IFileSystem {
     void download(String bucketName, String fileName, HttpServletResponse res);
 
     void download(String bucketName, String dirpath, HttpServletResponse response, boolean recursive);
+
+    void download(String bucketName, List<String> filePath, HttpServletResponse response);
 
     boolean doesObjectExist(String bucketName, String objectName);
 }

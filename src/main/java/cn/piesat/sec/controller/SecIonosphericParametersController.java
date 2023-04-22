@@ -2,6 +2,7 @@ package cn.piesat.sec.controller;
 
 import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
+import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.comm.util.FileUtil;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
@@ -9,6 +10,7 @@ import cn.piesat.sec.service.SecIonosphericParametersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * 电离层参数
@@ -120,7 +123,7 @@ public class SecIonosphericParametersController {
                                                                          @RequestParam(value = "altitude", required = false) String altitude,
                                                                          @RequestParam("startTime") String startTime,
                                                                          @RequestParam("endTime") String endTime) {
-        List list = new ArrayList();
+        List<SecIonosphericParametersVO> list = new ArrayList();
         if (type.toLowerCase(Locale.ROOT).equals("roti")) {
             list = secIPS.getIonosphericRotiPngs(startTime, endTime);
         } else {
@@ -131,26 +134,46 @@ public class SecIonosphericParametersController {
 
     @ApiOperation("下载电离层参数文件")
     @GetMapping("ionosphericspngs")
-    public void downloadPics(@RequestParam(value = "type", required = true) String type, HttpServletResponse response) {
-        String path = null;
+    public void downloadPics(@RequestParam(value = "type", required = true) String type,
+                             @RequestParam(value = "altitude", required = false) String altitude,
+                             @RequestParam("startTime") String startTime,
+                             @RequestParam("endTime") String endTime,
+                             HttpServletResponse response) {
+        String path;
+        List<String> pathList = new ArrayList<>();
+
         switch (type) {
             case "s4": {
                 path = secFileServerProperties.getProfile().concat(secFileServerProperties.getS4PicPath());
                 break;
             }
             case "globleTEC": {
+                List<String> fileNames = FileUtil.picsNames(altitude, startTime, endTime);
                 path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecGlobal());
+                for (String name : fileNames) {
+                    pathList.add(path.concat(name));
+                }
                 break;
             }
             case "chineseROTI": {
+                List<String> fileNames = FileUtil.picturesNamesMinutes(startTime, endTime);
                 path = secFileServerProperties.getProfile().concat(secFileServerProperties.getRotiPics());
+                for (String name : fileNames) {
+                    pathList.add(path.concat(name));
+                }
                 break;
             }
             default: {
+                List<String> fileNames = FileUtil.picsNames(altitude, startTime, endTime);
                 path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecChina());
+                for (String name : fileNames) {
+                    pathList.add(path.concat(name));
+                }
                 break;
             }
         }
-        OSSInstance.getOSSUtil().download(bucketName, path, response, true);
+        System.out.println("下载========" + StringUtils.join(pathList, "=v="));
+        OSSInstance.getOSSUtil().download(bucketName, pathList, response);
     }
+
 }

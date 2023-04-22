@@ -113,15 +113,15 @@ piesat:
   profile: /CMS-SDC/
   weekPngPy: algorithm/weekpng/analyse_t.py #周报算法图
   weekPngIni: algorithm/weekpng/xw.ini #周报算法数据库配置
-  tecChinaPy: algorithm/TEC/iri_tec.py # 全国站点二维算法脚本
+  tecChinaPy: algorithm/TEC/iri_tecChina.py # 全国站点二维算法脚本
   tecChina: TEC/china/ #TEC全国站点出图位置
-  tecGlobalPy: algorithm/TEC/iri_tecV3.py #TEC全球站点三维算法脚本
+  tecGlobalPy: algorithm/TEC/iri_tecGlobal.py #TEC全球站点三维算法脚本
   tecGlobal: TEC/global/ #TEC全国站点出图位置
-  rotiGlobalPy: algorithm/ROTI/code/satellite.py #ROTI算法脚本
-  rotiPics: ROTI/pictrues/ #ROTI算法结果存储位置
-  rotiSatelliteData: algorithm/ROTI/Satellite_data/
-  rotiEphemerisData: algorithm/ROTI/Ephemeris_data/
-  s4FlickerIndexPy: algorithm/S4/code/satelliteV1.py # S4闪烁指数算法脚本
+  rotiGlobalPy: algorithm/ROTI/roti/code/satellite.py #ROTI算法脚本
+  rotiPics: ROTI/china/ #ROTI算法结果存储位置
+  rotiSatelliteData: algorithm/ROTI/roti/Satellite_data/
+  rotiEphemerisData: algorithm/ROTI/roti/Ephemeris_data/
+  s4FlickerIndexPy: algorithm/S4/code/satellite.py # S4闪烁指数算法脚本
   s4DataPath: algorithm/S4/data/ #闪烁指数数据所在位置
   s4PicPath: s4/area/ # 闪烁区域分布图
 
