@@ -173,6 +173,7 @@
             <!-- websocket -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
+            <version>2.6.9</version>
         </dependency>
     </dependencies>
 
