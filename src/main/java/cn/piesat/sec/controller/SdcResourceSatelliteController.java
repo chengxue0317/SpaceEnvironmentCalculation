@@ -205,7 +205,7 @@ public class SdcResourceSatelliteController {
     @GetMapping("/getSatellites")
     public List<SdcResourceSatelliteDO> getSatellites(){
         QueryWrapper<SdcResourceSatelliteDO> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("SATELLITE_NAME").isNotNull("SATELLITE_NAME");
+        queryWrapper.select("SATELLITE_NAME").eq("SAT_TYPE",1).isNotNull("SATELLITE_NAME");
         return sdcResourceSatelliteService.list(queryWrapper);
     }
 
