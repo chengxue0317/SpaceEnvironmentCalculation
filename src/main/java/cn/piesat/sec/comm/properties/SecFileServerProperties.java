@@ -75,11 +75,6 @@ public class SecFileServerProperties {
     private String rotiPics;
 
     /**
-     * 闪烁区域分布图
-     */
-    private String s4PicPath;
-
-    /**
      * roti算法卫星数据
      */
     private String rotiSatelliteData;

@@ -163,11 +163,11 @@
             <version>2.14.26</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>net.coobird</groupId>-->
-            <!--<artifactId>thumbnailator</artifactId>-->
-            <!--<version>0.4.17</version>-->
-            <!--<scope>system</scope>-->
-            <!--<systemPath>${project.basedir}/src/main/resources/lib/thumbnailator-0.4.17.jar</systemPath>-->
+        <!--<groupId>net.coobird</groupId>-->
+        <!--<artifactId>thumbnailator</artifactId>-->
+        <!--<version>0.4.17</version>-->
+        <!--<scope>system</scope>-->
+        <!--<systemPath>${project.basedir}/src/main/resources/lib/thumbnailator-0.4.17.jar</systemPath>-->
         <!--</dependency>-->
         <dependency>
             <!-- websocket -->
@@ -194,5 +194,43 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>maven-public</id>
+            <name>maven-public</name>
+            <!--仓库地址-->
+            <url>http://36.138.8.2:8081/repository/maven-public/</url>
+            <snapshots>
+                <!--表示可以下载snapshots版本的构件-->
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <!--表示可以下载releases版本的构件-->
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <!--插件地址-->
+            <id>maven-public-plugin</id>
+            <url>http://36.138.8.2:8081/repository/dlxjs-snapshot/</url>
+        </pluginRepository>
+    </pluginRepositories>
+    <distributionManagement>
+        <!--上传正式版-->
+        <repository>
+            <id>releases</id>
+            <name>maven-releases</name>
+            <url>http://36.138.8.2:8081/repository/dlxjs-snapshot/</url>
+        </repository>
+        <snapshotRepository>
+            <!--上传快照-->
+            <id>snapshot</id>
+            <name>maven-snapshot</name>
+            <url>http://36.138.8.2:8081/repository/dlxjs-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>

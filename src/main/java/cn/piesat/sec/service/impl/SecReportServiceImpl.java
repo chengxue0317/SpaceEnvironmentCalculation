@@ -224,12 +224,11 @@ public class SecReportServiceImpl implements SecReportService {
     private void createWeekPng(WeekDetailBean weekDetailBean, String startTime, String endTime, String targetDir) {
         try {
             String python = secFileServerProperties.getProfile() + secFileServerProperties.getWeekPngPy();
-            String pythonini = secFileServerProperties.getProfile() + secFileServerProperties.getWeekPngIni();
             StringBuilder cmd = new StringBuilder("python ");
             cmd.append(python).append(" \"")
                     .append(startTime).append("\" \"")
                     .append(endTime).append("\" ")
-                    .append(pythonini).append(" ")
+                    .append(secFileServerProperties.getWeekPngIni()).append(" ")
                     .append(targetDir);
             Process process = Runtime.getRuntime().exec(ProcessUtil.getCommand(cmd.toString()));
             int isFinished = process.waitFor(); // 阻塞线程，等待程序执行结束

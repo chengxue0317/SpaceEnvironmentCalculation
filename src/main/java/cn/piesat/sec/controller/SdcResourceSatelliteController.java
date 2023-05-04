@@ -1,12 +1,8 @@
 package cn.piesat.sec.controller;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.Inet4Address;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
@@ -33,7 +28,6 @@ import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.model.dto.SdcResourceSatelliteDTO;
 import cn.piesat.sec.model.entity.SdcResourceSatelliteDO;
 import cn.piesat.sec.model.query.SdcResourceSatelliteQuery;
-import cn.piesat.sec.model.vo.RadioWaveEffectVO;
 import cn.piesat.sec.model.vo.SdcResourceSatelliteVO;
 import cn.piesat.sec.service.SdcResourceSatelliteService;
 import cn.piesat.sec.utils.ExecUtil;
@@ -48,10 +42,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,8 +54,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
-import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 /**
  * 卫星基本信息
@@ -134,8 +124,8 @@ public class SdcResourceSatelliteController {
     @Value("${picture.path.global_radiation_env}")
     private String picturePathGlobalRadiationEnv;
 
-    @Value("${python.path.surface_incharging}")
-    private String surfaceIncharging;
+    @Value("${python.path.surface_charging}")
+    private String surfacecharging;
 
     @Value("${python.path.satellite_time}")
     private String satelliteTime;
@@ -205,7 +195,7 @@ public class SdcResourceSatelliteController {
     @GetMapping("/getSatellites")
     public List<SdcResourceSatelliteDO> getSatellites(){
         QueryWrapper<SdcResourceSatelliteDO> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("SATELLITE_NAME").eq("SAT_TYPE",1).isNotNull("SATELLITE_NAME");
+        queryWrapper.select("SATELLITE_NAME").isNotNull("SATELLITE_NAME");
         return sdcResourceSatelliteService.list(queryWrapper);
     }
 
@@ -522,12 +512,12 @@ public class SdcResourceSatelliteController {
 
     @ApiOperation("卫星表面充电模块")
     @GetMapping("/getSurfaceIncharging")
-    public JSONObject getSurfaceIncharging(@RequestParam("beginTime")String beginTime,
-                                           @RequestParam("endTime")String endTime,
-                                           @RequestParam("satId")String satId,
-                                           @RequestParam("material")Integer material){
+    public JSONObject getSurfacecharging(@RequestParam("beginTime")String beginTime,
+                                         @RequestParam("endTime")String endTime,
+                                         @RequestParam("satId")String satId,
+                                         @RequestParam("material")Integer material){
 
-        String command = "python3 "+surfaceIncharging+" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material;
+        String command = "python3 "+ surfacecharging +" "+" '"+beginTime+"' "+" '"+endTime+"'"+" "+satId+" "+material;
         log.info("执行Python命令：{}",command);
 //        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
         String result = ExecUtil.execCmdWithResult(command);

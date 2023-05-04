@@ -75,7 +75,7 @@ public class SecIonosphericParametersController {
      * @param type 电离层参数类型
      * @return 电离层参数站点数据
      */
-    @ApiOperation("获取电离层参数站点数据")
+    @ApiOperation("空间环境态势-获取电离层参数站点数据")
     @GetMapping("ionosphericparametersStationData")
     public List<SecIonosphericParametersVO> getIonosphericparametersStationData(
             @RequestParam("altitude") String altitude,
@@ -117,7 +117,7 @@ public class SecIonosphericParametersController {
      * @param endTime   结束时间
      * @return
      */
-    @ApiOperation("获取电离层参数数据")
+    @ApiOperation("电离层参数-获取电离层参数数据")
     @GetMapping("ionosphericparametersData")
     public List<SecIonosphericParametersVO> getIonosphericparametersData(@RequestParam(value = "type", required = true) String type,
                                                                          @RequestParam(value = "altitude", required = false) String altitude,
@@ -144,7 +144,6 @@ public class SecIonosphericParametersController {
 
         switch (type) {
             case "s4": {
-                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getS4PicPath());
                 break;
             }
             case "globleTEC": {
