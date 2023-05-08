@@ -21,6 +21,7 @@ from pathlib import Path
 
 filedir = str(Path(__file__).resolve().parents[1])
 sys.path.append(filedir)
+filedir += '/plots'
 
 from ap8ae8 import *
 import pandas as pd

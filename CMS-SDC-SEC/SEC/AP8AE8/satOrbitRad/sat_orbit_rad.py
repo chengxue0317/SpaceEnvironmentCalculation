@@ -22,17 +22,13 @@ import os
 import argparse
 filedir = str(Path(__file__).resolve().parents[1])
 sys.path.append(filedir)
+filedir += '/plots'
+
 from ap8ae8 import *
 import pandas as pd
 import cmaps
 
 cmap = cmaps.WhiteBlueGreenYellowRed
-
-
-
-
-
-
 
 def solar_activity(date):
     sql = "SELECT F107 FROM SEC_F107_FLUX where TIME = '" + \
