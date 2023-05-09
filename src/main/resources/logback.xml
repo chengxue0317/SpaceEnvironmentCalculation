@@ -74,11 +74,13 @@
 	<!-- 系统模块日志级别控制  -->
 	<logger name="cn.piesat" level="info" />
 	<!-- Spring日志级别控制  -->
-	<logger name="org.springframework" level="warn" />
-    <logger name="org.apache.kafka.clients.producer.internals.ConsumerCoordinator" level="OFF"/>
-    <logger name="org.apache.kafka.clients.consumer.internals.ConsumerCoordinator" level="OFF"/>
+	<logger name="org.springframework" level="info" />
+    <!--<logger name="org.apache.kafka.clients.producer.internals.ConsumerCoordinator" level="OFF"/>-->
+    <!--<logger name="org.apache.kafka.clients.consumer.internals.ConsumerCoordinator" level="OFF"/>-->
+    <!--<logger name="org.apache.kafka.clients.consumer.ConsumerConfig" level="off" />-->
+    <logger name="org.apache.kafka" level="off" />
 
-	<root level="info">
+    <root level="info">
 		<appender-ref ref="console" />
 	</root>
 	
