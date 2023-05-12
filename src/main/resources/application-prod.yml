@@ -72,7 +72,7 @@ python:
     magnetic_global: /CMS-SDC-SEC/chaos_simulation/magnetic_global_V1.py   #全球磁场分布算法
     orbital_magnetic: /CMS-SDC-SEC/chaos_simulation/magnetic_orbit.py   #轨道磁场分布算法
     atmosphere_density: /CMS-SDC-SEC/atm_density/msis_simu.py  #大气密度算法
-    single_event_effects: /tmp/yuechao/单粒子效应/seu/Single_events/seu_cal.py  #单粒子效应
+    single_event_effects: /CMS-SDC-SEC/sat_single_events/seu_cal.py  #单粒子效应
     radiation_dose: /CMS-SDC-SEC/does_depth/SRAD/does_depth/does.py   #卫星辐射总剂量计算评估
     global_radiation_env: /CMS-SDC-SEC/particles_radiation_global/global_radiation/global_radiation.py   #全球辐射环境算法
     orbit_reduction: /CMS-SDC-SEC/orbit_reduction/orbit_reduction.py   #轨道衰变效应算法
@@ -94,7 +94,7 @@ picture:
   path:
     magnetic_global: /CMS-SDC-SEC/magnetic_global/     #全球磁场分布图片存储路径
     global_radiation_env: /CMS-SDC-SEC/particles_radiation_global/AP8AE8/     #全球辐射环境图片存储路径
-    satellite_radiation_env: /CMS-SDC-SEC/SEC/AP8AE8/     #全球辐射环境图片存储路径
+    satellite_radiation_env: /CMS-SDC-SEC/SEC/AP8AE8/plots/     #全球辐射环境图片存储路径
     magnetic_global_v2: /CMS-SDC-SEC/magnetic_global/v2/     #全球磁场内源场和外源场分布图片存储路径
     atmosphere_density_global: /CMS-SDC-SEC/atm_density/  #全球大气密度图片存储路径
   url:
