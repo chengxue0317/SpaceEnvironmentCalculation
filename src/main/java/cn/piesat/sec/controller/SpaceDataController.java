@@ -2,7 +2,6 @@ package cn.piesat.sec.controller;
 
 import cn.piesat.sec.comm.kafka.KafkaSendServiceImpl;
 import cn.piesat.sec.comm.oss.OSSInstance;
-import cn.piesat.sec.service.SecSpaceEnvData;
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

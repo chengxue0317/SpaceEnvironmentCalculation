@@ -25,7 +25,7 @@ import java.util.Locale;
  * @author wuyazhou
  * @date 2022-11-10
  */
-@Api(tags = "警报事件")
+@Api(tags = "空间环境预报")
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/secenvoverview")
@@ -43,7 +43,7 @@ public class SecEnvOverviewController {
     @Value("${s3.bucketName}")
     private String bucketName;
 
-    @ApiOperation("查询一段时间内的F10.7数据")
+    @ApiOperation("空间环境预报数据")
     @PostMapping("/getEnvOverview")
     public List<SecEnvOverviewVO> getEnvOverview() {
         return secEnvOverviewService.getEnvOverview();

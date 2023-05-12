@@ -1,12 +1,9 @@
 package cn.piesat.sec.service.impl;
 
 import cn.piesat.sec.comm.constant.Constant;
-import cn.piesat.sec.comm.constant.KafkaConstant;
 import cn.piesat.sec.comm.kafka.KafkaSendServiceImpl;
 import cn.piesat.sec.comm.oss.OSSInstance;
-import cn.piesat.sec.model.vo.SecSpaceTimeVO;
 import cn.piesat.sec.service.SecSpaceTimeService;
-import com.alibaba.fastjson.JSON;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

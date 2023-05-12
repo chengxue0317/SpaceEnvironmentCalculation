@@ -4,7 +4,6 @@ import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 
 import java.util.List;
-import java.util.concurrent.Future;
 
 public interface SecIonosphericParametersService {
     /**

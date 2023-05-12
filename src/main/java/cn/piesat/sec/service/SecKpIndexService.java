@@ -28,54 +28,5 @@ public interface SecKpIndexService extends IService<SecKpIndexDO> {
      * @return AP指数数据
      */
     SecEnvElementVO getKpData(String startTime, String endTime);
-
-    /**
-     * 分页查询
-     *
-     * @param pageBean        {@link PageBean} 分页对象
-     * @param secKpIndexQuery {@link SecKpIndexQuery} KP指数查询对象
-     * @return {@link PageResult} 查询结果
-     */
-    PageResult list(PageBean pageBean, SecKpIndexQuery secKpIndexQuery);
-
-    /**
-     * 根据id查询
-     *
-     * @param id id
-     * @return {@link SecKpIndexVO}
-     */
-    SecKpIndexVO info(Serializable id);
-
-    /**
-     * 新增
-     *
-     * @param secKpIndexDTO {@link SecKpIndexDTO} KP指数DTO
-     * @return false or true
-     */
-    Boolean save(SecKpIndexDTO secKpIndexDTO);
-
-    /**
-     * 修改
-     *
-     * @param secKpIndexDTO {@link SecKpIndexDTO} KP指数DTO
-     * @return false or true
-     */
-    Boolean update(SecKpIndexDTO secKpIndexDTO);
-
-    /**
-     * 批量删除
-     *
-     * @param ids id集合
-     * @return false or true
-     */
-    Boolean delete(List<Serializable> ids);
-
-    /**
-     * 根据id删除
-     *
-     * @param id id
-     * @return false or true
-     */
-    Boolean delete(Serializable id);
 }
 

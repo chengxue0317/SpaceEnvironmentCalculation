@@ -1,6 +1,7 @@
 package cn.piesat.sec.service;
+
 import cn.piesat.kjyy.core.model.vo.PageResult;
-import cn.piesat.kjyy.core.model.dto.PageBean ;
+import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.piesat.sec.model.entity.SecDstIndexDO;
@@ -24,17 +25,5 @@ public interface SecDstIndexService extends IService<SecDstIndexDO> {
      * @return DST指数数据
      */
     SecEnvElementVO getDstData(String startTime, String endTime);
-
-    PageResult list(PageBean pageBean, SecDstIndexDO secDstIndexDO);
-
-    SecDstIndexDO info(Long id);
-
-    Boolean add(SecDstIndexDO secDstIndexDO);
-
-    Boolean update(SecDstIndexDO secDstIndexDO);
-
-    Boolean delete(List<Long> asList);
-
-    Boolean delete(Long id);
 }
 

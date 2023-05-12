@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 
-@Api(tags = "S3文件存储测试接口")
+@Api(tags = "S3文件存储测试")
 @RestController
 @RequestMapping("/spacetimes3")
 @RequiredArgsConstructor

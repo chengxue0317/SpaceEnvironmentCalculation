@@ -5,6 +5,8 @@ import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.query.SecAlarmEventQuery;
 import cn.piesat.sec.service.SecAlarmEventService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +25,16 @@ import org.springframework.web.bind.annotation.*;
 public class SecAlarmEventController {
     private final SecAlarmEventService alarmEventService;
 
-    @ApiOperation("分页查询")
-    @PostMapping("/list")
+    @ApiOperation("空间环境警报事件历史数据表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "secAlarmEventQuery", value = "警报事件查询对象", dataType = "String", required = true)
+    })
+    @PostMapping("/history")
     public PageResult list(PageBean pageBean, @RequestBody(required = false) SecAlarmEventQuery secAlarmEventQuery) {
         return alarmEventService.list(pageBean, secAlarmEventQuery);
     }
 
-    @ApiOperation("查询过去24小时及未来3天预报数据")
+    @ApiOperation("空间环境警报事件预报数据")
     @PostMapping("/alarmEvent3daysForecast")
     public PageResult getAlarmEvent3daysForecast() {
         return alarmEventService.getAlarmEvent3daysForecast();

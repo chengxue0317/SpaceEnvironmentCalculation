@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -39,10 +36,6 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 
     @Autowired
     private SecFileServerProperties secFileServerProperties;
-
-//    @Autowired
-//    @Qualifier("asyncExecutor")
-//    private Executor executor;
 
     @Value("${s3.bucketName}")
     private String bucketName;
@@ -106,43 +99,8 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
             return pictures;
         }
 
-        // 根据时间拆分算法
-//        List<String> timesArr = splitLocalDateTimeByHour(
-//                LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-//                LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-//                3);
-//        List<CompletableFuture<List<SecIonosphericParametersVO>>> completableFutures = new ArrayList<>();
-
         List<SecIonosphericParametersVO> secVoslist = drawTecChinaPictures(startTime, endTime, altitude, targetDir);
         pictures.addAll(secVoslist);
-
-//        for (int i = 0; i < timesArr.size() - 1; i++) {
-//            String st = timesArr.get(i);
-//            String se = timesArr.get(i + 1);
-//            CompletableFuture<List<SecIonosphericParametersVO>> completableFuture = CompletableFuture.supplyAsync(() -> drawTecChinaPictures(st, se, altitude, targetDir), executor);
-//            completableFutures.add(completableFuture);
-//        }
-//        CompletableFuture completableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{})).exceptionally(e -> {
-//            logger.error("生成TEC全国图片========", e.getMessage());
-//            return null;
-//        });
-//        try {
-//            completableFuture.get(600, TimeUnit.SECONDS);
-//        } catch (Exception e) {
-//            logger.error("生成TEC全国图片========", e.getMessage());
-//            return new ArrayList<>();
-//        }
-//
-//        for (CompletableFuture<List<SecIonosphericParametersVO>> future : completableFutures) {
-//            try {
-//                List<SecIonosphericParametersVO> secVoslist = future.get();
-//                if (CollectionUtils.isNotEmpty(secVoslist)) {
-//                    pictures.addAll(secVoslist);
-//                }
-//            } catch (Exception e) {
-//                logger.error("======" + e.getMessage());
-//            }
-//        }
         return dataClean(pictures);
     }
 
@@ -190,43 +148,9 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
             setOSSPicturesInfo(pictures, fileNames, targetDir);
             return pictures;
         }
-        // 根据时间拆分算法
-//        List<String> timesArr = splitLocalDateTimeByHour(
-//                LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-//                LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-//                3);
-//        List<CompletableFuture<List<SecIonosphericParametersVO>>> completableFutures = new ArrayList<>();
-
 
         List<SecIonosphericParametersVO> secVoslist = drawTecglobalPictures(startTime, endTime, altitude, targetDir);
         pictures.addAll(secVoslist);
-//        for (int j = 0; j < timesArr.size() - 1; j++) {
-//            String st = timesArr.get(j);
-//            String se = timesArr.get(j + 1);
-//            CompletableFuture<List<SecIonosphericParametersVO>> completableFuture = CompletableFuture.supplyAsync(() -> drawTecglobalPictures(st, se, altitude, targetDir), executor);
-//            completableFutures.add(completableFuture);
-//        }
-//        CompletableFuture completableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{})).exceptionally(e -> {
-//            logger.error("生成TEC全球图片========", e.getMessage());
-//            return null;
-//        });
-//        try {
-//            completableFuture.get(600, TimeUnit.SECONDS);
-//        } catch (Exception e) {
-//            logger.error("生成TEC全球图片========", e.getMessage());
-//            return new ArrayList<>();
-//        }
-//
-//        for (CompletableFuture<List<SecIonosphericParametersVO>> future : completableFutures) {
-//            try {
-//                List<SecIonosphericParametersVO> secVoslist = future.get();
-//                if (CollectionUtils.isNotEmpty(secVoslist)) {
-//                    pictures.addAll(secVoslist);
-//                }
-//            } catch (Exception e) {
-//                logger.error("======" + e.getMessage());
-//            }
-//        }
         return dataClean(pictures);
     }
 
@@ -276,42 +200,6 @@ public class SecIonosphericParametersServiceImpl implements SecIonosphericParame
 
         List<SecIonosphericParametersVO> secVoslist = drawROTIPictures(startTime, endTime, targetDir);
         pictures.addAll(secVoslist);
-
-        // 根据时间拆分算法
-//        List<String> timesArr = splitLocalDateTimeByHour(
-//                LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-//                LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-//                24);
-//        List<CompletableFuture<List<SecIonosphericParametersVO>>> completableFutures = new ArrayList<>();
-//
-//        for (int j = 0; j < timesArr.size() - 1; j++) {
-//            String st = timesArr.get(j);
-//            String se = timesArr.get(j + 1);
-//            CompletableFuture<List<SecIonosphericParametersVO>> completableFuture = CompletableFuture.supplyAsync(() -> drawROTIPictures(st, se, targetDir), executor);
-//            completableFutures.add(completableFuture);
-//        }
-//        CompletableFuture completableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{})).exceptionally(e -> {
-//            logger.error("生成ROTI图片========", e.getMessage());
-//            return null;
-//        });
-//        try {
-//            completableFuture.get(300, TimeUnit.SECONDS);
-//        } catch (Exception e) {
-//            logger.error("生成ROTI图片========", e.getMessage());
-//            return new ArrayList<>();
-//        }
-//
-//        for (CompletableFuture<List<SecIonosphericParametersVO>> future : completableFutures) {
-//            try {
-//                List<SecIonosphericParametersVO> secVoslist = future.get();
-//                if (CollectionUtils.isNotEmpty(secVoslist)) {
-//                    pictures.addAll(secVoslist);
-//                }
-//            } catch (Exception e) {
-//                logger.error("======" + e.getMessage());
-//            }
-//        }
-
         return dataClean(pictures);
     }
 

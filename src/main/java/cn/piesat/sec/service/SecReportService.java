@@ -1,9 +1,5 @@
 package cn.piesat.sec.service;
 
-import io.swagger.annotations.ApiOperation;
-
-import java.util.Map;
-
 /**
  * 报文制作接口
  *
@@ -17,7 +13,6 @@ public interface SecReportService {
      *
      * @return
      */
-    @ApiOperation("日报简报制作")
     String makeShortDayReport();
 
     /**
@@ -25,7 +20,6 @@ public interface SecReportService {
      *
      * @return
      */
-    @ApiOperation("日报制作")
     String makeDayReport();
 
     /**
@@ -33,7 +27,6 @@ public interface SecReportService {
      *
      * @return
      */
-    @ApiOperation("周报制作")
     String makeWeekReport();
 
     /**
@@ -41,7 +34,6 @@ public interface SecReportService {
      *
      * @return
      */
-    @ApiOperation("月报制作")
     String makeMonthReport();
 
     /**
@@ -50,6 +42,5 @@ public interface SecReportService {
      * @param type 报文类型
      * @return 报文路径
      */
-    @ApiOperation("报文制作")
     String makeReport(String type);
 }

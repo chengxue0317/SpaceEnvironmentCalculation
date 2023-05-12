@@ -31,9 +31,6 @@
     <select id="getProtonFluxData" resultMap="secParticleFluxMap">
         SELECT P1,P2,P3,P4,P5,P6,TIME FROM SEC_PARTICLE_FLUX
         <where>
-            <if test="satId != null and satId != 'null'">
-                AND SAT_ID = #{satId}
-            </if>
             <if test="startTime != null">
                 AND TIME <![CDATA[>=]]> #{startTime}
             </if>
@@ -48,9 +45,6 @@
         SELECT E2, TIME FROM SEC_PARTICLE_FLUX
         <where>
             E2 > -9999
-            <if test="satId != null and satId != 'null'">
-                AND SAT_ID = #{satId}
-            </if>
             <if test="startTime != null">
                 AND TIME <![CDATA[>=]]> #{startTime}
             </if>
