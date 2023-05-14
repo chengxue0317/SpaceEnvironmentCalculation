@@ -7,6 +7,8 @@ import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
 import cn.piesat.sec.service.SecIonosphericParametersService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +59,13 @@ public class SecIonosphericParametersController {
      * @return 电离层参数站点数据
      */
     @ApiOperation("获取电离层闪烁数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "satcode", value = "卫星分类", dataType = "String", required = true),
+            @ApiImplicitParam(name = "satno", value = "卫星编号", dataType = "String", required = true),
+            @ApiImplicitParam(name = "satfrequency", value = "通信频段", dataType = "String", required = true),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
+    })
     @GetMapping("blinkData")
     public SecEnvElementVO getBlinkData(@RequestParam("satcode") String satcode,
                                         @RequestParam("satno") String satno,
@@ -73,7 +82,13 @@ public class SecIonosphericParametersController {
      * @param type 电离层参数类型
      * @return 电离层参数站点数据
      */
-    @ApiOperation("空间环境态势-获取电离层参数站点数据")
+    @ApiOperation("空间环境态势-全国TEC数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "altitude", value = "高度", dataType = "String", required = true),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true),
+            @ApiImplicitParam(name = "type", value = "类型tec/s4/fof2", dataType = "String", required = true)
+    })
     @GetMapping("ionosphericparametersStationData")
     public List<SecIonosphericParametersVO> getIonosphericparametersStationData(
             @RequestParam("altitude") String altitude,
@@ -115,7 +130,13 @@ public class SecIonosphericParametersController {
      * @param endTime   结束时间
      * @return
      */
-    @ApiOperation("电离层参数-获取电离层参数数据")
+    @ApiOperation("电离层参数-获取全国/全球电离层数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "type", value = "类型tec/s4/roti", dataType = "String", required = true),
+            @ApiImplicitParam(name = "altitude", value = "高度", dataType = "String", required = true),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
+    })
     @GetMapping("ionosphericparametersData")
     public List<SecIonosphericParametersVO> getIonosphericparametersData(@RequestParam(value = "type", required = true) String type,
                                                                          @RequestParam(value = "altitude", required = false) String altitude,
@@ -131,6 +152,12 @@ public class SecIonosphericParametersController {
     }
 
     @ApiOperation("下载电离层参数文件")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "type", value = "类型globleTEC/chineseROTI/chineseTec/s4", dataType = "String", required = true),
+            @ApiImplicitParam(name = "altitude", value = "高度", dataType = "String", required = false),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
+    })
     @GetMapping("ionosphericspngs")
     public void downloadPics(@RequestParam(value = "type", required = true) String type,
                              @RequestParam(value = "altitude", required = false) String altitude,

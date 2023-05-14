@@ -6,6 +6,8 @@ import cn.piesat.sec.model.vo.SecSpaceEnvFileVO;
 import cn.piesat.sec.service.SecSpaceTimeService;
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -44,6 +46,11 @@ public class SecSpaceTimeController {
      * @return STEC、VTEC数据集合
      */
     @ApiOperation("上传电离层文件并推送消息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "fileType", value = "文件类型字符串", dataType = "String", required = true),
+            @ApiImplicitParam(name = "filePath", value = "文件路径", dataType = "String", required = true),
+            @ApiImplicitParam(name = "localDate", value = "上传日期", dataType = "String", required = true)
+    })
     @PostMapping("sdcsefnotice")
     public String uploadTecData(
             @RequestParam(value = "fileType", required = true) String fileType,
@@ -69,6 +76,12 @@ public class SecSpaceTimeController {
      * @return STEC、VTEC数据集合
      */
     @ApiOperation("上传AP/KP/F10.7数据并推送消息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "AP", value = "ap文件路径", dataType = "String", required = true),
+            @ApiImplicitParam(name = "KP", value = "kp文件路径", dataType = "String", required = true),
+            @ApiImplicitParam(name = "F107", value = "f107文件路径", dataType = "String", required = true),
+            @ApiImplicitParam(name = "localDate", value = "上传日期", dataType = "String", required = true)
+    })
     @PostMapping("sdcenvirfile")
     public String uploadSpaceEnvData(@RequestParam(value = "AP", required = true) String rvap,
                                      @RequestParam(value = "KP", required = true) String rvkp,

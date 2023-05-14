@@ -3,6 +3,8 @@ package cn.piesat.sec.controller;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecXrayFluxService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +28,10 @@ public class SecXrayFluxController {
     private final SecXrayFluxService secXrayFluxService;
 
     @ApiOperation("太阳耀斑/X射线流量数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = false),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = false)
+    })
     @PostMapping("/solarXrayData")
     public SecEnvElementVO getSolarXrayData(
         @RequestParam(value = "startTime", required = false) String startTime,

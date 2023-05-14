@@ -3,6 +3,8 @@ package cn.piesat.sec.controller;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecBxyzService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,10 @@ public class SecBxyzController {
     private final SecBxyzService secBxyzService;
 
     @ApiOperation("查询一段时间内的磁场数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = false),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = false)
+    })
     @GetMapping("/btxyzData")
     public SecEnvElementVO getBtxyzData(@RequestParam(value = "startTime", required = false) String startTime,
                                         @RequestParam(value = "endTime", required = false) String endTime) {

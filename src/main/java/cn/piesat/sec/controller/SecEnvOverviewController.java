@@ -6,6 +6,8 @@ import cn.piesat.sec.model.vo.SecEnvOverviewVO;
 import cn.piesat.sec.service.SecEnvOverviewService;
 import cn.piesat.sec.service.SecReportService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +57,10 @@ public class SecEnvOverviewController {
      * @return 文件下载的url
      */
     @ApiOperation("环境预报报文下载")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "type", value = "文件类型day/week/month", dataType = "String", required = false),
+            @ApiImplicitParam(name = "path", value = "文件路径", dataType = "String", required = false)
+    })
     @PostMapping(value = "/downFile")
     public synchronized void downFile(
             @RequestParam(value = "type", required = false) String type,
