@@ -89,6 +89,8 @@ python:
     satellite_radiation_env_orbit: /CMS-SDC-SEC/SEC/AP8AE8/satOrbitRad/sat_orbit_rad.py   #卫星沿轨道辐射环境算法
     satellite_radiation_env_orbit_plane: /CMS-SDC-SEC/SEC/pythonPlot/orbital_plane_plot.py   #卫星轨道面辐射环境算法
     s4_satellite: /CMS-SDC-SEC/s4_satellite/code/S4_new.py   #电波传播影响算法
+  data:
+    s4_satellite: /CMS-SDC-SEC/S4_satellite/data/
 
 picture:
   path:

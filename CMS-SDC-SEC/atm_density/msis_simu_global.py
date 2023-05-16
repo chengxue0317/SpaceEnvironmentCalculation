@@ -15,6 +15,19 @@ from matplotlib import colors
 from matplotlib import pyplot as plt
 from PIL import Image
 
+def Connect_SQL(iniPath):
+    from configparser import ConfigParser
+    cfg = ConfigParser()
+    cfg.read(iniPath)
+    sql_cfg = dict(cfg.items("dmsql"))
+    conn = dmPython.connect(
+        user=sql_cfg['user'],
+        password=sql_cfg['password'],
+        server=sql_cfg['server'],
+        port=sql_cfg['port'])
+    cursor = conn.cursor()
+    return cursor,conn
+
 def replace_char(old_string, char, index):
     """
     字符串按索引位置替换字符
@@ -91,8 +104,8 @@ for i in range(0,lon2d.shape[1]):
 
 
 # 连接达梦数据库
-conn = dmPython.connect(user='SDC', password='sdc123456', server='219.145.62.54',port=15236, autoCommit=True)
-cursor = conn.cursor()
+iniPath = os.path.dirname(os.path.abspath(__file__)).split('/CMS-SDC-SEC')[0]+'/DLXJS_DB.ini'
+cursor,conn = Connect_SQL(iniPath)
 
 # 读取太阳F107数据
 Time_span = "select F107,TIME from SEC_F107_FLUX where TIME = '%s'" % (time_f107_previous_day)
@@ -156,7 +169,7 @@ os.system('cp '+current_dir+'/'+ 'msis20.parm '+current_dir+'/'+dir_name)
 # 将msis背景场写入Txt文件
 with open(current_dir+'/'+dir_name+'/msis2.0_forcing.txt','w',encoding='utf-8') as f:
     for i in range(0, len(lat1d)):
-        f.write(str(day_of_year))  
+        f.write(str(day_of_year))
         f.write('  ')
         f.write(str(utc))
         f.write('  ')
@@ -188,7 +201,7 @@ with open(current_dir+'/'+dir_name+'/msis2.0_forcing.txt','w',encoding='utf-8') 
         f.write('\n')
 
 # 运行FORTRAN seu.exe
-os.system('cd '+current_dir+'/'+dir_name+';  ./msis2.0_test_daily.exe') 
+os.system('cd '+current_dir+'/'+dir_name+';  ./msis2.0_test_daily.exe')
 txt = Read_txt(dir_name,current_dir)
 
 # 1d 转化为2d
@@ -261,7 +274,7 @@ plt.gca().yaxis.set_major_locator(plt.NullLocator())
 plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
 plt.margins(0,0)
 plt.savefig(path+'/main_figure.jpg',dpi=600,pad_inches=0)
-  
+
 
 # 输出文件路径
 print('###'+path+'###')

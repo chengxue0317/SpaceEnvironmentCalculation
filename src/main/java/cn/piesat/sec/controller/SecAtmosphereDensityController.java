@@ -24,7 +24,6 @@ import cn.piesat.sec.model.query.SecAtmosphereDensityQuery;
 import cn.piesat.sec.model.vo.SecAtmosphereDensityVO;
 import cn.piesat.sec.service.SecAtmosphereDensityService;
 import cn.piesat.sec.utils.ExecUtil;
-import cn.piesat.sec.utils.SpringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -87,6 +86,9 @@ public class SecAtmosphereDensityController {
 
     @Value("${s3.bucketName}")
     private String bucketName;
+
+    @Value("${spring.profiles.active}")
+    private String env;
 
     private final SecAtmosphereDensityService secAtmosphereDensityService;
 
@@ -170,7 +172,7 @@ public class SecAtmosphereDensityController {
             }
             String substring = colorbar.substring(colorbar.lastIndexOf(File.separator)+1);
 
-            if (SpringUtil.isProd()){
+            if ("prod".equals(env)){
                 String path = "/CMS-SDC/OP/TS/";
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
                 String pathData = path.concat(LocalDate.now().format(formatter));
@@ -180,7 +182,7 @@ public class SecAtmosphereDensityController {
                 OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
                 jsonObject.put("colorbar",OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath));
 
-            }else if (SpringUtil.isDev()){
+            }else if ("dev".equals(env)){
                 jsonObject.put("colorbar","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg"));
             }
 
@@ -211,7 +213,7 @@ public class SecAtmosphereDensityController {
 
         String mainFigure = null;
         String colorbar = null;
-        if (SpringUtil.isProd()){
+        if ("prod".equals(env)){
             String path = "/CMS-SDC/OP/TS/";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
             String pathData = path.concat(LocalDate.now().format(formatter));
@@ -225,7 +227,7 @@ public class SecAtmosphereDensityController {
             String colorbarPath = jsonStr.concat("/colorbar.jpg");
             OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
             colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
-        }else if (SpringUtil.isDev()){
+        }else if ("dev".equals(env)){
             //图片映射方式有两种：1.动态映射 2.半映射半拼串
             mainFigure = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/main_figure.jpg");
             colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg");
