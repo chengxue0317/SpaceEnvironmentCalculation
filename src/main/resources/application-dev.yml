@@ -137,14 +137,6 @@ s3:
   secretkey: minioadmin
   bucketName: dlxjs
 
-thread:
-  param:
-    corePoolSize: 8
-    maxPoolSize: 16
-    keepAliveSeconds: 60
-    queueCapacity: 160
-    allowCoreThreadTimeout: false
-
 logging:
   config: classpath:logback.xml
   level:

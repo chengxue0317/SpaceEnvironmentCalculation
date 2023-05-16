@@ -37,8 +37,8 @@ public class SecSsnController {
 
     @ApiOperation("获取太阳黑子数")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
-            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
+            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = false),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = false)
     })
     @PostMapping("/solarSpotData")
     public SecEnvElementVO getSunSpotData(
