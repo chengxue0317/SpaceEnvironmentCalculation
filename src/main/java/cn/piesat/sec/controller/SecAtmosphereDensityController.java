@@ -1,6 +1,8 @@
 package cn.piesat.sec.controller;
 
 import cn.hutool.core.util.StrUtil;
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.kjyy.common.web.annotation.validator.group.AddGroup;
 import cn.piesat.kjyy.common.web.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
@@ -136,6 +138,7 @@ public class SecAtmosphereDensityController {
 
 
     @ApiOperation("大气密度曲线图")
+    @OpLog(op = BusinessType.OTHER, description = "大气密度曲线图计算")
     @PostMapping("/getDataByArithmetic")
     public JSONObject getDataByArithmetic(@RequestParam("beginTime")String beginTime,
                         @RequestParam("endTime")String endTime,
@@ -179,6 +182,7 @@ public class SecAtmosphereDensityController {
     }
 
     @ApiOperation("全球大气密度曲线图")
+    @OpLog(op = BusinessType.OTHER, description = "全球大气密度曲线图计算")
     @PostMapping("/getDataByArithmeticGlobal")
     public Map<String, String> getDataByArithmeticGlobal(@RequestParam("time")String time,
                                                 @RequestParam("height")Integer height){

@@ -91,6 +91,7 @@ python:
     s4_satellite: /CMS-SDC-SEC/s4_satellite/code/S4_new.py   #电波传播影响算法
   data:
     s4_satellite: /CMS-SDC-SEC/S4_satellite/data/
+    model: /CMS-SDC-SEC/fault_diagnosis_parameter/model/
 
 picture:
   path:

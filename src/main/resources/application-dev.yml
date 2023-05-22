@@ -84,6 +84,7 @@ python:
     s4_satellite: /export/S4_satellite/code/S4_new.py   #电波传播影响算法
   data:
     s4_satellite: /export/S4_satellite/data/
+    model: /export/故障诊断多参数/model/
 
 picture:
   path:

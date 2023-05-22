@@ -20,6 +20,8 @@ import java.util.regex.Pattern;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.kjyy.common.web.annotation.validator.group.AddGroup;
 import cn.piesat.kjyy.common.web.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
@@ -197,6 +199,7 @@ public class SdcResourceSatelliteController {
     }
 
     @ApiOperation("获取卫星下拉框列表")
+    @OpLog(op = BusinessType.OTHER, description = "获取卫星下拉框列表")
     @GetMapping("/getSatellites")
     public List<SdcResourceSatelliteDO> getSatellites(){
         QueryWrapper<SdcResourceSatelliteDO> queryWrapper = new QueryWrapper<>();
@@ -205,6 +208,7 @@ public class SdcResourceSatelliteController {
     }
 
     @ApiOperation("全球磁场分布")
+    @OpLog(op = BusinessType.OTHER, description = "全球磁场分布计算")
     @GetMapping("/drawGlobalMagnetic")
     public Map<String, String> drawGlobalMagnetic(@RequestParam("time")String time,
                                      @RequestParam("height")Integer height){
@@ -264,6 +268,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("轨道磁场分布")
+    @OpLog(op = BusinessType.OTHER, description = "轨道磁场分布计算")
     @GetMapping("/drawOrbitalMagnetic")
     public JSONArray drawOrbitalMagnetic(@RequestParam("beginTime")String beginTime,
                                       @RequestParam("endTime")String endTime,
@@ -285,6 +290,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("单粒子效应评估数据")
+    @OpLog(op = BusinessType.OTHER, description = "单粒子效应评估数据计算")
     @GetMapping("/getSingleEventEffects")
     public JSONObject drawOrbitalMagnetic2(@RequestParam("beginTime")String beginTime,
                                                      @RequestParam("endTime")String endTime,
@@ -305,6 +311,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星辐射总剂量计算评估")
+    @OpLog(op = BusinessType.OTHER, description = "卫星辐射总剂量计算评估")
     @GetMapping("/getRadiationDose")
     public JSONObject getRadiationDose(@RequestParam("beginTime")String beginTime,
                                        @RequestParam("endTime")String endTime,
@@ -344,6 +351,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("全球辐射环境")
+    @OpLog(op = BusinessType.OTHER, description = "全球辐射环境计算")
     @GetMapping("/getGlobalRadiationEnv")
     public Map<String, String> getGlobalRadiationEnv(@RequestParam("time")String time,
                                                 @RequestParam("height")Integer height,
@@ -397,6 +405,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("轨道衰变效应")
+    @OpLog(op = BusinessType.OTHER, description = "轨道衰变效应计算")
     @GetMapping("/getOrbitReduction")
     public JSONObject getOrbitReduction(@RequestParam("beginTime")String beginTime,
                                                      @RequestParam("endTime")String endTime,
@@ -414,6 +423,7 @@ public class SdcResourceSatelliteController {
     }
 
     @ApiOperation("穿越南大西洋异常区")
+    @OpLog(op = BusinessType.OTHER, description = "穿越南大西洋异常区计算")
     @GetMapping("/getCrossAnomaly")
     public JSONObject getCrossAnomaly(@RequestParam(value = "s",required = false)String s,
                                       @RequestParam(value = "st",required = false)String st,
@@ -460,6 +470,7 @@ public class SdcResourceSatelliteController {
     }
 
     @ApiOperation("卫星辐射环境")
+    @OpLog(op = BusinessType.OTHER, description = "卫星辐射环境计算")
     @GetMapping("/getSatelliteRadiationEnv")
     public String getSatelliteRadiationEnv(@RequestParam(value = "dt",required = false)String dt,
                                         @RequestParam(value = "sn",required = false)String sn,
@@ -516,6 +527,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星表面充电模块")
+    @OpLog(op = BusinessType.OTHER, description = "卫星表面充电模块计算")
     @GetMapping("/getSurfaceIncharging")
     public JSONObject getSurfacecharging(@RequestParam("beginTime")String beginTime,
                                          @RequestParam("endTime")String endTime,
@@ -535,6 +547,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("确定卫星时间范围")
+    @OpLog(op = BusinessType.OTHER, description = "确定卫星时间范围计算")
     @GetMapping("/getSatelliteTime")
     public JSONObject getSatelliteTime(@RequestParam("satId")String satId){
 
@@ -551,6 +564,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星轨道能谱")
+    @OpLog(op = BusinessType.OTHER, description = "卫星轨道能谱计算")
     @GetMapping("/getOrbitalSpectrum")
     public JSONObject getOrbitalSpectrum(@RequestParam("beginTime")String beginTime,
                                          @RequestParam("endTime")String endTime,
@@ -574,6 +588,7 @@ public class SdcResourceSatelliteController {
     private StaticResourceDynamicRegistryController staticResourceDynamicRegistryController;
 
     @ApiOperation("全球磁场内源场和外源场分布")
+    @OpLog(op = BusinessType.OTHER, description = "全球磁场内源场和外源场分布计算")
     @GetMapping("/drawGlobalMagneticV2")
     public Map<String,List<String>> drawGlobalMagneticV2(@RequestParam("beginTime")String beginTime,
                                      @RequestParam("endTime")String endTime,
@@ -679,6 +694,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星深层充电模块")
+    @OpLog(op = BusinessType.OTHER, description = "卫星深层充电模块计算")
     @GetMapping("/getIncharging")
     public JSONObject getIncharging(@RequestParam("beginTime")String beginTime,
                                            @RequestParam("endTime")String endTime,
@@ -698,6 +714,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星沿轨道辐射环境")
+    @OpLog(op = BusinessType.OTHER, description = "卫星沿轨道辐射环境计算")
     @GetMapping("/getSatelliteRadiationEnvByOrbit")
     public JSONArray getSatelliteRadiationEnvByOrbit(@RequestParam(value = "name",required = false)String name,
                                                         @RequestParam(value = "start",required = false)String start,
@@ -732,6 +749,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星轨道面辐射环境")
+    @OpLog(op = BusinessType.OTHER, description = "卫星轨道面辐射环境计算")
     @GetMapping("/getSatelliteRadiationEnvByOrbitPlane")
     public String getSatelliteRadiationEnvByOrbitPlane(@RequestParam(value = "name",required = false)String name,
                                                                     @RequestParam(value = "start",required = false)String start,
@@ -793,6 +811,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("电波传播影响")
+    @OpLog(op = BusinessType.OTHER, description = "电波传播影响计算")
     @GetMapping("/getRadioWaveEffect")
     public JSONObject getRadioWaveEffect(@RequestParam("time")String time,
                                          @RequestParam("system")String system,
