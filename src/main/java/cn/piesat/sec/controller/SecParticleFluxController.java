@@ -1,22 +1,10 @@
 package cn.piesat.sec.controller;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
-import cn.piesat.kjyy.core.model.dto.PageBean;
-import cn.piesat.kjyy.core.model.vo.PageResult;
-import cn.piesat.sec.model.dto.SecParticleFluxDTO;
 import cn.piesat.sec.model.entity.SecParticleFluxDO;
 import cn.piesat.sec.model.query.SecParticleFluxQuery;
 import cn.piesat.sec.model.vo.HeavyIonFluxDataVO;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecParticleFluxService;
-import cn.piesat.sec.model.vo.SecParticleFluxVO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import io.swagger.annotations.Api;
@@ -24,8 +12,11 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 高能粒子通量数据

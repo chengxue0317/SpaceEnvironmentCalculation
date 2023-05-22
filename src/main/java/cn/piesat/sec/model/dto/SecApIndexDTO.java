@@ -1,6 +1,6 @@
 package cn.piesat.sec.model.dto;
 
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
+import cn.piesat.kjyy.common.web.annotation.validator.group.UpdateGroup;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;

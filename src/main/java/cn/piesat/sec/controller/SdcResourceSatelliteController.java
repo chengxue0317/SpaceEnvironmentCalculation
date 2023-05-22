@@ -20,8 +20,8 @@ import java.util.regex.Pattern;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
+import cn.piesat.kjyy.common.web.annotation.validator.group.AddGroup;
+import cn.piesat.kjyy.common.web.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.comm.oss.OSSInstance;

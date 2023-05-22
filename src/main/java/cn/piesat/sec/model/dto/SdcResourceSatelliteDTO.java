@@ -1,17 +1,17 @@
 package cn.piesat.sec.model.dto;
 
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
-import lombok.Data;
-import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import cn.piesat.kjyy.common.web.annotation.validator.group.AddGroup;
+import cn.piesat.kjyy.common.web.annotation.validator.group.UpdateGroup;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * 卫星基本信息DTO
