@@ -1,5 +1,7 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.model.vo.SecEnvOverviewVO;
@@ -46,6 +48,7 @@ public class SecEnvOverviewController {
     private String bucketName;
 
     @ApiOperation("空间环境预报数据")
+    @OpLog(op = BusinessType.OTHER, description = "空间环境预报数据")
     @PostMapping("/getEnvOverview")
     public List<SecEnvOverviewVO> getEnvOverview() {
         return secEnvOverviewService.getEnvOverview();
@@ -61,6 +64,7 @@ public class SecEnvOverviewController {
             @ApiImplicitParam(name = "type", value = "文件类型day/week/month", dataType = "String", required = false),
             @ApiImplicitParam(name = "path", value = "文件路径", dataType = "String", required = false)
     })
+    @OpLog(op = BusinessType.OTHER, description = "环境预报报文下载")
     @PostMapping(value = "/downFile")
     public synchronized void downFile(
             @RequestParam(value = "type", required = false) String type,

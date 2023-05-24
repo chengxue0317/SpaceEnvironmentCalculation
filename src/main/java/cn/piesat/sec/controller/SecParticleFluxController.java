@@ -1,5 +1,7 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.model.entity.SecParticleFluxDO;
 import cn.piesat.sec.model.query.SecParticleFluxQuery;
 import cn.piesat.sec.model.vo.HeavyIonFluxDataVO;
@@ -38,6 +40,7 @@ public class SecParticleFluxController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
     })
+    @OpLog(op = BusinessType.OTHER, description = "质子通量数据")
     @PostMapping("/protonFluxData")
     public SecEnvElementVO getProtonIndexData(@RequestParam(value = "startTime", required = false) String startTime,
                                               @RequestParam(value = "endTime", required = false) String endTime) {
@@ -49,6 +52,7 @@ public class SecParticleFluxController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
     })
+    @OpLog(op = BusinessType.OTHER, description = "电子通量数据")
     @PostMapping("/electronicFluxData")
     public SecEnvElementVO getElectronicFluxData(@RequestParam(value = "startTime", required = false) String startTime,
                                                  @RequestParam(value = "endTime", required = false) String endTime) {
@@ -56,6 +60,7 @@ public class SecParticleFluxController {
     }
 
     @ApiOperation("查询一段时间内的重离子通量数据")
+    @OpLog(op = BusinessType.OTHER, description = "查询一段时间内的重离子通量数据")
     @PostMapping("/getHeavyIonFluxData")
     public HeavyIonFluxDataVO getHeavyIonFluxData(@RequestBody(required = false) SecParticleFluxQuery secParticleFluxQuery) {
         QueryWrapper<SecParticleFluxDO> queryWrapper = new QueryWrapper<>();

@@ -1,5 +1,7 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecSolarWindService;
 import io.swagger.annotations.Api;
@@ -32,6 +34,7 @@ public class SecSolarWindController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
     })
+    @OpLog(op = BusinessType.OTHER, description = "太阳风速")
     @PostMapping("/getSolarWindData")
     public SecEnvElementVO getSolarWindData(@RequestParam(value = "startTime", required = false) String startTime,
                                             @RequestParam(value = "endTime", required = false) String endTime) {

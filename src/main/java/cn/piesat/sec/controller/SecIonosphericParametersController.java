@@ -1,5 +1,7 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.comm.util.FileUtil;
@@ -66,6 +68,7 @@ public class SecIonosphericParametersController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
     })
+    @OpLog(op = BusinessType.OTHER, description = "电离层闪烁数据")
     @GetMapping("blinkData")
     public SecEnvElementVO getBlinkData(@RequestParam("satcode") String satcode,
                                         @RequestParam("satno") String satno,
@@ -89,6 +92,7 @@ public class SecIonosphericParametersController {
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true),
             @ApiImplicitParam(name = "type", value = "类型tec/s4/fof2", dataType = "String", required = true)
     })
+    @OpLog(op = BusinessType.OTHER, description = "空间环境态势-全国TEC数据")
     @GetMapping("ionosphericparametersStationData")
     public List<SecIonosphericParametersVO> getIonosphericparametersStationData(
             @RequestParam("altitude") String altitude,
@@ -137,6 +141,7 @@ public class SecIonosphericParametersController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
     })
+    @OpLog(op = BusinessType.OTHER, description = "电离层参数-获取全国/全球电离层数据")
     @GetMapping("ionosphericparametersData")
     public List<SecIonosphericParametersVO> getIonosphericparametersData(@RequestParam(value = "type", required = true) String type,
                                                                          @RequestParam(value = "altitude", required = false) String altitude,
@@ -158,6 +163,7 @@ public class SecIonosphericParametersController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
     })
+    @OpLog(op = BusinessType.OTHER, description = "下载电离层参数文件")
     @GetMapping("ionosphericspngs")
     public void downloadPics(@RequestParam(value = "type", required = true) String type,
                              @RequestParam(value = "altitude", required = false) String altitude,

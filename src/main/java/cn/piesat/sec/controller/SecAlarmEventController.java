@@ -1,5 +1,7 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.query.SecAlarmEventQuery;
@@ -29,12 +31,14 @@ public class SecAlarmEventController {
     @ApiImplicitParams(value = {
             @ApiImplicitParam(name = "secAlarmEventQuery", value = "警报事件查询对象", dataType = "String", required = true)
     })
+    @OpLog(op = BusinessType.OTHER, description = "空间环境警报事件历史数据")
     @PostMapping("/history")
     public PageResult list(PageBean pageBean, @RequestBody(required = false) SecAlarmEventQuery secAlarmEventQuery) {
         return alarmEventService.list(pageBean, secAlarmEventQuery);
     }
 
     @ApiOperation("空间环境警报事件预报数据")
+    @OpLog(op = BusinessType.OTHER, description = "空间环境警报事件预报数据")
     @PostMapping("/alarmEvent3daysForecast")
     public PageResult getAlarmEvent3daysForecast() {
         return alarmEventService.getAlarmEvent3daysForecast();

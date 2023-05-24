@@ -1,5 +1,7 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecF107FluxService;
 import io.swagger.annotations.Api;
@@ -32,6 +34,7 @@ public class SecF107FluxController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
     })
+    @OpLog(op = BusinessType.OTHER, description = "F10.7数据")
     @PostMapping("/f107Data")
     public SecEnvElementVO getF107Data(@RequestParam(value = "startTime", required = false) String startTime,
                                        @RequestParam(value = "endTime", required = false) String endTime) {

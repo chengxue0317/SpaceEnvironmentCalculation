@@ -1,5 +1,7 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecBxyzService;
 import io.swagger.annotations.Api;
@@ -27,11 +29,12 @@ public class SecBxyzController {
 
     private final SecBxyzService secBxyzService;
 
-    @ApiOperation("查询一段时间内的磁场数据")
+    @ApiOperation("地磁三分量")
     @ApiImplicitParams(value = {
             @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = false),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = false)
     })
+    @OpLog(op = BusinessType.OTHER, description = "地磁三分量")
     @GetMapping("/btxyzData")
     public SecEnvElementVO getBtxyzData(@RequestParam(value = "startTime", required = false) String startTime,
                                         @RequestParam(value = "endTime", required = false) String endTime) {

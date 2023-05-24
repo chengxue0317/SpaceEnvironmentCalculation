@@ -1,5 +1,7 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecXrayFluxService;
 import io.swagger.annotations.Api;
@@ -32,6 +34,7 @@ public class SecXrayFluxController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = false),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = false)
     })
+    @OpLog(op = BusinessType.OTHER, description = "太阳耀斑/X射线流量数据")
     @PostMapping("/solarXrayData")
     public SecEnvElementVO getSolarXrayData(
         @RequestParam(value = "startTime", required = false) String startTime,
