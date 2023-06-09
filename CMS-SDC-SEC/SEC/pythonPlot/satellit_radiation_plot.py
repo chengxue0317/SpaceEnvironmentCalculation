@@ -56,8 +56,11 @@ def draw_log_plot(flux, filepath, df):
     fig.colorbar(mappable=mpl.cm.ScalarMappable(norm=LogNorm(vmin=1,vmax=flux.unstack().max()), cmap=cmap), ax=ax, orientation='vertical',
                  label='Particle Flux(/cm$^2$•s•sr)', extend='both', shrink=0.7)
     fig.legend(bbox_to_anchor=(0.87, 0.21))
-    plt.savefig(filepath + '/satellite_radiation.png')
 
+    if not os.path.exists(filedir + '/plots/' + filenum):
+        os.makedirs(filedir + '/plots/' + filenum)    
+    plt.savefig(filedir + '/plots/' + filenum + '/satellite_radiation.png')
+    
 
 def get_saa_flux(time_start, altitude, whatf, whichm):
     san = gr.solar_activity(time_start)
@@ -96,6 +99,6 @@ if __name__ == "__main__":
     filedir, filenum = get_saa_flux(date_time, altitude, args.whatf, args.whichm)
     filepath = filedir + '/' + filenum
     flux = read_flux_data(args.whichm, args.channel, filepath + '/flux.txt')
-    draw_log_plot(flux, filepath, df)
+    draw_log_plot(flux, filedir + '/plots/' + filenum, df)
     os.system('rm -rf ' + filepath + '/flux.txt')
-    print(filepath)
+    print(filedir + '/plots/' + filenum)

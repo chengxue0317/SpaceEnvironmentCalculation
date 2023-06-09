@@ -1,3 +1,12 @@
+'''
+Author: wangrenruoyu@piesat.cn 
+email: wangrry@hotmail.com
+Date: 2023-05-08 11:16:43
+LastEditors: wangrenruoyu@piesat.cn wangrry@hotmail.com
+LastEditTime: 2023-06-09 15:23:43
+FilePath: /SpaceEnvironmentCalculation/CMS-SDC-SEC/SEC/pythonPlot/global_radiation_plot.py
+Description: 
+'''
 """
 @File    ：flux_global_plot.py.py
 @Author  ：Wangrry
@@ -68,6 +77,8 @@ def draw_log_plot(flux, filepath):
 
 
 def draw(flux, filepath):
+    if not os.path.exists(filepath):
+        os.makedirs(filepath)
     draw_single_colorbar(flux, filepath + '/color_bar.png')
     draw_log_plot(flux, filepath + '/log_plot.png')
 
@@ -93,6 +104,7 @@ if __name__ == "__main__":
     filedir, filenum = get_saa_flux(args.date_time, args.altitude, args.whatf, args.whichm)
     filepath = filedir + '/' + filenum
     flux = read_flux_data(args.whichm, args.channel, filepath + '/flux.txt')
-    draw(flux, filepath)
+    draw(flux, filedir + '/plots/' + filenum)
     os.system('rm -rf ' + filepath + '/flux.txt')
-    print(filepath)
+    print(filedir + '/plots/' + filenum)
+

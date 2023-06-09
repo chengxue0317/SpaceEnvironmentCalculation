@@ -9,7 +9,6 @@ import numpy as np
 
 filedir = str(Path(__file__).resolve().parents[1])
 sys.path.append(filedir)
-filedir += '/plots'
 
 from ap8ae8 import *
 import pandas as pd
@@ -118,7 +117,7 @@ if __name__ == '__main__':
     parser.add_argument("-f", "--whatf", type=str, help="differential - 1, range - 2, above - 3", default='above')
     parser.add_argument("-m", "--whichm", type=str, help="ae8 - 1, ap8 - 2", default='ap8')
     args = parser.parse_args()
-    args.date = args.date.repalce('"', '')
+    # args.date = args.date.repalce('"', '')
 
     san = solar_activity(args.date)
     main(args.date, args.altitude, args.whatf, args.whichm, san)

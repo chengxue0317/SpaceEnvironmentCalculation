@@ -1,3 +1,13 @@
+'''
+Author: wangrenruoyu@piesat.cn 
+email: wangrry@hotmail.com
+Date: 2023-05-08 11:16:43
+LastEditors: wangrenruoyu@piesat.cn wangrry@hotmail.com
+LastEditTime: 2023-06-09 15:23:35
+FilePath: /SpaceEnvironmentCalculation/CMS-SDC-SEC/SEC/pythonPlot/orbital_plane_plot.py
+Description: 
+'''
+import os
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]) + '/AP8AE8/orbitalPlaneRad')
@@ -73,7 +83,9 @@ def draw(flux, alt, sat_trace, filepath):
                  label='Particle Flux(/cm$^2$•s•sr)', extend='both', shrink=0.7)
     ax.plot(np.arange(0, 100, 1), sat_trace['alt'], linewidth=2.0, label='Satellite trace', color='black')
     fig.legend(bbox_to_anchor=(0.87, 0.45))
-    plt.savefig(filepath)
+    if not os.path.exists(filedir + '/plots/' + filenum):
+        os.makedirs(filedir + '/plots/' + filenum)    
+    plt.savefig(filedir + '/plots/' + filenum + '/profile.png')
 
 
 if __name__ == '__main__':
@@ -94,5 +106,5 @@ if __name__ == '__main__':
     flux, alt = read_flux_data(args.whichm, args.channel, filepath + '/flux.txt')
     sat_trace = pd.read_csv(filepath + '/sat_trace.txt')
     location = list(zip(list(sat_trace['lat']), list(sat_trace['lon']), list(sat_trace['date'])))
-    draw(flux, alt, sat_trace, filepath + '/profile.png')
-    print(filedir + '/' + filenum)
+    draw(flux, alt, sat_trace, filedir + '/plots/' + filenum + '_profile.png')
+    print(filedir + '/plots/' + filenum)
