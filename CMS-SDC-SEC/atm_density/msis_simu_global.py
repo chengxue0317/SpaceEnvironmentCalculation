@@ -53,9 +53,9 @@ def shijian(timeStamp):
 # 读取flux文件
 def Read_txt(dir_name_flux,filedir_flux):
   txt_all = []
-  f = open(filedir_flux+'/'+dir_name_flux+'/msis2.0_simulations.txt')
+  f = open(filedir_flux+'/figure/'+dir_name_flux+'/msis2.0_simulations.txt')
   file_size = len(f.readlines())
-  ff = open(filedir_flux+'/'+dir_name_flux+'/msis2.0_simulations.txt')
+  ff = open(filedir_flux+'/figure/'+dir_name_flux+'/msis2.0_simulations.txt')
   for i in range(file_size):
     #print(ff.readline().replace(' ','').replace('\n',''))
     txt = float(ff.readline().replace(' ','').replace('\n',''))
@@ -72,6 +72,10 @@ lon2d,lat2d = np.meshgrid(lon,lat)
 # 生成时间，F107时间
 current_time = str(sys.argv[1])
 current_time = current_time.replace('"','')
+if (len(current_time.split('-')[1])==1):
+    current_time = current_time[:5]+'0'+current_time[5:]
+if (len(current_time.split('-')[2].split(' ')[0])==1):
+    current_time = current_time[:8]+'0'+current_time[8:]
 time_f107 = current_time.split()[0]
 
 if len(current_time)==1:
@@ -126,6 +130,7 @@ print('The 81mean F107 is %d'%(F107_81mean))
 # 读取AP数据
 t_std = np.array([1,4,7,10,13,16,19,22])
 ap_time = current_time.split(':')[0]+':15:00'
+print(ap_time)
 t = int(ap_time[11:13])
 ind = np.where(abs(t_std-t)== min(abs(t_std-t)))
 k = str(t_std[ind][0])
@@ -155,21 +160,26 @@ day_of_year = day.strftime("%j")
 # UTC
 utc = int(current_time[11:13])*3600 + int(current_time[14:16])*60 + int(current_time[17:19])
 
-# 建立模拟结果文件夹(唯一性)
+# 判断是否存在figure文件夹
 current_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.exists(current_dir+'/figure') == False:
+    os.system('mkdir '+current_dir+'/figure')
+
+# 建立模拟结果文件夹(唯一性)
+current_dir = current_dir
 while True:
-    dir_name = str(random.randint(1,999999))
-    if os.path.exists(dir_name) == False:
-        os.system('mkdir '+current_dir+'/'+dir_name)
+    dir_name = str(random.randint(1,99999))
+    if os.path.exists(current_dir+'/figure/'+dir_name) == False:
+        os.system('mkdir '+current_dir+'/figure/'+dir_name)
         break
-os.system('cp '+current_dir+'/'+ 'msis2.0_test_daily.exe '+current_dir+'/'+dir_name)
-os.system('cp '+current_dir+'/'+ 'msis20.parm '+current_dir+'/'+dir_name)
+os.system('cp '+current_dir+'/'+ 'msis2.0_test_storm.exe '+current_dir+'/figure/'+dir_name)
+os.system('cp '+current_dir+'/'+ 'msis20.parm '+current_dir+'/figure/'+dir_name)
 
 
 # 将msis背景场写入Txt文件
-with open(current_dir+'/'+dir_name+'/msis2.0_forcing.txt','w',encoding='utf-8') as f:
+with open(current_dir+'/figure/'+dir_name+'/msis2.0_forcing.txt','w',encoding='utf-8') as f:
     for i in range(0, len(lat1d)):
-        f.write(str(day_of_year))
+        f.write(str(day_of_year))  
         f.write('  ')
         f.write(str(utc))
         f.write('  ')
@@ -201,7 +211,7 @@ with open(current_dir+'/'+dir_name+'/msis2.0_forcing.txt','w',encoding='utf-8') 
         f.write('\n')
 
 # 运行FORTRAN seu.exe
-os.system('cd '+current_dir+'/'+dir_name+';  ./msis2.0_test_daily.exe')
+os.system('cd '+current_dir+'/figure/'+dir_name+';  ./msis2.0_test_storm.exe >/dev/null 2>&1') 
 txt = Read_txt(dir_name,current_dir)
 
 # 1d 转化为2d
@@ -242,7 +252,7 @@ clb.ax.tick_params(labelsize= 8)
 #from matplotlib.ticker import FormatStrFormatter
 #import matplotlib.ticker as tick
 #clb.ax.xaxis.set_major_formatter(tick.FormatStrFormatter('%.2g'))
-path = current_dir+'/'+dir_name
+path = current_dir+'/figure/'+dir_name
 
 
 # 存colorbar图
@@ -275,6 +285,12 @@ plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace
 plt.margins(0,0)
 plt.savefig(path+'/main_figure.jpg',dpi=600,pad_inches=0)
 
+# 删除多余数据
+os.system('rm -rf '+current_dir+'/figure/'+dir_name+'/test.jpg')
+os.system('rm -rf '+current_dir+'/figure/'+dir_name+'/msis2.0_simulations.txt')
+os.system('rm -rf '+current_dir+'/figure/'+dir_name+'/msis2.0_forcing.txt')
+os.system('rm -rf '+current_dir+'/figure/'+dir_name+'/msis2.0_test_storm.exe')
+os.system('rm -rf '+current_dir+'/figure/'+dir_name+'/msis20.parm')
 
 # 输出文件路径
 print('###'+path+'###')
