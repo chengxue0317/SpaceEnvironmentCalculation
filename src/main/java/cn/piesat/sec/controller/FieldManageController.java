@@ -684,7 +684,7 @@ public class FieldManageController {
     @GetMapping("/faultDiagnosis")
     public String faultDiagnosis(String fields){
         String nowtime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        String command = "python3 "+faultDiagnosis+" \""+nowtime+"\" \""+pythonConfig+"\" \"SEC_FAULT_DIAGNOSIS\" \""+fields+"\" \"Error_ID\"";
+        String command = "python3 "+faultDiagnosis+" \""+nowtime+"\" \""+pythonConfig+"\" \"SEC_FAULT_DIAGNOSIS\" \""+fields+"\" \"Error_ID\""+" "+model;
 //        String command = "python3 "+faultDiagnosis+" \""+nowtime+"\" \"/export/故障诊断多参数/xw.ini\" \"SEC_FAULT_DIAGNOSIS\" \""+fields+"\" \"Error_ID\"";
         log.info("执行Python命令：{}",command);
         new Thread(new Runnable() {
@@ -704,7 +704,7 @@ public class FieldManageController {
     @OpLog(op = BusinessType.OTHER, description = "获取故障诊断M2模型路径")
     @GetMapping("/getModel")
     public List<String> getModel(String type){
-        List<String> list = FileUtil.listFileNames(model.concat(type));
+        List<String> list = FileUtil.listFileNames(model.concat("model").concat(File.separator).concat(type));
         return list;
 
     }
@@ -713,7 +713,7 @@ public class FieldManageController {
     @OpLog(op = BusinessType.OTHER, description = "卫星空间环境故障诊断M2")
     @GetMapping("/getModelType")
     public List<String> getModelType(){
-        File[] files = FileUtil.ls(model);
+        File[] files = FileUtil.ls(model.concat("model").concat(File.separator));
         List<String> names = new ArrayList<>();
         for (int i=0;i<files.length;i++){
             names.add(files[i].getName());
@@ -726,7 +726,7 @@ public class FieldManageController {
     @OpLog(op = BusinessType.OTHER, description = "卫星空间环境故障诊断M2")
     @PostMapping("/faultDiagnosisM2")
     public String faultDiagnosisM2(@RequestBody FaultDiagnosisM2VO faultDiagnosisM2VO){
-        String modelPath = model.concat(faultDiagnosisM2VO.getType()).concat(File.separator).concat(faultDiagnosisM2VO.getFileName());
+        String modelPath = model.concat("model").concat(File.separator).concat(faultDiagnosisM2VO.getType()).concat(File.separator).concat(faultDiagnosisM2VO.getFileName());
         String command = "python3 "+faultDiagnosisM2+" "+modelPath+" "+Arrays.toString(faultDiagnosisM2VO.getData()).replaceAll("\\s*", "");
         log.info("执行Python命令：{}",command);
         String result = ExecUtil.execCmdWithResult(command);

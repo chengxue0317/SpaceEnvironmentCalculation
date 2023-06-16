@@ -91,12 +91,12 @@ python:
     s4_satellite: /CMS-SDC-SEC/s4_satellite/code/S4_new.py   #电波传播影响算法
   data:
     s4_satellite: /CMS-SDC-SEC/S4_satellite/data/
-    model: /CMS-SDC-SEC/fault_diagnosis_parameter/model/
+    model: /CMS-SDC-SEC/fault_diagnosis_parameter/
 
 picture:
   path:
     magnetic_global: /CMS-SDC-SEC/magnetic_global/     #全球磁场分布图片存储路径
-    global_radiation_env: /CMS-SDC-SEC/particles_radiation_global/AP8AE8/figure/     #全球辐射环境图片存储路径
+    global_radiation_env: /CMS-SDC-SEC/particles_radiation_global/global_radiation/figure/     #全球辐射环境图片存储路径
     satellite_radiation_env: /CMS-SDC-SEC/SEC/AP8AE8/plots/     #全球辐射环境图片存储路径
     magnetic_global_v2: /CMS-SDC-SEC/magnetic_global/v2/     #全球磁场内源场和外源场分布图片存储路径
     atmosphere_density_global: /CMS-SDC-SEC/atm_density/figure/  #全球大气密度图片存储路径

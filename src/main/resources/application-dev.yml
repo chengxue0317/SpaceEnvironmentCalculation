@@ -71,7 +71,7 @@ python:
     orbit_reduction: /export/yuechao_cal/orbit_reduction/orbit_reduction.py   #轨道衰变效应算法
     satellite_radiation_env: /export/SEC/pythonPlot/satellit_radiation_plot.py   #卫星辐射环境算法
     cross_anomaly: /export/SEC/AP8AE8/SatCrossSAATime/sat_cross_SAA_time.py   #穿越南大西洋异常区算法
-    surface_charging: /export/yuechao_cal/surface_charging/surface_charging.py   #卫星表面充电模块算法
+    surface_charging: /export/yuechao_cal/surface_charging/surface_incharging.py   #卫星表面充电模块算法
     satellite_time: /export/yuechao_cal/SAT_ID_TIME_SPAN.py   #确定卫星时间范围算法
     orbital_spectrum: /export/yuechao_cal/sat_flux_spectrum/sat_spectrum/sp.py   #卫星轨道能谱算法
     fault_diagnosis: /export/故障诊断多参数/M01_Model_Creation_release_V1.0.py   #故障诊断算法M1
@@ -84,12 +84,12 @@ python:
     s4_satellite: /export/S4_satellite/code/S4_new.py   #电波传播影响算法
   data:
     s4_satellite: /export/S4_satellite/data/
-    model: /export/故障诊断多参数/model/
+    model: /export/故障诊断多参数/
 
 picture:
   path:
     magnetic_global: /export/magnetic_global/     #全球磁场分布图片存储路径
-    global_radiation_env: /export/yuechao_cal/SRAD/AP8AE8/figure/     #全球辐射环境图片存储路径
+    global_radiation_env: /export/yuechao_cal/SRAD/global_radiation/figure/     #全球辐射环境图片存储路径
     satellite_radiation_env: /export/SEC/AP8AE8/plots/     #全球辐射环境图片存储路径
     magnetic_global_v2: /export/magnetic_global/v2/     #全球磁场内源场和外源场分布图片存储路径
     atmosphere_density_global: /export/yuechao_cal/atm_density/figure/  #全球大气密度图片存储路径
