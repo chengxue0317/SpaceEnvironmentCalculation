@@ -159,6 +159,9 @@ public class SdcResourceSatelliteController {
     @Value("${spring.profiles.active}")
     private String env;
 
+    @Value("${python.path.heavy_ion}")
+    private String heavyIon;
+
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
 
@@ -835,4 +838,21 @@ public class SdcResourceSatelliteController {
     }
 
 
+    @ApiOperation("重离子预报模块")
+    @OpLog(op = BusinessType.OTHER, description = "重离子预报模块计算")
+    @GetMapping("/getHeavyIon")
+    public JSONObject getHeavyIon(@RequestParam("inclination")String inclination,
+                                    @RequestParam("perigee")String perigee,
+                                    @RequestParam("apogee")String apogee,
+                                    @RequestParam("atomicNumber")String atomicNumber){
+
+        String command = "python3 "+heavyIon+" "+inclination+" "+perigee+" "+apogee+" "+atomicNumber;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
+        return jsonObject;
+
+    }
 }

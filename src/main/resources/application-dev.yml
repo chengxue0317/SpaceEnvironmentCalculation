@@ -82,6 +82,7 @@ python:
     satellite_radiation_env_orbit: /export/SEC/AP8AE8/satOrbitRad/sat_orbit_rad.py   #卫星沿轨道辐射环境算法
     satellite_radiation_env_orbit_plane: /export/SEC/pythonPlot/orbital_plane_plot.py   #卫星轨道面辐射环境算法
     s4_satellite: /export/S4_satellite/code/S4_new.py   #电波传播影响算法
+    heavy_ion: /export/yuechao_cal/heavy_ion/zlz.py    #重离子预报模块
   data:
     s4_satellite: /export/S4_satellite/data/
     model: /export/故障诊断多参数/
