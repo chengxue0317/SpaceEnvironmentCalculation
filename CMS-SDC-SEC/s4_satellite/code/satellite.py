@@ -28,6 +28,46 @@ def get_all_time(strength_value_S1, strength_value_S2, file_time, stat_time, end
                 all_file_time.append(file_time[h])
     return all_file_time, all_S1, all_S2
 
+def get_DB(S1_strength,S2_strength,file_time):
+    S1_strength_new,S2_strength_new, all_DB_S1,all_DB_S2 = [], [], [], []
+
+    dates = []
+    start_dt = '2023-01-01 00:00:00'
+    end_dt = '2023-01-01 00:59:59'
+    dt = datetime.datetime.strptime(start_dt,  "%Y-%m-%d %H:%M:%S")
+    date = start_dt[:]
+
+    while date <= end_dt:
+        dates.append(date)
+        dt = dt + datetime.timedelta(minutes=1)
+
+        date = dt.strftime("%Y-%m-%d %H:%M:%S")
+
+
+    for s in range(len(dates)):
+        if dates[s] in file_time:
+            S1_strength_new.append(S1_strength[s])
+            S2_strength_new.append(S2_strength[s])
+
+    for h in range(len(S1_strength_new)):
+        if h !=0 :
+            h_new_s1 = float(S1_strength_new[h])-float(S1_strength_new[h-1])
+            if h_new_s1 >=0 :
+                all_DB_S1.append(h_new_s1)
+            else:
+                all_DB_S1.append(0)
+    all_DB_S1 = [0] + all_DB_S1
+
+    for h in range(len(S2_strength_new)):
+        if h != 0:
+            h_new_s2 = float(S2_strength_new[h]) - float(S2_strength_new[h - 1])
+            if h_new_s2 >= 0:
+                all_DB_S2.append(h_new_s2)
+            else:
+                all_DB_S2.append(0)
+    all_DB_S2 = [0] + all_DB_S2
+    return all_DB_S1, all_DB_S2
+
 #通过L1频段和L2频段的S4平均值数据和平方数据计算求得电离层闪烁数据
 def get_strength(S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square):
     strength_value_S1, strength_value_S2 = [], []
@@ -69,185 +109,16 @@ def su_data(lst, degree):
         k_list.append(sum(list(map(float, new_k_list[e]))))
     return k_list
 
-#利用传入的数据，判断卫星名称简写是否为S,如果是则获得卫星为S的TEC数据值
-def get_TEC_S(file_data_list, P1_channel, P2_channel):
-    S_S1_strength,S_S2_strength= [], []
-    for k in range(len(file_data_list)):
-        if file_data_list[k][0] == 'S':
-            file_data_all = file_data_list[k].split()
-            if len(file_data_all) == 6:
-                file_data_all = file_data_all
-            else:
-                file_data_all_new = []
-                file_data_all_new.extend('0' for _ in range(int(6)-len(file_data_all)))
-                file_data_all = file_data_all + file_data_all_new
-            v_value, s_value = [], []
-            for w in range(len(file_data_all)):
-                if w == 3 or w == 6 :
-                    s_value.append(file_data_all[w])
-            if P1_channel == 'C1C':
-                S1 = s_value[0]
-            else:
-                S1 = s_value[0]
-
-            if P2_channel == 'C1C':
-                S2 = s_value[0]
-            else:
-                S2 = s_value[0]
-            S_S1_strength.append(S1)
-            S_S2_strength.append(S2)
-    new_s1 = get_square(S_S1_strength)
-    new_s2 = get_square(S_S2_strength)
-    S1_data_1 = su_data(new_s1, int(60))
-    S2_data_1 = su_data(new_s2, int(60))
-    S1_S4_value_average = get_average(S1_data_1)
-    S2_S4_value_average = get_average(S2_data_1)
-
-    S1_data = su_data(S_S1_strength, int(60))
-    S2_data = su_data(S_S2_strength, int(60))
-    new_S1_data = get_average(S1_data)
-    new_S2_data = get_average(S2_data)
-    S1_S4_value_square = get_square(new_S1_data)
-    S2_S4_value_square = get_square(new_S2_data)
-    return S1_S4_value_average, S2_S4_value_average, S1_S4_value_square, S2_S4_value_square
-
-#利用传入的数据，判断卫星名称简写是否为R,如果是则获得卫星为R的TEC数据值
-def get_TEC_R(file_data_list, P1_channel, P2_channel):
-    R_S1_strength,R_S2_strength = [], []
-    for k in range(len(file_data_list)):
-        if file_data_list[k][0] == 'R':
-            file_data_all = file_data_list[k].split()
-            if len(file_data_all) == 12:
-                file_data_all = file_data_all
-            else:
-                file_data_all_new = []
-                file_data_all_new.extend('0' for _ in range(int(12)-len(file_data_all)))
-                file_data_all = file_data_all + file_data_all_new
-            v_value, s_value = [], []
-            for w in range(len(file_data_all)):
-                if w == 3 or w == 6 or w == 9 or w == 12:
-                    s_value.append(file_data_all[w])
-            if P1_channel == 'C1C':
-                S1 = s_value[0]
-            elif P1_channel == 'C1P':
-                S1 = s_value[0]
-            elif P1_channel == 'C2C':
-                S1 = s_value[0]
-            else:
-                S1 = s_value[0]
-
-            if P2_channel == 'C1C':
-                S2 = s_value[0]
-            elif P2_channel == 'C1P':
-                S2 = s_value[0]
-            elif P2_channel == 'C2C':
-                S2 = s_value[0]
-            else:
-                S2 = s_value[0]
-
-            R_S1_strength.append(S1)
-            R_S2_strength.append(S2)
-    new_s1 = get_square(R_S1_strength)
-    new_s2 = get_square(R_S2_strength)
-    S1_data_1 = su_data(new_s1, int(60))
-    S2_data_1 = su_data(new_s2, int(60))
-    S1_S4_value_average = get_average(S1_data_1)
-    S2_S4_value_average = get_average(S2_data_1)
-
-    S1_data = su_data(R_S1_strength, int(60))
-    S2_data = su_data(R_S2_strength, int(60))
-    new_S1_data = get_average(S1_data)
-    new_S2_data = get_average(S2_data)
-    S1_S4_value_square = get_square(new_S1_data)
-    S2_S4_value_square = get_square(new_S2_data)
-    return S1_S4_value_average, S2_S4_value_average, S1_S4_value_square, S2_S4_value_square
-
-#利用传入的数据，判断卫星名称简写是否为E,如果是则获得卫星为E的TEC数据值
-def get_TEC_E(file_data_list, P1_channel, P2_channel):
-    E_S1_strength, E_S2_strength = [], []
-    for k in range(len(file_data_list)):
-       if file_data_list[k][0] == 'E':
-           file_data_all = file_data_list[k].split()
-           if len(file_data_all) == 15:
-               file_data_all = file_data_all
-           else:
-               file_data_all_new = []
-               file_data_all_new.extend('0' for _ in range(int(15) - len(file_data_all)))
-               file_data_all = file_data_all + file_data_all_new
-           v_value, s_value = [], []
-           for w in range(len(file_data_all)):
-               if w == 3 or w == 6 or w == 9 or w == 12 or w == 15:
-                   s_value.append(file_data_all[w])
-           if P1_channel == 'C1C':
-               S1 = s_value[0]
-           elif P1_channel == 'C6C':
-               S1 = s_value[1]
-           elif P1_channel == 'C7Q':
-               S1 = s_value[2]
-           elif P1_channel == 'C8Q':
-               S1 = s_value[3]
-           else:
-               S1 = s_value[4]
-
-           if P2_channel == 'C1C':
-               S2 = s_value[0]
-           elif P2_channel == 'C6C':
-               S2 = s_value[1]
-           elif P2_channel == 'C7Q':
-               S2 = s_value[2]
-           elif P2_channel == 'C8Q':
-               S2 = s_value[3]
-           else:
-               S2 = s_value[4]
-           E_S1_strength.append(S1)
-           E_S2_strength.append(S2)
-    new_s1 = get_square(E_S1_strength)
-    new_s2 = get_square(E_S2_strength)
-    S1_data_1 = su_data(new_s1, int(60))
-    S2_data_1 = su_data(new_s2, int(60))
-    S1_S4_value_average = get_average(S1_data_1)
-    S2_S4_value_average = get_average(S2_data_1)
-
-    S1_data = su_data(E_S1_strength, int(60))
-    S2_data = su_data(E_S2_strength, int(60))
-    new_S1_data = get_average(S1_data)
-    new_S2_data = get_average(S2_data)
-    S1_S4_value_square = get_square(new_S1_data)
-    S2_S4_value_square = get_square(new_S2_data)
-    return S1_S4_value_average, S2_S4_value_average, S1_S4_value_square, S2_S4_value_square
-
 #利用传入的数据，判断卫星名称简写是否为C,如果是则获得卫星为C的TEC数据值
 def get_TEC_C(file_data_list, P1_channel, P2_channel):
     C_S1_strength, C_S2_strength = [], []
     for k in range(len(file_data_list)):
         if file_data_list[k][0] == 'C':
             file_data_all = file_data_list[k].split()
-            if len(file_data_all) == 9:
-                file_data_all = file_data_all
-            else:
-                file_data_all_new = []
-                file_data_all_new.extend('0' for _ in range(int(9)-len(file_data_all)))
-                file_data_all = file_data_all + file_data_all_new
-            v_value, s_value = [], []
-            for w in range(len(file_data_all)):
-                if w == 3 or w == 6 or w == 9 :
-                    s_value.append(file_data_all[w])
+            if P1_channel == 'C2I' and P2_channel == 'C6I':
+                C_S1_strength.append(file_data_all[-2])
+                C_S2_strength.append(file_data_all[-1])
 
-            if P1_channel == 'C2I':
-                S1 = s_value[0]
-            elif P1_channel == 'C6I':
-                S1 = s_value[1]
-            else:
-                S1 = s_value[2]
-
-            if P2_channel == 'C2I':
-                S2 = s_value[0]
-            elif P2_channel == 'C6I':
-                S2 = s_value[1]
-            else :
-                S2 = s_value[2]
-            C_S1_strength.append(S1)
-            C_S2_strength.append(S2)
     new_s1 = get_square(C_S1_strength)
     new_s2 = get_square(C_S2_strength)
     S1_data_1 = su_data(new_s1, int(60))
@@ -261,7 +132,7 @@ def get_TEC_C(file_data_list, P1_channel, P2_channel):
     new_S2_data = get_average(S2_data)
     S1_S4_value_square = get_square(new_S1_data)
     S2_S4_value_square = get_square(new_S2_data)
-    return S1_S4_value_average, S2_S4_value_average, S1_S4_value_square, S2_S4_value_square
+    return S1_S4_value_average, S2_S4_value_average, S1_S4_value_square, S2_S4_value_square,C_S1_strength,C_S2_strength
 
 #利用传入的数据，判断卫星名称简写是否为G,如果是则获得卫星为G的TEC数据值
 def get_TEC_G(file_data_list, P1_channel, P2_channel):
@@ -269,39 +140,9 @@ def get_TEC_G(file_data_list, P1_channel, P2_channel):
     for k in range(len(file_data_list)):
         if file_data_list[k][0] == 'G':
             file_data_all = file_data_list[k].split()
-            if len(file_data_all) == 16:
-                file_data_all = file_data_all
-            else:
-                file_data_all_new = []
-                file_data_all_new.extend('0' for _ in range(int(16)-len(file_data_all)))
-                file_data_all = file_data_all + file_data_all_new
-            s_value = []
-            for w in range(len(file_data_all)):
-                if w == 3 or w == 6 or w == 9 or w == 12 or w == 15:
-                    s_value.append(file_data_all[w])
-            if P1_channel == 'C1C':
-                S1 = s_value[0]
-            elif P1_channel == 'C1w':
-                S1 = s_value[1]
-            elif P1_channel == 'C2W':
-                S1 = s_value[2]
-            elif P1_channel == 'C2L':
-                S1 = s_value[3]
-            else :
-                S1 = s_value[4]
-
-            if P2_channel == 'C1C':
-                S2 = s_value[0]
-            elif P2_channel == 'C1w':
-                S2 = s_value[1]
-            elif P2_channel == 'C2W':
-                S2 = s_value[2]
-            elif P2_channel == 'C2L':
-                S2 = s_value[3]
-            else:
-                S2 = s_value[4]
-            G_S1_strength.append(S1)
-            G_S2_strength.append(S2)
+            if P1_channel == 'C1C' and P2_channel == 'C2W':
+                G_S1_strength.append(file_data_all[-3])
+                G_S2_strength.append(file_data_all[-1])
 
     new_s1 = get_square(G_S1_strength)
     new_s2 = get_square(G_S2_strength)
@@ -316,63 +157,62 @@ def get_TEC_G(file_data_list, P1_channel, P2_channel):
     new_S2_data = get_average(S2_data)
     S1_S4_value_square = get_square(new_S1_data)
     S2_S4_value_square = get_square(new_S2_data)
-    return S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square
+    return S1_S4_value_average, S2_S4_value_average, S1_S4_value_square, S2_S4_value_square, G_S1_strength, G_S2_strength
 
 #通过传入的观测数据文件、卫星系统编号、卫星标号、频率1数据和频率2数据，获取卫星标号的时间段数据、频段1的S4平均值数据和频段2的S4平方值数据
 def read_data(file_path, params_system, PRN, P1_channel, P2_channel):
     file_time, file_data_list, all_time = [], [], []
     files = os.listdir(file_path)
-    for file in files:
-        if not os.path.isdir(file):
-            if file.split('.')[-1] == '23o':
-                file_data = open(file_path + "/" + file, 'r').read().split('END OF HEADER')[1].split('>')[1:]  # 打开文件
-                for i in range(len(file_data)):
-                    file_data_new = file_data[i].split('\n')
-                    for j in range(1, len(file_data_new) - 1):
-                        if file_data_new[j][0] == str(params_system) and file_data_new[j][1:3] == str(PRN):
-                            file_data_list.append(file_data_new[j])
-                            time = file_data_new[0].split('\n')[0][1:5] + '-' + file_data_new[0].split('\n')[0][6:8] + '-' + \
-                                   file_data_new[0].split('\n')[0][9:11] + ' ' + file_data_new[0].split('\n')[0][12:14] + ':' + \
-                                   file_data_new[0].split('\n')[0][15:17] + ':' + file_data_new[0].split('\n')[0][18:20]
-                            if time.split(':')[-1][0] == ' ':
-                                time_new = time.split(':')[-1][0].replace(' ','0')
-                                time_new1 = file_data_new[0].split('\n')[0][1:5] + '-' + file_data_new[0].split('\n')[0][6:8] + '-' + \
-                                               file_data_new[0].split('\n')[0][9:11] + ' ' + file_data_new[0].split('\n')[0][12:14] + ':' + \
-                                               file_data_new[0].split('\n')[0][15:17] + ':' +  time_new + file_data_new[0].split('\n')[0][19:20]
-                                file_time.append(time_new1)
-                            else:
-                                file_time.append(time)
+    for f in range(len(files)):
+        file = files[f]
+        # if not os.path.isdir(file):  #用于判断对象是否为一个文件
+        if file.split('.')[-1] == '23o':
+            file_data = open(file_path + "/" + file, 'r').read().split('END OF HEADER')[1].split('>')[1:]  # 打开文件
+            for i in range(len(file_data)):
+                file_data_new = file_data[i].split('\n')
+                for j in range(1, len(file_data_new) - 1):
+                    if file_data_new[j][0] == str(params_system) and file_data_new[j][1:3] == str(PRN):
+                        file_data_list.append(file_data_new[j])
+                        time = file_data_new[0].split('\n')[0][1:5] + '-' + file_data_new[0].split('\n')[0][6:8] + '-' + \
+                               file_data_new[0].split('\n')[0][9:11] + ' ' + file_data_new[0].split('\n')[0][12:14] + ':' + \
+                               file_data_new[0].split('\n')[0][15:17] + ':' + file_data_new[0].split('\n')[0][18:20]
+                        if time.split(':')[-1][0] == ' ':
+                            time_new = time.split(':')[-1][0].replace(' ','0')
+                            time_new1 = file_data_new[0].split('\n')[0][1:5] + '-' + file_data_new[0].split('\n')[0][6:8] + '-' + \
+                                           file_data_new[0].split('\n')[0][9:11] + ' ' + file_data_new[0].split('\n')[0][12:14] + ':' + \
+                                           file_data_new[0].split('\n')[0][15:17] + ':' +  time_new + file_data_new[0].split('\n')[0][19:20]
+                            file_time.append(time_new1)
+                        else:
+                            file_time.append(time)
     for h in range(len(file_time)):
         if h%60 ==0:
             all_time.append(file_time[h])
+    all_time_new = sorted(all_time)
     if params_system == 'G':
-        S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square = get_TEC_G(file_data_list, P1_channel, P2_channel)
-    elif params_system == 'C':
-        S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square  = get_TEC_C(file_data_list, P1_channel, P2_channel)
-    elif params_system == 'E':
-        S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square  = get_TEC_E(file_data_list, P1_channel, P2_channel)
-    elif params_system == 'R':
-        S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square  = get_TEC_R(file_data_list, P1_channel, P2_channel)
-    else:
-        S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square  = get_TEC_S(file_data_list, P1_channel, P2_channel)
+        S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square, S1_strength, S2_strength = get_TEC_G(file_data_list, P1_channel, P2_channel)
 
-    return all_time, S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square
+    else:
+        S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square, S1_strength,S2_strength  = get_TEC_C(file_data_list, P1_channel, P2_channel)
+
+    return all_time_new, S1_S4_value_average,S2_S4_value_average,S1_S4_value_square, S2_S4_value_square, S1_strength, S2_strength
 
 def main(file_path, params_system, PRN, P1_channel, P2_channel, stat_time, end_time):
 
-    all_time, S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square  = read_data(file_path, params_system, PRN, P1_channel, P2_channel)
+    all_time, S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square, S1_strength, S2_strength  = read_data(file_path, params_system, PRN, P1_channel, P2_channel)
     strength_value_S1 ,strength_value_S2 = get_strength(S1_S4_value_average,S2_S4_value_average,S1_S4_value_square,S2_S4_value_square)
     file_time, S1_value, S2_vaule = get_all_time(strength_value_S1, strength_value_S2, all_time, stat_time, end_time)
-    return S1_value, S2_vaule, file_time
-#
+    all_DB_S1, all_DB_S2 = get_DB(S1_strength, S2_strength,file_time)
+
+    return S1_value, S2_vaule, file_time, all_DB_S1, all_DB_S2
+
 # if __name__ == '__main__':
 #
-#     filepath = '..//data//'  #星历数据和观测数据文件路径
-#     params_system ='E' #'G','C','E','R','S',卫星名称代号V
-#     PRN = '05'      #卫星编号，01是G卫星，23是C卫星，02是E卫星，11是R卫星
-#     P1_channel = 'C1C'  # 频率通道1  #G卫星,C卫星
-#     P2_channel = 'C6C'  #频率通道#
-#     stat_time = '2023-01-01 00:10:00'
+#     filepath = '..//data_new//'  #星历数据和观测数据文件路径
+#     params_system ='C' #'G','C',卫星名称代号V
+#     PRN = '13'      #卫星编号，
+#     P1_channel = 'C2I'  # 频率通道1  #G卫星,C卫星
+#     P2_channel = 'C6I'  #频率通道#
+#     stat_time = '2023-01-01 00:00:00'
 #     end_time = '2023-01-01 00:40:00'
 
     # filepath = sys.argv[1]
@@ -383,3 +223,4 @@ def main(file_path, params_system, PRN, P1_channel, P2_channel, stat_time, end_t
     # stat_time = sys.argv[6]
     # end_time = sys.argv[7]
     # main(filepath, params_system, PRN, P1_channel, P2_channel, stat_time, end_time)
+

@@ -1,33 +1,19 @@
 package cn.piesat.sec.controller;
 
-import java.io.File;
-import java.io.Serializable;
-import java.net.Inet4Address;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
+import cn.piesat.kjyy.common.web.annotation.validator.group.AddGroup;
+import cn.piesat.kjyy.common.web.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.model.dto.SecAtmosphereDensityDTO;
 import cn.piesat.sec.model.entity.SecAtmosphereDensityDO;
 import cn.piesat.sec.model.query.SecAtmosphereDensityQuery;
-import cn.piesat.sec.service.SecAtmosphereDensityService;
 import cn.piesat.sec.model.vo.SecAtmosphereDensityVO;
-import cn.piesat.sec.utils.Connection2Sever;
+import cn.piesat.sec.service.SecAtmosphereDensityService;
 import cn.piesat.sec.utils.ExecUtil;
-import cn.piesat.sec.utils.SpringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -36,22 +22,20 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.Serializable;
+import java.net.Inet4Address;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * 大气密度预报模块
@@ -91,6 +75,9 @@ public class SecAtmosphereDensityController {
 
     @Value("${s3.bucketName}")
     private String bucketName;
+
+    @Value("${spring.profiles.active}")
+    private String env;
 
     private final SecAtmosphereDensityService secAtmosphereDensityService;
 
@@ -151,6 +138,7 @@ public class SecAtmosphereDensityController {
 
 
     @ApiOperation("大气密度曲线图")
+    @OpLog(op = BusinessType.OTHER, description = "大气密度曲线图计算")
     @PostMapping("/getDataByArithmetic")
     public JSONObject getDataByArithmetic(@RequestParam("beginTime")String beginTime,
                         @RequestParam("endTime")String endTime,
@@ -174,7 +162,7 @@ public class SecAtmosphereDensityController {
             }
             String substring = colorbar.substring(colorbar.lastIndexOf(File.separator)+1);
 
-            if (SpringUtil.isProd()){
+            if ("prod".equals(env)){
                 String path = "/CMS-SDC/OP/TS/";
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
                 String pathData = path.concat(LocalDate.now().format(formatter));
@@ -184,7 +172,7 @@ public class SecAtmosphereDensityController {
                 OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
                 jsonObject.put("colorbar",OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath));
 
-            }else if (SpringUtil.isDev()){
+            }else if ("dev".equals(env)){
                 jsonObject.put("colorbar","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg"));
             }
 
@@ -194,6 +182,7 @@ public class SecAtmosphereDensityController {
     }
 
     @ApiOperation("全球大气密度曲线图")
+    @OpLog(op = BusinessType.OTHER, description = "全球大气密度曲线图计算")
     @PostMapping("/getDataByArithmeticGlobal")
     public Map<String, String> getDataByArithmeticGlobal(@RequestParam("time")String time,
                                                 @RequestParam("height")Integer height){
@@ -215,7 +204,7 @@ public class SecAtmosphereDensityController {
 
         String mainFigure = null;
         String colorbar = null;
-        if (SpringUtil.isProd()){
+        if ("prod".equals(env)){
             String path = "/CMS-SDC/OP/TS/";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
             String pathData = path.concat(LocalDate.now().format(formatter));
@@ -229,7 +218,7 @@ public class SecAtmosphereDensityController {
             String colorbarPath = jsonStr.concat("/colorbar.jpg");
             OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
             colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
-        }else if (SpringUtil.isDev()){
+        }else if ("dev".equals(env)){
             //图片映射方式有两种：1.动态映射 2.半映射半拼串
             mainFigure = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/main_figure.jpg");
             colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlAtmosphereDensityGlobal).concat(substring).concat("/colorbar.jpg");

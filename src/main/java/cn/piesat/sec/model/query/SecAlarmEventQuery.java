@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  * @date 2022-11-08 23:02:08
  */
 @Data
-@ApiModel("太阳质子事件查询对象")
+@ApiModel("太阳警报事件查询对象")
 public class SecAlarmEventQuery {
     /**
      * 警报类型

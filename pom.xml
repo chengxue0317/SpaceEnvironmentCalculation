@@ -18,8 +18,10 @@
         <poi.version>4.1.2</poi.version>
         <log4j.version>2.17.2</log4j.version>
         <commons.io.version>2.5</commons.io.version>
-        <spring-kafka.version>2.8.9</spring-kafka.version>
+        <spring-kafka.version>2.8.2</spring-kafka.version>
         <s3.version>1.12.362</s3.version>
+        <swagger.version>2.9.2</swagger.version>
+        <springboot.version>2.6.3</springboot.version>
     </properties>
     <dependencies>
         <dependency>
@@ -30,17 +32,27 @@
         <dependency>
             <groupId>cn.piesat</groupId>
             <artifactId>kjyy-common-mybatis-plus</artifactId>
-            <version>1.0.0</version>
+            <version>1.1</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>cn.piesat</groupId>
             <artifactId>kjyy-common-swagger</artifactId>
             <version>1.0.0</version>
+        </dependency>-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swagger.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <version>${springboot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -71,6 +83,11 @@
             <version>${log4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>cn.piesat</groupId>
+            <artifactId>kjyy-common-log</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.deepoove</groupId>
             <artifactId>poi-tl</artifactId>
             <version>1.9.1</version>
@@ -83,7 +100,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
+            <version>${springboot.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -98,7 +115,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.83</version>
+            <version>1.2.72</version>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
@@ -162,18 +179,16 @@
             <artifactId>aws-sdk-java</artifactId>
             <version>2.14.26</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>net.coobird</groupId>-->
-        <!--<artifactId>thumbnailator</artifactId>-->
-        <!--<version>0.4.17</version>-->
-        <!--<scope>system</scope>-->
-        <!--<systemPath>${project.basedir}/src/main/resources/lib/thumbnailator-0.4.17.jar</systemPath>-->
-        <!--</dependency>-->
         <dependency>
             <!-- websocket -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
             <version>2.6.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.22</version>
         </dependency>
     </dependencies>
 
@@ -232,5 +247,4 @@
             <url>http://36.138.8.2:8081/repository/dlxjs-snapshot/</url>
         </snapshotRepository>
     </distributionManagement>
-
 </project>

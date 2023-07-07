@@ -1,15 +1,14 @@
 package cn.piesat.sec.model.dto;
 
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
-import lombok.Data;
-
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-
+import cn.piesat.kjyy.common.web.annotation.validator.group.UpdateGroup;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * 地磁参数数据DTO

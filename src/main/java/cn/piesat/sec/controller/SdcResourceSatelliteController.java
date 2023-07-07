@@ -20,8 +20,10 @@ import java.util.regex.Pattern;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
+import cn.piesat.kjyy.common.web.annotation.validator.group.AddGroup;
+import cn.piesat.kjyy.common.web.annotation.validator.group.UpdateGroup;
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.comm.oss.OSSInstance;
@@ -31,7 +33,6 @@ import cn.piesat.sec.model.query.SdcResourceSatelliteQuery;
 import cn.piesat.sec.model.vo.SdcResourceSatelliteVO;
 import cn.piesat.sec.service.SdcResourceSatelliteService;
 import cn.piesat.sec.utils.ExecUtil;
-import cn.piesat.sec.utils.SpringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -152,6 +153,15 @@ public class SdcResourceSatelliteController {
     @Value("${python.path.s4_satellite}")
     private String s4Satellite;
 
+    @Value("${python.data.s4_satellite}")
+    private String s4SatelliteData;
+
+    @Value("${spring.profiles.active}")
+    private String env;
+
+    @Value("${python.path.heavy_ion}")
+    private String heavyIon;
+
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
 
@@ -192,14 +202,16 @@ public class SdcResourceSatelliteController {
     }
 
     @ApiOperation("获取卫星下拉框列表")
+    @OpLog(op = BusinessType.OTHER, description = "获取卫星下拉框列表")
     @GetMapping("/getSatellites")
     public List<SdcResourceSatelliteDO> getSatellites(){
         QueryWrapper<SdcResourceSatelliteDO> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("SATELLITE_NAME").isNotNull("SATELLITE_NAME");
+        queryWrapper.select("SATELLITE_NAME").eq("SAT_TYPE",1).isNotNull("SATELLITE_NAME");
         return sdcResourceSatelliteService.list(queryWrapper);
     }
 
     @ApiOperation("全球磁场分布")
+    @OpLog(op = BusinessType.OTHER, description = "全球磁场分布计算")
     @GetMapping("/drawGlobalMagnetic")
     public Map<String, String> drawGlobalMagnetic(@RequestParam("time")String time,
                                      @RequestParam("height")Integer height){
@@ -223,7 +235,7 @@ public class SdcResourceSatelliteController {
 
         Map<String, String> map = new HashMap<>();
 
-        if (SpringUtil.isProd()){
+        if ("prod".equals(env)){
             String path = "/CMS-SDC/OP/TS/";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
             String pathData = path.concat(LocalDate.now().format(formatter));
@@ -243,7 +255,7 @@ public class SdcResourceSatelliteController {
                 map.put("bar",OSSInstance.getOSSUtil().preview(bucketName, previewPath));
             }
 
-        }else if (SpringUtil.isDev()){
+        }else if ("dev".equals(env)){
 
             if (fig != null){
                 map.put("fig","http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlMagneticGlobal).concat(fig.toString()));
@@ -259,6 +271,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("轨道磁场分布")
+    @OpLog(op = BusinessType.OTHER, description = "轨道磁场分布计算")
     @GetMapping("/drawOrbitalMagnetic")
     public JSONArray drawOrbitalMagnetic(@RequestParam("beginTime")String beginTime,
                                       @RequestParam("endTime")String endTime,
@@ -280,6 +293,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("单粒子效应评估数据")
+    @OpLog(op = BusinessType.OTHER, description = "单粒子效应评估数据计算")
     @GetMapping("/getSingleEventEffects")
     public JSONObject drawOrbitalMagnetic2(@RequestParam("beginTime")String beginTime,
                                                      @RequestParam("endTime")String endTime,
@@ -300,6 +314,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星辐射总剂量计算评估")
+    @OpLog(op = BusinessType.OTHER, description = "卫星辐射总剂量计算评估")
     @GetMapping("/getRadiationDose")
     public JSONObject getRadiationDose(@RequestParam("beginTime")String beginTime,
                                        @RequestParam("endTime")String endTime,
@@ -339,6 +354,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("全球辐射环境")
+    @OpLog(op = BusinessType.OTHER, description = "全球辐射环境计算")
     @GetMapping("/getGlobalRadiationEnv")
     public Map<String, String> getGlobalRadiationEnv(@RequestParam("time")String time,
                                                 @RequestParam("height")Integer height,
@@ -366,7 +382,7 @@ public class SdcResourceSatelliteController {
 
         String mainFigure = null;
         String colorbar = null;
-        if (SpringUtil.isProd()){
+        if ("prod".equals(env)){
             String path = "/CMS-SDC/OP/TS/";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
             String pathData = path.concat(LocalDate.now().format(formatter));
@@ -380,7 +396,7 @@ public class SdcResourceSatelliteController {
             String colorbarPath = picturePathGlobalRadiationEnv.concat(substring).concat("/colorbar.jpg");
             OSSInstance.getOSSUtil().upload(bucketName, colorbarPreviewPath, colorbarPath);
             colorbar = OSSInstance.getOSSUtil().preview(bucketName, colorbarPreviewPath);
-        }else if (SpringUtil.isDev()){
+        }else if ("dev".equals(env)){
             mainFigure = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/main_figure.jpg");
             colorbar = "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlGlobalRadiationEnv).concat(substring).concat("/colorbar.jpg");
         }
@@ -392,6 +408,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("轨道衰变效应")
+    @OpLog(op = BusinessType.OTHER, description = "轨道衰变效应计算")
     @GetMapping("/getOrbitReduction")
     public JSONObject getOrbitReduction(@RequestParam("beginTime")String beginTime,
                                                      @RequestParam("endTime")String endTime,
@@ -409,6 +426,7 @@ public class SdcResourceSatelliteController {
     }
 
     @ApiOperation("穿越南大西洋异常区")
+    @OpLog(op = BusinessType.OTHER, description = "穿越南大西洋异常区计算")
     @GetMapping("/getCrossAnomaly")
     public JSONObject getCrossAnomaly(@RequestParam(value = "s",required = false)String s,
                                       @RequestParam(value = "st",required = false)String st,
@@ -455,6 +473,7 @@ public class SdcResourceSatelliteController {
     }
 
     @ApiOperation("卫星辐射环境")
+    @OpLog(op = BusinessType.OTHER, description = "卫星辐射环境计算")
     @GetMapping("/getSatelliteRadiationEnv")
     public String getSatelliteRadiationEnv(@RequestParam(value = "dt",required = false)String dt,
                                         @RequestParam(value = "sn",required = false)String sn,
@@ -494,7 +513,7 @@ public class SdcResourceSatelliteController {
         Map<String, String> map = new HashMap<>();
         String substring = resultHandle.substring(resultHandle.lastIndexOf(File.separator)+1);
 
-        if (SpringUtil.isProd()){
+        if ("prod".equals(env)){
             String path = "/CMS-SDC/OP/TS/";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
             String pathData = path.concat(LocalDate.now().format(formatter));
@@ -503,7 +522,7 @@ public class SdcResourceSatelliteController {
             String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/satellite_radiation.png");
             OSSInstance.getOSSUtil().upload(bucketName, logPlotPreviewPath, logPlotPath);
             return OSSInstance.getOSSUtil().preview(bucketName, logPlotPreviewPath);
-        }else if (SpringUtil.isDev()){
+        }else if ("dev".equals(env)){
             return  "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/satellite_radiation.png");
         }
         return "请配置项目环境！";
@@ -511,6 +530,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星表面充电模块")
+    @OpLog(op = BusinessType.OTHER, description = "卫星表面充电模块计算")
     @GetMapping("/getSurfaceIncharging")
     public JSONObject getSurfacecharging(@RequestParam("beginTime")String beginTime,
                                          @RequestParam("endTime")String endTime,
@@ -530,6 +550,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("确定卫星时间范围")
+    @OpLog(op = BusinessType.OTHER, description = "确定卫星时间范围计算")
     @GetMapping("/getSatelliteTime")
     public JSONObject getSatelliteTime(@RequestParam("satId")String satId){
 
@@ -546,6 +567,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星轨道能谱")
+    @OpLog(op = BusinessType.OTHER, description = "卫星轨道能谱计算")
     @GetMapping("/getOrbitalSpectrum")
     public JSONObject getOrbitalSpectrum(@RequestParam("beginTime")String beginTime,
                                          @RequestParam("endTime")String endTime,
@@ -569,6 +591,7 @@ public class SdcResourceSatelliteController {
     private StaticResourceDynamicRegistryController staticResourceDynamicRegistryController;
 
     @ApiOperation("全球磁场内源场和外源场分布")
+    @OpLog(op = BusinessType.OTHER, description = "全球磁场内源场和外源场分布计算")
     @GetMapping("/drawGlobalMagneticV2")
     public Map<String,List<String>> drawGlobalMagneticV2(@RequestParam("beginTime")String beginTime,
                                      @RequestParam("endTime")String endTime,
@@ -593,7 +616,7 @@ public class SdcResourceSatelliteController {
         List<String> extPath = new ArrayList<>();
         List<String> intPath = new ArrayList<>();
 
-        if (SpringUtil.isProd()){
+        if ("prod".equals(env)){
             String path = "/CMS-SDC/OP/TS/";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
             String pathData = path.concat(LocalDate.now().format(formatter));
@@ -613,7 +636,7 @@ public class SdcResourceSatelliteController {
                 }
 
             }
-        }else if (SpringUtil.isDev()){
+        }else if ("dev".equals(env)){
             for (File file:files){
                 String picName = file.getName();
 
@@ -674,6 +697,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星深层充电模块")
+    @OpLog(op = BusinessType.OTHER, description = "卫星深层充电模块计算")
     @GetMapping("/getIncharging")
     public JSONObject getIncharging(@RequestParam("beginTime")String beginTime,
                                            @RequestParam("endTime")String endTime,
@@ -693,6 +717,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星沿轨道辐射环境")
+    @OpLog(op = BusinessType.OTHER, description = "卫星沿轨道辐射环境计算")
     @GetMapping("/getSatelliteRadiationEnvByOrbit")
     public JSONArray getSatelliteRadiationEnvByOrbit(@RequestParam(value = "name",required = false)String name,
                                                         @RequestParam(value = "start",required = false)String start,
@@ -727,6 +752,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("卫星轨道面辐射环境")
+    @OpLog(op = BusinessType.OTHER, description = "卫星轨道面辐射环境计算")
     @GetMapping("/getSatelliteRadiationEnvByOrbitPlane")
     public String getSatelliteRadiationEnvByOrbitPlane(@RequestParam(value = "name",required = false)String name,
                                                                     @RequestParam(value = "start",required = false)String start,
@@ -768,7 +794,7 @@ public class SdcResourceSatelliteController {
 
         String substring = resultHandle.substring(resultHandle.lastIndexOf(File.separator)+1);
 
-        if (SpringUtil.isProd()){
+        if ("prod".equals(env)){
             String path = "/CMS-SDC/OP/TS/";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
             String pathData = path.concat(LocalDate.now().format(formatter));
@@ -777,7 +803,7 @@ public class SdcResourceSatelliteController {
             String logPlotPath = picturePathSatelliteRadiationEnv.concat(substring).concat("/profile.png");
             OSSInstance.getOSSUtil().upload(bucketName, logPlotPreviewPath, logPlotPath);
             return OSSInstance.getOSSUtil().preview(bucketName, logPlotPreviewPath);
-        }else if (SpringUtil.isDev()){
+        }else if ("dev".equals(env)){
             return "http://".concat(hostAddress).concat(":").concat(port).concat("/sec").concat(pictureUrlSatelliteRadiationEnv).concat(substring).concat("/profile.png");
         }
 
@@ -788,6 +814,7 @@ public class SdcResourceSatelliteController {
 
 
     @ApiOperation("电波传播影响")
+    @OpLog(op = BusinessType.OTHER, description = "电波传播影响计算")
     @GetMapping("/getRadioWaveEffect")
     public JSONObject getRadioWaveEffect(@RequestParam("time")String time,
                                          @RequestParam("system")String system,
@@ -800,7 +827,7 @@ public class SdcResourceSatelliteController {
                                          @RequestParam("statTime")String statTime,
                                          @RequestParam("endTime")String endTime){
 
-        String command = "python3 "+s4Satellite+" '/export/S4_satellite/data/' '"+endTime+"' '"+forecastPeriod+"' '"+interval+"' '"+p1Channel+"' '"+p2Channel+"' '"+prn+"' '"+statTime+"' '"+system+"' '"+time+"' '"+paramsSystem+"'";
+        String command = "python3 "+s4Satellite+" '"+s4SatelliteData+"' '"+endTime+"' '"+forecastPeriod+"' '"+interval+"' '"+p1Channel+"' '"+p2Channel+"' '"+prn+"' '"+statTime+"' '"+system+"' '"+time+"' '"+paramsSystem+"'";
         log.info("执行Python命令：{}",command);
 //        String result = Connection2Sever.connectLinux(ip, portLinux, userName, password, command);
         String result = ExecUtil.execCmdWithResult(command);
@@ -811,4 +838,21 @@ public class SdcResourceSatelliteController {
     }
 
 
+    @ApiOperation("重离子预报模块")
+    @OpLog(op = BusinessType.OTHER, description = "重离子预报模块计算")
+    @GetMapping("/getHeavyIon")
+    public JSONObject getHeavyIon(@RequestParam("inclination")String inclination,
+                                    @RequestParam("perigee")String perigee,
+                                    @RequestParam("apogee")String apogee,
+                                    @RequestParam("atomicNumber")String atomicNumber){
+
+        String command = "python3 "+heavyIon+" "+inclination+" "+perigee+" "+apogee+" "+atomicNumber;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "###", "###");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
+        return jsonObject;
+
+    }
 }

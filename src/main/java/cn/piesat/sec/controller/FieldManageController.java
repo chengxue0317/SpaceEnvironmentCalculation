@@ -1,38 +1,24 @@
 package cn.piesat.sec.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup ;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
-import cn.piesat.kjyy.core.model.dto.PageBean ;
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
+import cn.piesat.kjyy.common.web.annotation.validator.group.AddGroup;
+import cn.piesat.kjyy.common.web.annotation.validator.group.UpdateGroup;
+import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.model.entity.FieldManageDO;
 import cn.piesat.sec.model.vo.FaultDiagnosisM2VO;
 import cn.piesat.sec.model.vo.PageVo;
 import cn.piesat.sec.model.vo.SearchParam;
 import cn.piesat.sec.service.FieldManageService;
-
 import cn.piesat.sec.utils.ExecUtil;
 import cn.piesat.sec.utils.POIUtils;
 import cn.piesat.sec.utils.PageUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -42,23 +28,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * 字段管理表
@@ -81,6 +64,12 @@ public class FieldManageController {
     @Value("${python.path.fault_diagnosis_m2}")
     private String faultDiagnosisM2;
 
+    @Value("${python.data.model}")
+    private String model;
+
+    @Value("${python.path.config}")
+    private String pythonConfig;
+
     @Autowired
     private final FieldManageService fieldManageService;
     @Autowired
@@ -100,6 +89,7 @@ public class FieldManageController {
      * 获取特征量
      */
     @ApiOperation("获取特征量")
+    @OpLog(op = BusinessType.OTHER, description = "获取特征量")
     @GetMapping("/getFeatureData")
     public List<FieldManageDO> getFeatureData(){
         QueryWrapper<FieldManageDO> queryWrapper = new QueryWrapper<>();
@@ -273,6 +263,7 @@ public class FieldManageController {
      * 新增字段
      */
     @ApiOperation("新增字段")
+    @OpLog(op = BusinessType.OTHER, description = "新增字段")
     @PostMapping("/addField")
     @Transactional
     public void addField(@Validated(AddGroup.class) @RequestBody FieldManageDO fieldManageDO){
@@ -319,6 +310,7 @@ public class FieldManageController {
      * 修改字段名称
      */
     @ApiOperation("修改字段名称")
+    @OpLog(op = BusinessType.OTHER, description = "修改字段名称")
     @PostMapping("/changeFieldName")
     @Transactional
     public void changeFieldName(@RequestParam("id") Long id,
@@ -350,6 +342,7 @@ public class FieldManageController {
      * 修改字段类型
      */
     @ApiOperation("修改字段类型")
+    @OpLog(op = BusinessType.OTHER, description = "修改字段类型")
     @PostMapping("/changeDataType")
     @Transactional
     public void changeDataType(@RequestParam("id") Long id,
@@ -380,6 +373,7 @@ public class FieldManageController {
      * 修改约束
      */
     @ApiOperation("修改约束")
+    @OpLog(op = BusinessType.OTHER, description = "修改约束")
     @PostMapping("/changeConstraint")
     @Transactional
     public void changeConstraint(@RequestParam("id") Long id,
@@ -414,6 +408,7 @@ public class FieldManageController {
      * 修改精度
      */
     @ApiOperation("修改精度")
+    @OpLog(op = BusinessType.OTHER, description = "修改精度")
     @PostMapping("/changePrecision")
     @Transactional
     public void changePrecision(@RequestParam("id") Long id,
@@ -446,6 +441,7 @@ public class FieldManageController {
      * 修改注释
      */
     @ApiOperation("修改注释")
+    @OpLog(op = BusinessType.OTHER, description = "修改注释")
     @PostMapping("/changeAnnotation")
     @Transactional
     public void changeAnnotation(@RequestParam("id") Long id,
@@ -475,6 +471,7 @@ public class FieldManageController {
      * 删除字段
      */
     @ApiOperation("删除字段")
+    @OpLog(op = BusinessType.OTHER, description = "删除字段")
     @PostMapping("/delField")
     @Transactional
     public void delField(@RequestParam("id") Long id,
@@ -498,6 +495,7 @@ public class FieldManageController {
      * 插入数据
      */
     @ApiOperation("插入数据")
+    @OpLog(op = BusinessType.OTHER, description = "插入数据")
     @PostMapping("/insertData")
     public void insertData(@RequestBody List<Map<String,Object>> dataList){
         String tableName = "SEC_FAULT_DIAGNOSIS";
@@ -559,6 +557,7 @@ public class FieldManageController {
      * 分页查询
      */
     @ApiOperation("分页查询")
+    @OpLog(op = BusinessType.OTHER, description = "分页查询")
     @PostMapping("/getData")
     public PageVo getData(SearchParam searchParam){
         ArrayList params = new ArrayList();
@@ -585,6 +584,7 @@ public class FieldManageController {
      * 导出模板
      */
     @ApiOperation("导出模板")
+    @OpLog(op = BusinessType.OTHER, description = "导出模板")
     @PostMapping("/exportMode")
     public void exportMode(HttpServletResponse response){
         List<Map<String, Object>> data = jdbcTemplate.queryForList("select * from SEC_FAULT_DIAGNOSIS ");
@@ -639,6 +639,7 @@ public class FieldManageController {
      * 导入数据
      */
     @ApiOperation("导入数据")
+    @OpLog(op = BusinessType.OTHER, description = "导入数据")
     @PostMapping("/importData")
     public void importData(@RequestParam("file") MultipartFile file){
         if (file != null && file.getSize() > 0) {
@@ -669,6 +670,7 @@ public class FieldManageController {
      * 删除数据
      */
     @ApiOperation("删除数据")
+    @OpLog(op = BusinessType.OTHER, description = "删除数据")
     @PostMapping("/delData")
     public void delData(@RequestBody List<Object[]> ids){
         String sql = "delete from SEC_FAULT_DIAGNOSIS where ID = ?";
@@ -678,10 +680,12 @@ public class FieldManageController {
 
 
     @ApiOperation("卫星空间环境故障诊断M1")
+    @OpLog(op = BusinessType.OTHER, description = "卫星空间环境故障诊断M1")
     @GetMapping("/faultDiagnosis")
     public String faultDiagnosis(String fields){
         String nowtime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        String command = "python3 "+faultDiagnosis+" \""+nowtime+"\" \"/export/故障诊断多参数/xw.ini\" \"SEC_FAULT_DIAGNOSIS\" \""+fields+"\" \"Error_ID\"";
+        String command = "python3 "+faultDiagnosis+" \""+nowtime+"\" \""+pythonConfig+"\" \"SEC_FAULT_DIAGNOSIS\" \""+fields+"\" \"Error_ID\""+" "+model;
+//        String command = "python3 "+faultDiagnosis+" \""+nowtime+"\" \"/export/故障诊断多参数/xw.ini\" \"SEC_FAULT_DIAGNOSIS\" \""+fields+"\" \"Error_ID\"";
         log.info("执行Python命令：{}",command);
         new Thread(new Runnable() {
             @Override
@@ -697,17 +701,19 @@ public class FieldManageController {
     }
 
     @ApiOperation("获取故障诊断M2模型路径")
+    @OpLog(op = BusinessType.OTHER, description = "获取故障诊断M2模型路径")
     @GetMapping("/getModel")
     public List<String> getModel(String type){
-        List<String> list = FileUtil.listFileNames("/export/故障诊断多参数/model/".concat(type));
+        List<String> list = FileUtil.listFileNames(model.concat("model").concat(File.separator).concat(type));
         return list;
 
     }
 
     @ApiOperation("获取故障诊断M2模型类型")
+    @OpLog(op = BusinessType.OTHER, description = "卫星空间环境故障诊断M2")
     @GetMapping("/getModelType")
     public List<String> getModelType(){
-        File[] files = FileUtil.ls("/export/故障诊断多参数/model/");
+        File[] files = FileUtil.ls(model.concat("model").concat(File.separator));
         List<String> names = new ArrayList<>();
         for (int i=0;i<files.length;i++){
             names.add(files[i].getName());
@@ -717,9 +723,10 @@ public class FieldManageController {
     }
 
     @ApiOperation("卫星空间环境故障诊断M2")
+    @OpLog(op = BusinessType.OTHER, description = "卫星空间环境故障诊断M2")
     @PostMapping("/faultDiagnosisM2")
     public String faultDiagnosisM2(@RequestBody FaultDiagnosisM2VO faultDiagnosisM2VO){
-        String modelPath = "/export/故障诊断多参数/model/".concat(faultDiagnosisM2VO.getType()).concat(File.separator).concat(faultDiagnosisM2VO.getFileName());
+        String modelPath = model.concat("model").concat(File.separator).concat(faultDiagnosisM2VO.getType()).concat(File.separator).concat(faultDiagnosisM2VO.getFileName());
         String command = "python3 "+faultDiagnosisM2+" "+modelPath+" "+Arrays.toString(faultDiagnosisM2VO.getData()).replaceAll("\\s*", "");
         log.info("执行Python命令：{}",command);
         String result = ExecUtil.execCmdWithResult(command);

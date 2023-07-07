@@ -210,14 +210,21 @@ clb.ax.set_title('[particles/(cm$^{2}$*s)]',color='white')
 clb.ax.tick_params(labelcolor = 'white')
 clb.ax.tick_params(color = 'white')
 
-#from matplotlib.ticker import FormatStrFormatter
-#import matplotlib.ticker as tick
-#clb.ax.xaxis.set_major_formatter(tick.FormatStrFormatter('%.2g'))
-if (F107>180) | (F107<=90):
-    path = filedir+'/'+dir_name
-else:
-    path = filedir_1+'/'+dir_name_1
 
+# 判断是否存在figure文件夹
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.exists(current_dir+'/figure') == False:
+    os.system('mkdir '+current_dir+'/figure')
+
+# 建立模拟结果文件夹(唯一性)
+current_dir = current_dir
+while True:
+    dir_name_fig = str(random.randint(1,99999))
+    if os.path.exists(current_dir+'/figure/'+dir_name_fig) == False:
+        os.system('mkdir '+current_dir+'/figure/'+dir_name_fig)
+        break
+
+path = current_dir+'/figure/'+dir_name_fig
 # 存colorbar图
 
 plt.savefig(path+'/test.jpg',dpi=600)
@@ -251,19 +258,11 @@ plt.savefig(path+'/main_figure.jpg',dpi=600,pad_inches=0)
 
 # 删除多余文件
 if (F107>180) | (F107<=90):
-    os.system('rm -rf '+filedir+'/'+dir_name+'/test.jpg')
-    #os.system('rm -rf '+filedir+'/'+dir_name+'/flux.txt')
-    os.system('rm -rf '+filedir+'/'+dir_name+'/libirbem.so')
-    os.system('rm -rf '+filedir+'/'+dir_name+'/ap8ae8')
-    #os.system('rm -rf '+filedir+'/'+dir_name+'/BB0LM.txt')
+    os.system('rm -rf '+filedir+'/'+dir_name)
+
 else:
-    os.system('rm -rf '+filedir_1+'/'+dir_name_1+'/test.jpg')
-    os.system('rm -rf '+filedir_1+'/'+dir_name_1+'/flux.txt')
-    os.system('rm -rf '+filedir_1+'/'+dir_name_1+'/libirbem.so')
-    os.system('rm -rf '+filedir_1+'/'+dir_name_1+'/ap8ae8')
-    #os.system('rm -rf '+filedir_1+'/'+dir_name_1+'/BB0LM.txt')
-    os.system('rm -rf -R '+filedir_2+'/'+dir_name_2)
-  
+    os.system('rm -rf '+filedir_1+'/'+dir_name_1)
+    os.system('rm -rf -R '+filedir_2+'/'+dir_name_2) 
 
 # 输出文件路径
 print('###'+path+'###')

@@ -1,29 +1,24 @@
 package cn.piesat.sec.controller;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.AddGroup;
-import cn.piesat.kjyy.common.mybatisplus.annotation.validator.group.UpdateGroup;
-import cn.piesat.kjyy.core.model.dto.PageBean;
-import cn.piesat.kjyy.core.model.vo.PageResult;
-import cn.piesat.sec.model.dto.SecParticleFluxDTO;
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.model.entity.SecParticleFluxDO;
 import cn.piesat.sec.model.query.SecParticleFluxQuery;
 import cn.piesat.sec.model.vo.HeavyIonFluxDataVO;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.service.SecParticleFluxService;
-import cn.piesat.sec.model.vo.SecParticleFluxVO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 高能粒子通量数据
@@ -40,30 +35,39 @@ public class SecParticleFluxController {
 
     private final SecParticleFluxService secParticleFluxService;
 
-    @ApiOperation("查询一段时间内的质子通量数据")
-    @PostMapping("/getProtonFluxData")
+    @ApiOperation("质子通量数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
+    })
+    @OpLog(op = BusinessType.OTHER, description = "质子通量数据")
+    @PostMapping("/protonFluxData")
     public SecEnvElementVO getProtonIndexData(@RequestParam(value = "startTime", required = false) String startTime,
-                                              @RequestParam(value = "endTime", required = false) String endTime,
-                                              @RequestParam(value = "satId", required = false) String satId) {
-        return secParticleFluxService.getProtonFluxData(startTime, endTime, satId);
+                                              @RequestParam(value = "endTime", required = false) String endTime) {
+        return secParticleFluxService.getProtonFluxData(startTime, endTime);
     }
 
-    @ApiOperation("查询一段时间内的电子通量数据")
-    @PostMapping("/getElectronicFluxData")
+    @ApiOperation("电子通量数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
+    })
+    @OpLog(op = BusinessType.OTHER, description = "电子通量数据")
+    @PostMapping("/electronicFluxData")
     public SecEnvElementVO getElectronicFluxData(@RequestParam(value = "startTime", required = false) String startTime,
-                                                 @RequestParam(value = "endTime", required = false) String endTime,
-                                                 @RequestParam(value = "satId", required = false) String satId) {
-        return secParticleFluxService.getElectronicFluxData(startTime, endTime, satId);
+                                                 @RequestParam(value = "endTime", required = false) String endTime) {
+        return secParticleFluxService.getElectronicFluxData(startTime, endTime);
     }
 
     @ApiOperation("查询一段时间内的重离子通量数据")
+    @OpLog(op = BusinessType.OTHER, description = "查询一段时间内的重离子通量数据")
     @PostMapping("/getHeavyIonFluxData")
     public HeavyIonFluxDataVO getHeavyIonFluxData(@RequestBody(required = false) SecParticleFluxQuery secParticleFluxQuery) {
         QueryWrapper<SecParticleFluxDO> queryWrapper = new QueryWrapper<>();
         String satId = secParticleFluxQuery.getSatId();
-        queryWrapper.select("He","Li","C","Mg","Ar","Fe","TIME")
-                .eq(StringUtils.isNotBlank(satId),"SAT_ID", satId)
-                .between("TIME",secParticleFluxQuery.getTimeBetween().getLeft(),secParticleFluxQuery.getTimeBetween().getRight());
+        queryWrapper.select("He", "Li", "C", "Mg", "Ar", "Fe", "TIME")
+                .eq(StringUtils.isNotBlank(satId), "SAT_ID", satId)
+                .between("TIME", secParticleFluxQuery.getTimeBetween().getLeft(), secParticleFluxQuery.getTimeBetween().getRight());
         List<SecParticleFluxDO> list = secParticleFluxService.list(queryWrapper);
         HeavyIonFluxDataVO heavyIonFluxDataVO = new HeavyIonFluxDataVO();
         List<Double> he = new ArrayList<>();
@@ -73,7 +77,7 @@ public class SecParticleFluxController {
         List<Double> ar = new ArrayList<>();
         List<Double> fe = new ArrayList<>();
         List<LocalDateTime> time = new ArrayList<>();
-        list.forEach(e->{
+        list.forEach(e -> {
             time.add(e.getTime());
             he.add(e.getHe());
             li.add(e.getLi());
@@ -90,41 +94,5 @@ public class SecParticleFluxController {
         heavyIonFluxDataVO.setAr(ar);
         heavyIonFluxDataVO.setFe(fe);
         return heavyIonFluxDataVO;
-    }
-
-    @ApiOperation("分页查询")
-    @PostMapping("/list")
-    public PageResult list(PageBean pageBean, @RequestBody(required = false) SecParticleFluxQuery secParticleFluxQuery){
-        return secParticleFluxService.list(pageBean,secParticleFluxQuery);
-    }
-
-    @ApiOperation("根据id查询")
-    @GetMapping("/info/{id}")
-    public SecParticleFluxVO info(@PathVariable("id") Serializable id){
-        return secParticleFluxService.info(id);
-    }
-
-    @ApiOperation("保存信息")
-    @PostMapping("/save")
-    public Boolean save(@Validated(AddGroup.class) @RequestBody SecParticleFluxDTO secParticleFluxDTO){
-        return secParticleFluxService.save(secParticleFluxDTO);
-    }
-
-    @ApiOperation("修改信息")
-    @PutMapping("/update")
-    public Boolean update(@Validated(UpdateGroup.class) @RequestBody SecParticleFluxDTO secParticleFluxDTO){
-        return secParticleFluxService.update(secParticleFluxDTO);
-    }
-
-    @ApiOperation("批量删除信息")
-    @DeleteMapping("/delete")
-    public Boolean delete(@RequestBody Serializable[] ids){
-        return secParticleFluxService.delete(Arrays.asList(ids));
-    }
-
-    @ApiOperation("根据id删除信息")
-    @DeleteMapping("/delete/{id}")
-    public Boolean delete(@PathVariable Serializable id){
-        return secParticleFluxService.delete(id);
     }
 }

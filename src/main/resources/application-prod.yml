@@ -10,7 +10,7 @@ spring:
       matching-strategy: ANT_PATH_MATCHER
   datasource:
     driverClassName: dm.jdbc.driver.DmDriver
-    url: jdbc:dm://dm-00be70edf4aa439f-inner.zone-01.yxregion01.cecloudcs.com:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:dm://dm-9b82f6799ac74181-inner.zone-01.cqxw2q.cqxw2cloud.com:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: SDC
     password: sdc123456
   jackson:
@@ -19,7 +19,8 @@ spring:
   kafka:
     ###########【Kafka集群】###########
     # 集群用逗号隔开
-    bootstrap-servers: 172.20.27.17:9094,172.20.27.18:9094,172.20.27.19:9094
+    #    bootstrap-servers: 36.131.1.66:19093,36.131.1.66:29093,36.131.1.66:39093
+    bootstrap-servers: 36.138.2.28:19093,36.138.2.28:29093,36.138.2.28:39093
     ###########【初始化生产者配置】###########
     producer:
       # 重试次数,设置大于0的值，则客户端会将发送失败的记录重新发送
@@ -36,7 +37,8 @@ spring:
       properties:
         sasl.mechanism: PLAIN
         security.protocol: SASL_PLAINTEXT
-        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="cmq-kafka-333zeuydby" password="laLaroCJXl";
+        #        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="cmq-access-point-pp8jhna0ox" password="3yjYNdFjgy";
+        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="cmq-access-point-36dqgwi4bm" password="PPgDfSRYhq";
     ###########【初始化消费者配置】###########
     consumer:
       # 提交offset延时(接收到消息后多久提交offset)
@@ -54,7 +56,8 @@ spring:
       properties:
         sasl.mechanism: PLAIN
         security.protocol: SASL_PLAINTEXT
-        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="cmq-kafka-333zeuydby" password="laLaroCJXl";
+        #        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="cmq-access-point-pp8jhna0ox" password="3yjYNdFjgy";
+        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="cmq-access-point-36dqgwi4bm" password="PPgDfSRYhq";
       # 默认的消费组ID
       group-id: cms-sec-kf-consumer
       # 批量消费每次最多消费多少条消息
@@ -65,35 +68,39 @@ spring:
 
 python:
   path:
-    config: /tmp/lizw/chaos_submit/xw.ini
-    magnetic_global: /tmp/lizw/chaos_submit/magnetic_global_V1.py   #全球磁场分布算法
-    orbital_magnetic: /tmp/lizw/chaos_submit/magnetic_orbit.py   #轨道磁场分布算法
-    atmosphere_density: /tmp/yuechao/atm_density/msis_simu.py  #大气密度算法
-    single_event_effects: /tmp/yuechao/单粒子效应/seu/Single_events/seu_cal.py  #单粒子效应
-    radiation_dose: /tmp/yuechao/辐射剂量/does_depth/does.py   #卫星辐射总剂量计算评估
-    global_radiation_env: /tmp/yuechao/辐射环境/SRAD/global_radiation/global_radiation.py   #全球辐射环境算法
-    orbit_reduction: /tmp/yuechao/轨道衰变效应/orbit_reduction/orbit_reduction.py   #轨道衰变效应算法
-    satellite_radiation_env: /tmp/wrry/pythonPlot/satellit_radiation_plot.py   #卫星辐射环境算法
-    cross_anomaly: /tmp/wrry/AP8AE8/SatCrossSAATime/sat_cross_SAA_time.py   #穿越南大西洋异常区算法
-    surface_incharging: /export/yuechao_cal/surface_charging/surface_incharging.py   #卫星表面充电模块算法
-    satellite_time: /export/yuechao_cal/SAT_ID_TIME_SPAN.py   #确定卫星时间范围算法
-    orbital_spectrum: /export/yuechao_cal/sat_flux_spectrum/sat_spectrum/sp.py   #卫星轨道能谱算法
-    fault_diagnosis: /export/故障诊断多参数/M01_Model_Creation_release_V1.0.py   #故障诊断算法M1
-    fault_diagnosis_m2: /export/故障诊断多参数/M02_Model_Prediction_V1.0.py   #故障诊断算法M2
-    magnetic_global_v2: /export/chaos_submit/magnetic_global_V2.py   #全球磁场内源场和外源场分布算法
-    atmosphere_density_global: /export/yuechao_cal/atm_density/msis_simu_global.py  #全球大气密度算法
-    in_charging: /export/yuechao_cal/in_charging/in_charging/in_charging.py   #卫星深层充电模块算法
-    satellite_radiation_env_orbit: /export/SEC/AP8AE8/satOrbitRad/sat_orbit_rad.py   #卫星沿轨道辐射环境算法
-    satellite_radiation_env_orbit_plane: /export/SEC/pythonPlot/orbital_plane_plot.py   #卫星轨道面辐射环境算法
-    s4_satellite: /export/S4_satellite/code/S4_new.py   #电波传播影响算法
+    config: /DLXJS_DB.ini
+    magnetic_global: /CMS-SDC-SEC/chaos_simulation/magnetic_global_V1.py   #全球磁场分布算法
+    orbital_magnetic: /CMS-SDC-SEC/chaos_simulation/magnetic_orbit.py   #轨道磁场分布算法
+    atmosphere_density: /CMS-SDC-SEC/atm_density/msis_simu.py  #大气密度算法
+    single_event_effects: /CMS-SDC-SEC/sat_single_events/seu_cal.py  #单粒子效应
+    radiation_dose: /CMS-SDC-SEC/does_depth/SRAD/does_depth/does.py   #卫星辐射总剂量计算评估
+    global_radiation_env: /CMS-SDC-SEC/particles_radiation_global/global_radiation/global_radiation.py   #全球辐射环境算法
+    orbit_reduction: /CMS-SDC-SEC/orbit_reduction/orbit_reduction.py   #轨道衰变效应算法
+    satellite_radiation_env: /CMS-SDC-SEC/SEC/pythonPlot/satellit_radiation_plot.py   #卫星辐射环境算法
+    cross_anomaly: /CMS-SDC-SEC/SEC/AP8AE8/SatCrossSAATime/sat_cross_SAA_time.py   #穿越南大西洋异常区算法
+    surface_charging: /CMS-SDC-SEC/sat_surface_charging/surface_charging.py   #卫星表面充电模块算法
+    satellite_time: /CMS-SDC-SEC/sat_id_time_span/SAT_ID_TIME_SPAN.py   #确定卫星时间范围算法
+    orbital_spectrum: /CMS-SDC-SEC/sat_flux_spectrum/sat_spectrum/sp.py   #卫星轨道能谱算法
+    fault_diagnosis: /CMS-SDC-SEC/fault_diagnosis_parameter/M01_Model_Creation_release_V1.0.py   #故障诊断算法M1
+    fault_diagnosis_m2: /CMS-SDC-SEC/fault_diagnosis_parameter/M02_Model_Prediction_V1.0.py   #故障诊断算法M2
+    magnetic_global_v2: /CMS-SDC-SEC/chaos_simulation/magnetic_global_V2.py   #全球磁场内源场和外源场分布算法
+    atmosphere_density_global: /CMS-SDC-SEC/atm_density/msis_simu_global.py  #全球大气密度算法
+    in_charging: /CMS-SDC-SEC/sat_in_charging/in_charging/in_charging.py   #卫星深层充电模块算法
+    satellite_radiation_env_orbit: /CMS-SDC-SEC/SEC/AP8AE8/satOrbitRad/sat_orbit_rad.py   #卫星沿轨道辐射环境算法
+    satellite_radiation_env_orbit_plane: /CMS-SDC-SEC/SEC/pythonPlot/orbital_plane_plot.py   #卫星轨道面辐射环境算法
+    s4_satellite: /CMS-SDC-SEC/s4_satellite/code/S4_new.py   #电波传播影响算法
+    heavy_ion: /export/yuechao_cal/heavy_ion/zlz.py    #重离子预报模块
+  data:
+    s4_satellite: /CMS-SDC-SEC/S4_satellite/data/
+    model: /CMS-SDC-SEC/fault_diagnosis_parameter/
 
 picture:
   path:
-    magnetic_global: /export/magnetic_global/     #全球磁场分布图片存储路径
-    global_radiation_env: /tmp/yuechao/辐射环境/SRAD/AP8AE8/     #全球辐射环境图片存储路径
-    satellite_radiation_env: /tmp/wrry/AP8AE8/     #全球辐射环境图片存储路径
-    magnetic_global_v2: /export/magnetic_global/v2/     #全球磁场内源场和外源场分布图片存储路径
-    atmosphere_density_global: /export/yuechao_cal/atm_density/  #全球大气密度图片存储路径
+    magnetic_global: /CMS-SDC-SEC/magnetic_global/     #全球磁场分布图片存储路径
+    global_radiation_env: /CMS-SDC-SEC/particles_radiation_global/global_radiation/figure/     #全球辐射环境图片存储路径
+    satellite_radiation_env: /CMS-SDC-SEC/SEC/AP8AE8/plots/     #全球辐射环境图片存储路径
+    magnetic_global_v2: /CMS-SDC-SEC/magnetic_global/v2/     #全球磁场内源场和外源场分布图片存储路径
+    atmosphere_density_global: /CMS-SDC-SEC/atm_density/figure/  #全球大气密度图片存储路径
   url:
     magnetic_global: /png/magnetic_global/             #全球磁场分布图片映射路径
     global_radiation_env: /png/global_radiation_env/             #全球辐射环境图片映射路径
@@ -110,36 +117,47 @@ remote:
 
 #配置文件路径
 piesat:
-  profile: /CMS-SDC/
-  weekPngPy: algorithm/weekpng/analyse_t.py #周报算法图
-  weekPngIni: algorithm/weekpng/xw.ini #周报算法数据库配置
-  tecChinaPy: algorithm/TEC/iri_tecChina.py # 全国站点二维算法脚本
+  profile: /CMS-SDC-SEC/
+  weekPngPy: weekpng/analyse_t.py #周报算法图
+  weekPngIni: /DLXJS_DB.ini #周报算法数据库配置
+  tecChinaPy: TEC/China_TEC/iri_tecChina.py # 全国站点二维算法脚本
   tecChina: TEC/china/ #TEC全国站点出图位置
-  tecGlobalPy: algorithm/TEC/iri_tecGlobal.py #TEC全球站点三维算法脚本
+  tecGlobalPy: TEC/Global_TEC/iri_tecGlobal.py #TEC全球站点三维算法脚本
   tecGlobal: TEC/global/ #TEC全国站点出图位置
-  rotiGlobalPy: algorithm/ROTI/roti/code/satellite.py #ROTI算法脚本
+  rotiGlobalPy: ROTI/roti/code/satellite.py #ROTI算法脚本
   rotiPics: ROTI/china/ #ROTI算法结果存储位置
-  rotiSatelliteData: algorithm/ROTI/roti/Satellite_data/
-  rotiEphemerisData: algorithm/ROTI/roti/Ephemeris_data/
-  s4FlickerIndexPy: algorithm/S4/code/satellite.py # S4闪烁指数算法脚本
-  s4DataPath: algorithm/S4/data/ #闪烁指数数据所在位置
-  s4PicPath: s4/area/ # 闪烁区域分布图
+  rotiSatelliteData: ROTI/roti/Satellite_data/
+  rotiEphemerisData: ROTI/roti/Ephemeris_data/
+  s4FlickerIndexPy: S4/code/satellite.py # S4闪烁指数算法脚本
+  s4DataPath: S4/data/ #闪烁指数数据所在位置
 
 oss:
   type: s3
 
 minio:
-  endpoint: http://oss-yxregion01-internal.cecloudcs.com
-  accesskey: oUNRZbuqcMgy6RVvnmwJ
-  secretkey: p7WdXXNaGUuqzNAr0BITRzKoXQVjJVr1un0q7gAf
+  #  临时地址
+  #  endpoint: http://172.6.10.34:9000
+  #  accesskey: minioadmin
+  #  secretkey: miniostorage
+  #  bucketName: htht
+  #  中国电子云2内网地址
+  endpoint: http://oss-cqxw2q-internal.cqxw2cloud.com
+  accesskey: 8wKxDQBwX9I7RjGHxNBS
+  secretkey: QxyzkkaeGN7hfrRoYEBV2YrLyTZYCVvukygzPt7a
   bucketName: xzgl
+#  中国电子云2外网地址
+#  endpoint: http://oss-cecstack.cqxw2q.cq2zone.xwcloud.com
+#  accesskey: 8wKxDQBwX9I7RjGHxNBS
+#  secretkey: QxyzkkaeGN7hfrRoYEBV2YrLyTZYCVvukygzPt7a
+#  bucketName: xzgl
 
 s3:
-  endpoint: http://oss-yxregion01-internal.cecloudcs.com
-  accesskey: oUNRZbuqcMgy6RVvnmwJ
-  secretkey: p7WdXXNaGUuqzNAr0BITRzKoXQVjJVr1un0q7gAf
+  endpoint: http://oss-cqxw2q-internal.cqxw2cloud.com
+  accesskey: 8wKxDQBwX9I7RjGHxNBS
+  secretkey: QxyzkkaeGN7hfrRoYEBV2YrLyTZYCVvukygzPt7a
   bucketName: xzgl
 
 logging:
+  config: classpath:logback.xml
   level:
     cn.piesat.sec: warn

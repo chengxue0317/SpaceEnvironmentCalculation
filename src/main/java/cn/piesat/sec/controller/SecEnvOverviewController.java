@@ -1,11 +1,15 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.kjyy.common.log.annotation.OpLog;
+import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.comm.oss.OSSInstance;
 import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.model.vo.SecEnvOverviewVO;
 import cn.piesat.sec.service.SecEnvOverviewService;
 import cn.piesat.sec.service.SecReportService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +29,7 @@ import java.util.Locale;
  * @author wuyazhou
  * @date 2022-11-10
  */
-@Api(tags = "警报事件")
+@Api(tags = "空间环境预报")
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/secenvoverview")
@@ -43,7 +47,8 @@ public class SecEnvOverviewController {
     @Value("${s3.bucketName}")
     private String bucketName;
 
-    @ApiOperation("查询一段时间内的F10.7数据")
+    @ApiOperation("空间环境预报数据")
+    @OpLog(op = BusinessType.OTHER, description = "空间环境预报数据")
     @PostMapping("/getEnvOverview")
     public List<SecEnvOverviewVO> getEnvOverview() {
         return secEnvOverviewService.getEnvOverview();
@@ -55,6 +60,11 @@ public class SecEnvOverviewController {
      * @return 文件下载的url
      */
     @ApiOperation("环境预报报文下载")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "type", value = "文件类型day/week/month", dataType = "String", required = false),
+            @ApiImplicitParam(name = "path", value = "文件路径", dataType = "String", required = false)
+    })
+    @OpLog(op = BusinessType.OTHER, description = "环境预报报文下载")
     @PostMapping(value = "/downFile")
     public synchronized void downFile(
             @RequestParam(value = "type", required = false) String type,

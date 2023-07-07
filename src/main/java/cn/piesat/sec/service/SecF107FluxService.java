@@ -29,54 +29,5 @@ public interface SecF107FluxService extends IService<SecF107FluxDO> {
      * @return F10.7指数数据
      */
     SecEnvElementVO getF107Data(String startTime, String endTime);
-
-    /**
-     * 分页查询
-     *
-     * @param pageBean {@link PageBean} 分页对象
-     * @param secF107FluxQuery {@link SecF107FluxQuery} 太阳F10.7指数查询对象
-     * @return {@link PageResult} 查询结果
-    */
-    PageResult list(PageBean pageBean, SecF107FluxQuery secF107FluxQuery);
-
-    /**
-     * 根据id查询
-     *
-     * @param id id
-     * @return {@link SecF107FluxVO}
-    */
-    SecF107FluxVO info(Serializable id);
-
-    /**
-     * 新增
-     *
-     * @param secF107FluxDTO {@link SecF107FluxDTO} 太阳F10.7指数DTO
-     * @return false or true
-    */
-    Boolean save(SecF107FluxDTO secF107FluxDTO);
-
-    /**
-     * 修改
-     *
-     * @param secF107FluxDTO {@link SecF107FluxDTO} 太阳F10.7指数DTO
-     * @return false or true
-     */
-    Boolean update(SecF107FluxDTO secF107FluxDTO);
-
-    /**
-     * 批量删除
-     *
-     * @param ids id集合
-     * @return false or true
-    */
-    Boolean delete(List<Serializable> ids);
-
-    /**
-     * 根据id删除
-     *
-     * @param id id
-     * @return false or true
-    */
-    Boolean delete(Serializable id);
 }
 

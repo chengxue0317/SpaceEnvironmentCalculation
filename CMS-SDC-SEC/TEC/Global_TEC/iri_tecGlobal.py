@@ -104,8 +104,7 @@ def Connect_SQL(iniPath):
         password=sql_cfg['password'],
         server=sql_cfg['server'],
         port=sql_cfg['port'])
-    cursor = conn.cursor()
-    return cursor,conn
+    return conn
 
 
 #主函数
@@ -117,6 +116,7 @@ def main(altkm, startTime, endTime,figure_save_path):
     get_el(all_f107_time_new, all_f107_data, all_ap_data, altkm,figure_save_path)
     end = time.time()
     print('Running time: %s Seconds' % (end - start))
+
 if __name__ == '__main__':
 
     # altkm = 500

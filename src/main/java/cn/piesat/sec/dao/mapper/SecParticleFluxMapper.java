@@ -25,8 +25,7 @@ public interface SecParticleFluxMapper extends BaseMapper<SecParticleFluxDO> {
      * @throws Exception
      */
     List<SecParticleFluxDO> getProtonFluxData(@Param("startTime") String startTime,
-        @Param("endTime") String endTime,
-        @Param("satId") String satId) throws Exception;
+                                              @Param("endTime") String endTime) throws Exception;
 
     /**
      * 获取电子通量数据
@@ -37,7 +36,6 @@ public interface SecParticleFluxMapper extends BaseMapper<SecParticleFluxDO> {
      * @throws Exception
      */
     List<SecParticleFluxDO> getElectronicFluxData(@Param("startTime") String startTime,
-        @Param("endTime") String endTime,
-        @Param("satId") String satId) throws Exception;
+                                                  @Param("endTime") String endTime) throws Exception;
 
 }

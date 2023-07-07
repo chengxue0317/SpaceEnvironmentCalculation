@@ -1,29 +1,16 @@
 package cn.piesat.sec.service.impl;
 
-import cn.piesat.kjyy.common.mybatisplus.utils.ConditionBuilder;
-import cn.piesat.kjyy.common.mybatisplus.utils.Query;
-import cn.piesat.kjyy.core.model.dto.PageBean;
-import cn.piesat.kjyy.core.model.vo.PageResult;
-import cn.piesat.kjyy.core.utils.CopyBean;
 import cn.piesat.sec.dao.mapper.SecBxyzMapper;
-import cn.piesat.sec.model.dto.SecBxyzDTO;
 import cn.piesat.sec.model.entity.SecBxyzDO;
-import cn.piesat.sec.model.query.SecMagneticParamterQuery;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
-import cn.piesat.sec.model.vo.SecMagneticParamterVO;
 import cn.piesat.sec.service.SecBxyzService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -71,45 +58,5 @@ public class SecBxyzServiceImpl extends ServiceImpl<SecBxyzMapper, SecBxyzDO> im
             logger.error(String.format(Locale.ROOT, "-------Get magnetic parameter anomaly %s", e.getMessage()));
         }
         return eeb;
-    }
-
-    @Override
-    public PageResult list(PageBean pageBean, SecMagneticParamterQuery secMagneticParamterQuery) {
-        QueryWrapper<SecBxyzDO> wrapper = null;
-        if (ObjectUtils.isEmpty(secMagneticParamterQuery)) {
-            wrapper = new QueryWrapper<>();
-        } else {
-            wrapper = ConditionBuilder.build(secMagneticParamterQuery);
-        }
-        IPage<SecBxyzDO> page = this.page(Query.getPage(pageBean), wrapper);
-        return new PageResult(page.getTotal(), CopyBean.copy(page.getRecords(), SecMagneticParamterVO::new));
-    }
-
-    @Override
-    public SecMagneticParamterVO info(Serializable id) {
-        SecBxyzDO secBxyzDO = getById(id);
-        return CopyBean.copy(secBxyzDO,SecMagneticParamterVO::new);
-    }
-    @Override
-    public Boolean save(SecBxyzDTO secMagneticParamterDTO) {
-        SecBxyzDO secBxyzDO = CopyBean.copy(secMagneticParamterDTO, SecBxyzDO::new);
-        return save(secBxyzDO);
-    }
-
-    @Override
-    public Boolean update(SecBxyzDTO secMagneticParamterDTO) {
-        SecBxyzDO secBxyzDO = this.getById(secMagneticParamterDTO.getId());
-        BeanUtils.copyProperties(secMagneticParamterDTO, secBxyzDO);
-        return updateById(secBxyzDO);
-    }
-
-    @Override
-    public Boolean delete(List<Serializable> ids) {
-        return removeBatchByIds(ids);
-    }
-
-    @Override
-    public Boolean delete(Serializable id) {
-        return removeById(id);
     }
 }

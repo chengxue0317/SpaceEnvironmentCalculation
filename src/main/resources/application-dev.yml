@@ -10,10 +10,10 @@ spring:
       matching-strategy: ANT_PATH_MATCHER
   datasource:
     driverClassName: dm.jdbc.driver.DmDriver
-#    url: jdbc:dm://219.145.62.54:15236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:dm://219.145.62.54:15236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
 #    url: jdbc:dm://127.0.0.1:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
 #    url: jdbc:dm://192.168.8.9:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
-    url: jdbc:dm://192.168.31.218:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+#    url: jdbc:dm://192.168.31.218:5236/SDC?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: SDC
     password: sdc123456
   jackson:
@@ -71,7 +71,7 @@ python:
     orbit_reduction: /export/yuechao_cal/orbit_reduction/orbit_reduction.py   #轨道衰变效应算法
     satellite_radiation_env: /export/SEC/pythonPlot/satellit_radiation_plot.py   #卫星辐射环境算法
     cross_anomaly: /export/SEC/AP8AE8/SatCrossSAATime/sat_cross_SAA_time.py   #穿越南大西洋异常区算法
-    surface_incharging: /export/yuechao_cal/surface_charging/surface_incharging.py   #卫星表面充电模块算法
+    surface_charging: /export/yuechao_cal/surface_charging/surface_incharging.py   #卫星表面充电模块算法
     satellite_time: /export/yuechao_cal/SAT_ID_TIME_SPAN.py   #确定卫星时间范围算法
     orbital_spectrum: /export/yuechao_cal/sat_flux_spectrum/sat_spectrum/sp.py   #卫星轨道能谱算法
     fault_diagnosis: /export/故障诊断多参数/M01_Model_Creation_release_V1.0.py   #故障诊断算法M1
@@ -82,14 +82,18 @@ python:
     satellite_radiation_env_orbit: /export/SEC/AP8AE8/satOrbitRad/sat_orbit_rad.py   #卫星沿轨道辐射环境算法
     satellite_radiation_env_orbit_plane: /export/SEC/pythonPlot/orbital_plane_plot.py   #卫星轨道面辐射环境算法
     s4_satellite: /export/S4_satellite/code/S4_new.py   #电波传播影响算法
+    heavy_ion: /export/yuechao_cal/heavy_ion/zlz.py    #重离子预报模块
+  data:
+    s4_satellite: /export/S4_satellite/data/
+    model: /export/故障诊断多参数/
 
 picture:
   path:
     magnetic_global: /export/magnetic_global/     #全球磁场分布图片存储路径
-    global_radiation_env: /export/yuechao_cal/SRAD/AP8AE8/     #全球辐射环境图片存储路径
-    satellite_radiation_env: /export/SEC/AP8AE8/     #全球辐射环境图片存储路径
+    global_radiation_env: /export/yuechao_cal/SRAD/global_radiation/figure/     #全球辐射环境图片存储路径
+    satellite_radiation_env: /export/SEC/AP8AE8/plots/     #全球辐射环境图片存储路径
     magnetic_global_v2: /export/magnetic_global/v2/     #全球磁场内源场和外源场分布图片存储路径
-    atmosphere_density_global: /export/yuechao_cal/atm_density/  #全球大气密度图片存储路径
+    atmosphere_density_global: /export/yuechao_cal/atm_density/figure/  #全球大气密度图片存储路径
   url:
     magnetic_global: /png/magnetic_global/             #全球磁场分布图片映射路径
     global_radiation_env: /png/global_radiation_env/             #全球辐射环境图片映射路径
@@ -106,20 +110,19 @@ remote:
 
 #配置文件路径
 piesat:
-  profile: /CMS-SDC/
-  weekPngPy: algorithm/weekpng/analyse_t.py #周报算法图
-  weekPngIni: algorithm/weekpng/xw.ini #周报算法数据库配置
-  tecChinaPy: algorithm/TEC/iri_tecChina.py # 全国站点二维算法脚本
+  profile: /CMS-SDC-SEC/
+  weekPngPy: weekpng/analyse_t.py #周报算法图
+  weekPngIni: /DLXJS_DB.ini #周报算法数据库配置
+  tecChinaPy: TEC/China_TEC/iri_tecChina.py # 全国站点二维算法脚本
   tecChina: TEC/china/ #TEC全国站点出图位置
-  tecGlobalPy: algorithm/TEC/iri_tecGlobal.py #TEC全球站点三维算法脚本
+  tecGlobalPy: TEC/Global_TEC/iri_tecGlobal.py #TEC全球站点三维算法脚本
   tecGlobal: TEC/global/ #TEC全国站点出图位置
-  rotiGlobalPy: algorithm/ROTI/roti/code/satellite.py #ROTI算法脚本
+  rotiGlobalPy: ROTI/roti/code/satellite.py #ROTI算法脚本
   rotiPics: ROTI/china/ #ROTI算法结果存储位置
-  rotiSatelliteData: algorithm/ROTI/roti/Satellite_data/
-  rotiEphemerisData: algorithm/ROTI/roti/Ephemeris_data/
-  s4FlickerIndexPy: algorithm/S4/code/satellite.py # S4闪烁指数算法脚本
-  s4DataPath: algorithm/S4/data/ #闪烁指数数据所在位置
-  s4PicPath: s4/area/ # 闪烁区域分布图
+  rotiSatelliteData: ROTI/roti/Satellite_data/
+  rotiEphemerisData: ROTI/roti/Ephemeris_data/
+  s4FlickerIndexPy: S4/code/satellite.py # S4闪烁指数算法脚本
+  s4DataPath: S4/data/ #闪烁指数数据所在位置
 
 oss:
   type: s3
@@ -136,15 +139,8 @@ s3:
   secretkey: minioadmin
   bucketName: dlxjs
 
-thread:
-  param:
-    corePoolSize: 8
-    maxPoolSize: 16
-    keepAliveSeconds: 60
-    queueCapacity: 160
-    allowCoreThreadTimeout: false
-
 logging:
+  config: classpath:logback.xml
   level:
     cn.piesat.sec: debug
 

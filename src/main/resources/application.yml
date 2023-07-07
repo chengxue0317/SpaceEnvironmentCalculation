@@ -4,7 +4,8 @@ server:
 spring:
   profiles:
     active: dev
-
+  main:
+    allow-bean-definition-overriding: true
 mybatis-plus:
   mapperLocations: classpath:mapper/**/*.xml
   global-config:

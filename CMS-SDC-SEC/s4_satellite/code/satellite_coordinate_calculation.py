@@ -18,7 +18,7 @@ class ephemeris_data_analysis(object):
     def param_analysis(self):
         tm = self.params['time']
         time = datetime.datetime.strptime(tm, "%Y-%m-%d %H:%M:%S")
-        self.tms_utc = time.astimezone(utc).strftime('%Y%m%d%H%M%S')
+        self.tms_utc = (time-datetime.timedelta(hours=8)).strftime('%Y%m%d%H%M%S')
         self.sat_num = self.params['system'] + ' ' +self.params['PRN']
         self.interval = float(self.params['interval'])
         self.forecast_period = float(self.params['Forecast Period'])
@@ -326,20 +326,20 @@ class ephemeris_data_analysis(object):
         # 地心地固坐标系坐标（X、Y、Z）， 单位：米，大地坐标（经度、纬度、高度），星地几何距离单位：米
         info = self.params_cac(bro_list)
         return info
-#         print('卫星地心地固系坐标', info[0])
-#         print('星下点坐标', info[1])
-#         print('接收站地心地固系坐标', info[2])
-#         print('接收站大地坐标系坐标', info[3])
-#         print('星地几何距离', info[4])
-#         print('接收站站心坐标', info[5])
-#         print('天顶距', info[6])
-#
+        # print('卫星地心地固系坐标', info[0])
+        # print('星下点坐标', info[1])
+        # print('接收站地心地固系坐标', info[2])
+        # print('接收站大地坐标系坐标', info[3])
+        # print('星地几何距离', info[4])
+        # print('接收站站心坐标', info[5])
+        # print('天顶距', info[6])
+
 # if __name__ == '__main__':
-#     params = {'time':'2023-01-01 8:00:00', 'system': 'GLONASS', 'PRN': '11', 'interval': '600', 'Forecast Period': '10800',  # 时间为北京时
-#               'station_name':'ABMF', 'MR':'00', 'obs_country':'GLP', 'obs_source':'S', 'obs_interval_mimute':'15M', 'obs_interval_second':'01S', 'obs_type':'MO',  # 地面观测站文件标识
+#     params = {'time':'2023-01-02 8:00:00', 'system': 'BDS', 'PRN': '10', 'interval': '600', 'Forecast Period': '10800',  # 时间为北京时
+#               'station_name':'JFNG', 'MR':'00', 'obs_country':'CHN', 'obs_source':'R', 'obs_interval_mimute':'15M', 'obs_interval_second':'01S', 'obs_type':'MO',  # 地面观测站文件标识
 #               'ephem_country':'DLR', 'ephem_source':'S', 'ephem_intertime':'01D', 'ephem_type':'MN', 'ephem_style':'rnx'} # 星历数据文件标识
-#     # 'system' {'BDS', 'GAL', 'IRNSS', 'QZSS', 'GPS', 'GLONASS', 'SBAS'}
+#     system = {'BDS', 'GAL', 'IRNSS', 'QZSS', 'GPS', 'GLONASS', 'SBAS'}
 #     # filepath = r'E:/公司文件/20220901-低轨目标跟踪项目-实施/code/satellite_data_new/data/'
-#     filepath = '..//data//'
+#     filepath = '..//data_new1//'
 #     ephemeris_data = ephemeris_data_analysis(params, filepath)
 #     ephemeris_data.data_analysis()
