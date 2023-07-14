@@ -2,6 +2,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import os
 from scipy import interpolate
 # 选择参数
 Para = 1
@@ -16,6 +17,9 @@ Para = 1
 # 参数：Z原子数，无量纲
 
 # J_ph0参数：光电流，单位A/m2
+
+
+
 def select_para(Para):
 	# 航天器表面材料：Aluminium
 	if Para == 1:
@@ -402,7 +406,12 @@ def Calculate_J_surface(E,J0,U,Te,Ne,Var): # E: J J0:A/m2
 Auroral_Precipitated_Particles = 'T'
 def Calculate_Utest(U,Te,Ti,Ne,Ni,Paras,P):
 	# 选择参数
-	E_me,cigema_me,E_mi,Y1,Z,J_ph0 = select_para(Paras)
+	E_me = Paras[0]
+	cigema_me = Paras[1]
+	E_mi = Paras[2]
+	Y1 = Paras[3]
+	Z = Paras[4]
+	J_ph0 = Paras[5]
 	# 计算德拜半径
 	#####离子部分电流#####
 	D = Calculate_D(Te,Ne)
