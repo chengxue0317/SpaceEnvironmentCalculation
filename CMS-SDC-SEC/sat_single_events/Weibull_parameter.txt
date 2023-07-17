@@ -1,0 +1,4 @@
+#DEVICE    Weibull_parameter_sigma0(cm2/bit)    Weibull_parameter_Lth(cm2/mg)    Weibull_parameter_W(Mev·cm2/gm)    Weibull_parameter_S
+45nm-SRAM-based-FPGA    1.8e-8    0.4    30    1
+28nm-SRAM-based-FPGA    7.94e-9    0.8    20    1.8
+45nm-SOI    2.5e-9    0.4    32    0.8
