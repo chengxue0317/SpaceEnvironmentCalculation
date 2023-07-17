@@ -15,7 +15,7 @@ import json
 from mpl_toolkits.basemap import Basemap
 from matplotlib import animation
 import matplotlib.animation as anime
-import time
+
 
 
 def Connect_SQL(iniPath):
@@ -97,7 +97,7 @@ time_sql_step = get_sqltime_step(SAT_ID)
 
 
 # 读取达梦数据,每隔多长时间(秒)取一个数据？
-time_step = 600  #单位：s
+time_step = 60  #单位：s
 if time_sql_step>=time_step:
     Time_span = "select LAT,LON,ALT,TIME from SEC_SATELLITE_LLA where TIME between '%s' and '%s' and SAT_ID = '%s'" % (Time_start,Time_end,SAT_ID)
 else:
@@ -413,44 +413,55 @@ def timestamp(shijian):
 
 
 if __name__ == "__main__":
-    step  = int(np.shape(P_LLA)[0]/6)
-    m1, n1 = 0, step
-    m2, n2 = step, step*2
-    m3, n3 = step*2, step*3
-    m4, n4 = step*3, step*4
-    m5, n5 = step*4, step*5
-    m6, n6 = step*5, np.shape(P_LLA)[0]+1
-    start_time = timec.time()    # 程序开始时间
+    if np.shape(P_LLA)[0]<13:
+        start_time = timec.time()    # 程序开始时间
+        dic = Cal_sat_surface_charging(P_LLA,P_AP,P_F107)
+        print('###')
+        print(dic)
+        print('###')
+        end_time = timec.time()
+        print('程序运行时间为：', end_time - start_time, '秒')
+        print(len(P_LLA))
+    else:
+        step  = int(np.shape(P_LLA)[0]/6)
+        m1, n1 = 0, step
+        m2, n2 = step, step*2
+        m3, n3 = step*2, step*3
+        m4, n4 = step*3, step*4
+        m5, n5 = step*4, step*5
+        m6, n6 = step*5, np.shape(P_LLA)[0]+1
+        start_time = timec.time()    # 程序开始时间
 
-    final_res = []
-    pool = multiprocessing.Pool(processes = 40)
+        final_res = []
+        pool = multiprocessing.Pool(processes = 40)
    
-    res1 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m1:n1],P_AP,P_F107),error_callback=error_callback)
-    res2 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m2:n2],P_AP,P_F107),error_callback=error_callback)
-    res3 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m3:n3],P_AP,P_F107),error_callback=error_callback)
-    res4 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m4:n4],P_AP,P_F107),error_callback=error_callback)
-    res5 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m5:n5],P_AP,P_F107),error_callback=error_callback)
-    res6 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m6:n6],P_AP,P_F107),error_callback=error_callback)
+        res1 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m1:n1],P_AP,P_F107),error_callback=error_callback)
+        res2 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m2:n2],P_AP,P_F107),error_callback=error_callback)
+        res3 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m3:n3],P_AP,P_F107),error_callback=error_callback)
+        res4 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m4:n4],P_AP,P_F107),error_callback=error_callback)
+        res5 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m5:n5],P_AP,P_F107),error_callback=error_callback)
+        res6 = pool.apply_async(Cal_sat_surface_charging, args=(P_LLA[m6:n6],P_AP,P_F107),error_callback=error_callback)
  
-    pool.close()
-    pool.join()   #调用join之前，先调用close函数，否则会出错。执行完close后不会有新的进程加入到pool,join函数等待所有子进程结束
+        pool.close()
+        pool.join()   #调用join之前，先调用close函数，否则会出错。执行完close后不会有新的进程加入到pool,join函数等待所有子进程结束
 
-    time = res1.get()['time']+res2.get()['time']+res3.get()['time']+res4.get()['time']+res5.get()['time']+res6.get()['time']
-    lat = res1.get()['lat']+res2.get()['lat']+res3.get()['lat']+res4.get()['lat']+res5.get()['lat']+res6.get()['lat']
-    lon = res1.get()['lon']+res2.get()['lon']+res3.get()['lon']+res4.get()['lon']+res5.get()['lon']+res6.get()['lon']
-    alt = res1.get()['alt']+res2.get()['alt']+res3.get()['alt']+res4.get()['alt']+res5.get()['alt']+res6.get()['alt']
-    u = res1.get()['u']+res2.get()['u']+res3.get()['u']+res4.get()['u']+res5.get()['u']+res6.get()['u']
-    dic = {}
-    dic['time'] = time
-    dic['lat'] = lat
-    dic['lon'] = lon
-    dic['alt'] = alt
-    dic['u'] = u
-    print('###')
-    print(json.dumps(dic))
-    print('###')
-    end_time = timec.time()
-    print('程序运行时间为：', end_time - start_time, '秒')
+        time = res1.get()['time']+res2.get()['time']+res3.get()['time']+res4.get()['time']+res5.get()['time']+res6.get()['time']
+        lat = res1.get()['lat']+res2.get()['lat']+res3.get()['lat']+res4.get()['lat']+res5.get()['lat']+res6.get()['lat']
+        lon = res1.get()['lon']+res2.get()['lon']+res3.get()['lon']+res4.get()['lon']+res5.get()['lon']+res6.get()['lon']
+        alt = res1.get()['alt']+res2.get()['alt']+res3.get()['alt']+res4.get()['alt']+res5.get()['alt']+res6.get()['alt']
+        u = res1.get()['u']+res2.get()['u']+res3.get()['u']+res4.get()['u']+res5.get()['u']+res6.get()['u']
+        dic = {}
+        dic['time'] = time
+        dic['lat'] = lat
+        dic['lon'] = lon
+        dic['alt'] = alt
+        dic['u'] = u
+        print('###')
+        print(json.dumps(dic))
+        print('###')
+        end_time = timec.time()
+        print('程序运行时间为：', end_time - start_time, '秒')
+        print(len(P_LLA))
 
    
 
