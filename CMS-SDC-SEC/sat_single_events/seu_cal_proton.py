@@ -12,8 +12,7 @@ import pandas as pd
 import random
 warnings.filterwarnings("ignore")
 import json
-import matplotlib.pyplot as plt
-
+import time
 
 '''
 单粒子效应：以单粒子翻转为主。半导体期间的单粒子翻转率是指器件每天
@@ -94,14 +93,14 @@ def flux_target_height_inc(shield_depth,solar,i_low,h_low,i_high,h_high):
 	flux_h_low = np.zeros(len(flux_1))
 	for i in range(len(flux_1)):
 		flux_h_low[i] = flux_1[i]+(flux_2[i]-flux_1[i])/2*(i_high-incl)
-		energy_3,flux_3 = Cal_radiation_flux(shield_depth,solar,i_low,h_high)
-		energy_4,flux_4 = Cal_radiation_flux(shield_depth,solar,i_high,h_high)
-		flux_h_high = np.zeros(len(flux_3))
-		for i in range(len(flux_3)):
-			flux_h_high[i] = flux_3[i]+(flux_4[i]-flux_3[i])/2*(i_high-incl)
-		flux = np.zeros(len(flux_1))
-		for i in range(len(flux)):
-			flux[i] = flux_h_low[i]+(flux_h_high[i]-flux_h_low[i])/50*(h_high-geo_height)
+	energy_3,flux_3 = Cal_radiation_flux(shield_depth,solar,i_low,h_high)
+	energy_4,flux_4 = Cal_radiation_flux(shield_depth,solar,i_high,h_high)
+	flux_h_high = np.zeros(len(flux_3))
+	for i in range(len(flux_3)):
+		flux_h_high[i] = flux_3[i]+(flux_4[i]-flux_3[i])/2*(i_high-incl)
+	flux = np.zeros(len(flux_1))
+	for i in range(len(flux)):
+		flux[i] = flux_h_low[i]+(flux_h_high[i]-flux_h_low[i])/50*(h_high-geo_height)
 	return flux,energy_1
 
 
@@ -118,24 +117,10 @@ h_high = h_low+50
 
 Bendel = int(str(sys.argv[4])) # Bendel参数化方案，1：Bendel单参 2：Bendel双参
 
-Bendel_para_name = str(sys.argv[5])
+para_switch = int(str(sys.argv[5]))
+if para_switch == 1:
+	Bendel_para_name = str(sys.argv[6])
 
-#print('i_low',i_low)
-#print('i_high',i_high)
-#print('h_low',h_low)
-#print('h_high',h_high)
-
-
-
-
-#plt.plot(E,flux/(3600*24/10000*4*3.14))
-#plt.xscale('log')
-#plt.yscale('log')
-#plt.xlim((1e-1,1e3))
-#plt.ylim((1e1,1e5))
-#plt.xlabel('Kinetic Energy(MeV/nucleon)')
-#plt.ylabel('Flux(m2-s-sr-MeV/nuc)-1')
-#plt.savefig('test')
 
 depth = ['1','3','5']
 scenario = ['ap8max','ap8max']
@@ -146,31 +131,38 @@ for shield_depth in depth:
 		flux,E = flux_target_height_inc(shield_depth,solar,i_low,h_low,i_high,h_high)
 		current_dir = os.path.dirname(os.path.abspath(__file__))
 		if Bendel == 1:	
-			f = open(current_dir+'/Bendel1_parameter.txt')
-			size = len(f.readlines())
-			f = open(current_dir+'/Bendel1_parameter.txt')
-			for i in range(size):
-				txt = f.readline().split()
-				if i>0:
-					para_name.append(txt[0])
-					para_A.append(txt[1])
-			A = float(para_A[para_name.index(Bendel_para_name)])
+			if para_switch == 1:
+				f = open(current_dir+'/Bendel1_parameter.txt')
+				size = len(f.readlines())
+				f = open(current_dir+'/Bendel1_parameter.txt')
+				for i in range(size):
+					txt = f.readline().split()
+					if i>0:
+						para_name.append(txt[0])
+						para_A.append(txt[1])
+				A = float(para_A[para_name.index(Bendel_para_name)])
+			elif para_switch == 2:
+				A = float(sys.argv[6])
 			Cross = Cal_limiting_cross_section_Bendel1(E,A)
 			SEU = Cal_SEU_proton(Cross,flux)
 
 		elif Bendel == 2:
-			para_B = []
-			f = open(current_dir+'/Bendel2_parameter.txt')
-			size = len(f.readlines())
-			f = open(current_dir+'/Bendel2_parameter.txt')
-			for i in range(size):
-				txt = f.readline().split()
-				if i>0:
-					para_name.append(txt[0])
-					para_A.append(txt[1])
-					para_B.append(txt[2])
-			A = float(para_A[para_name.index(Bendel_para_name)])
-			B = float(para_B[para_name.index(Bendel_para_name)])
+			if para_switch == 1:
+				para_B = []
+				f = open(current_dir+'/Bendel2_parameter.txt')
+				size = len(f.readlines())
+				f = open(current_dir+'/Bendel2_parameter.txt')
+				for i in range(size):
+					txt = f.readline().split()
+					if i>0:
+						para_name.append(txt[0])
+						para_A.append(txt[1])
+						para_B.append(txt[2])
+				A = float(para_A[para_name.index(Bendel_para_name)])
+				B = float(para_B[para_name.index(Bendel_para_name)])
+			elif para_switch == 2:
+				A = float(sys.argv[6])
+				B = float(sys.argv[7])
 			Cross = Cal_limiting_cross_section_Bendel2(E,A,B)
 			SEU = Cal_SEU_proton(Cross,flux)
 		SEU = valid_numbers(SEU)
@@ -185,8 +177,3 @@ else:
 	print('A: ',A)
 	print('B: ',B)
 print('#################')
-
-
-
-
-

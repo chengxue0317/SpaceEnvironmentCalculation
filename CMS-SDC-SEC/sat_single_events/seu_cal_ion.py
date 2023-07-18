@@ -8,11 +8,6 @@ def valid_numbers(x):
 	x = float(np.format_float_positional(x, precision=3, unique = False, fractional = False, trim = 'k'))
 	return x
 
-# Parameter HM6264
-sigma0 = 7.6e-8  # cm2/bit
-L_th = 1.3 # MeV cm2/mg
-W = 48.8 # 48.8 MeV.cm2/mg
-S = 0.9
 
 def Cal_Weibull(L,sigma0,L_th,W,S):
 	sigma = np.zeros(len(L))
@@ -55,7 +50,9 @@ def Cal_effective_flux(LET,flux):
 
 
 # 参数
-Weibull_para_name = str(sys.argv[1])
+para_switch = int(sys.argv[1])
+if para_switch == 1:
+	Weibull_para_name = str(sys.argv[2])
 
 
 for scenario in range(1,6):
@@ -72,28 +69,34 @@ for scenario in range(1,6):
 	
 	depth = ['1','3','5']
 	for shield_depth in depth:
-		current_dir = os.path.dirname(os.path.abspath(__file__))
-		para_name = []
-		para_sigma0 = []
-		para_Lth = []
-		para_W = []
-		para_S = []
-		f = open(current_dir+'/Weibull_parameter.txt')
-		size = len(f.readlines())
-		f = open(current_dir+'/Weibull_parameter.txt')
-		for i in range(size):
-			txt = f.readline().split()
-			if i >0:
-				para_name.append(txt[0])
-				para_sigma0.append(txt[1])
-				para_Lth.append(txt[2])
-				para_W.append(txt[3])
-				para_S.append(txt[4])
+		if para_switch == 1:
+			current_dir = os.path.dirname(os.path.abspath(__file__))
+			para_name = []
+			para_sigma0 = []
+			para_Lth = []
+			para_W = []
+			para_S = []
+			f = open(current_dir+'/Weibull_parameter.txt')
+			size = len(f.readlines())
+			f = open(current_dir+'/Weibull_parameter.txt')
+			for i in range(size):
+				txt = f.readline().split()
+				if i >0:
+					para_name.append(txt[0])
+					para_sigma0.append(txt[1])
+					para_Lth.append(txt[2])
+					para_W.append(txt[3])
+					para_S.append(txt[4])
 
-		sigma0 = float(para_sigma0[para_name.index(Weibull_para_name)])
-		L_th = float(para_Lth[para_name.index(Weibull_para_name)])
-		W = float(para_W[para_name.index(Weibull_para_name)])
-		S = float(para_S[para_name.index(Weibull_para_name)])
+			sigma0 = float(para_sigma0[para_name.index(Weibull_para_name)])
+			L_th = float(para_Lth[para_name.index(Weibull_para_name)])
+			W = float(para_W[para_name.index(Weibull_para_name)])
+			S = float(para_S[para_name.index(Weibull_para_name)])
+		elif para_switch == 2:
+			sigma0 = float(sys.argv[2])
+			L_th = float(sys.argv[3])
+			W = float(sys.argv[4])
+			S = float(sys.argv[5])
 
 
 		# Calculate SEU_ion
@@ -107,7 +110,10 @@ for scenario in range(1,6):
 		SEU = format('{:.2e}'.format(SEU,'e'))
 		print('#### SEU by heavy ion,',scenario,',',shield_depth,'mm shield depth:',SEU,'bit/day ####')
 print('### parameter ####')
-print('name: ',Weibull_para_name)
+if para_switch == 1:
+	print('name: ',Weibull_para_name)
+elif para_switch == 2:
+	print('name:','自定义器件')
 print('sigma0:',sigma0)
 print('L_th:',L_th)
 print('W:',W)
