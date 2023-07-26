@@ -10,12 +10,13 @@ import java.time.LocalDateTime;
 @Data
 @ApiModel("空间环境周报预制备数据")
 public class WeekForeVo implements Serializable {
-
-
     private static final long serialVersionUID = 1L;
     @ApiModelProperty("时间")
     private LocalDateTime time;
-    @ApiModelProperty("空间环境周报描述")
-    private String sumfore;
 
+    @ApiModelProperty("上周空间环境周报描述")
+    private String lastWeek = "";
+
+    @ApiModelProperty("下周空间环境周报描述")
+    private String nextWeek = "";
 }

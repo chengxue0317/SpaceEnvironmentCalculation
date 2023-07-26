@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 @Data
 @ApiModel("空间环境每日预报预制备数据")
 public class DayForeVo {
-
-
     private static final long serialVersionUID = 1L;
     @ApiModelProperty("时间")
     private LocalDateTime time;
@@ -88,8 +86,9 @@ public class DayForeVo {
     @ApiModelProperty("X级以上耀斑未来72小时发生概率")
     private String sxrx3;
 
+    @ApiModelProperty("过去24小时空天间环境预报描述")
+    private String bef24h = "";
+
     @ApiModelProperty("未来3天空间环境预报描述")
-    private String sumfore;
-
-
+    private String aft3d = "";
 }

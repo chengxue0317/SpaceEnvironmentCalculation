@@ -3,9 +3,9 @@
 
 <mapper namespace="cn.piesat.sec.dao.mapper.dataparse.SeEventlMapper">
     <insert id="save">
-        insert into SEC_XRAY_ALARM(PUBLISH_TIME, THRESHOLD_TIME, CONTENT, OVERVIEW, LEVEL ) values
-        <foreach item="item" index="index" collection="data" separator=",">
-            (#{item.time},#{item.time},#{item.content},#{item.content},#{item.level})
-        </foreach>
+        <if test="data != null">
+            insert into ${tableName}(PUBLISH_TIME, THRESHOLD_TIME, CONTENT, OVERVIEW, LEVEL ) values
+            (#{data.time},#{data.time},#{data.content},#{data.content},#{data.level})
+        </if>
     </insert>
 </mapper>

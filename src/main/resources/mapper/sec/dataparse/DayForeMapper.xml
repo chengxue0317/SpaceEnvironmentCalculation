@@ -3,9 +3,9 @@
 
 <mapper namespace="cn.piesat.sec.dao.mapper.dataparse.DayForeMapper">
     <insert id="save">
-        insert into SEC_DAILY_OVERVIEW(TIME,PAST_REVIEW) values
+        insert into SEC_DAILY_OVERVIEW(TIME,PAST_REVIEW,FUTURE_REVIEW) values
         <foreach item="item" index="index" collection="data" separator=",">
-            (#{item.time},#{item.gsm1})
+            (#{item.time},#{item.bef24h},#{item.aft3d})
         </foreach>
     </insert>
 </mapper>

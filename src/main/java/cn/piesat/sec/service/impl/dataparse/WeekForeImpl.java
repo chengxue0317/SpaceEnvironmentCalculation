@@ -11,6 +11,7 @@ import cn.piesat.sec.model.vo.dataparse.WeekForeVo;
 import cn.piesat.sec.service.SecSpaceEnvData;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,9 @@ public class WeekForeImpl implements SecSpaceEnvData {
     private static final Logger logger = LoggerFactory.getLogger(SoF107Impl.class);
     @Autowired
     private WeekForeMapper weekForeMapper;
+
     @Override
-    public  int parseData(SecIISVO secIISVO) {
+    public int parseData(SecIISVO secIISVO) {
         // 下载文件
         String uuid = UUID.randomUUID().toString();
         OSSInstance.getOSSUtil().download(secIISVO.getBucketName(), secIISVO.getKey(), uuid);
@@ -44,7 +46,16 @@ public class WeekForeImpl implements SecSpaceEnvData {
                 if (lineData.length >= 2) {
                     WeekForeVo vo = new WeekForeVo();
                     vo.setTime(DateUtil.parseLocalDateTime(lineData[0], DateConstant.DATE_TIME_PATTERN2));
-                    vo.setSumfore(lineData[1]);
+                    String weekView = lineData[1];
+                    if (StringUtils.isNotEmpty(weekView)) {
+                        int nextIdx = weekView.indexOf("预计下周");
+                        if (nextIdx != -1) {
+                            vo.setLastWeek(weekView.substring(0, nextIdx));
+                            vo.setNextWeek(weekView.substring(nextIdx));
+                        } else {
+                            vo.setLastWeek(weekView);
+                        }
+                    }
                     objList.add(vo);
                 }
             }

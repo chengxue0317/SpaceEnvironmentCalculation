@@ -22,54 +22,54 @@ public class SecHEParticalVO implements Serializable {
     @ApiModelProperty("时间")
     private LocalDateTime time;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("≥10MeV质子通量")
     private Double p10;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("≥50MeV质子通量")
     private Double p50;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("≥100MeV质子通量")
     private Double p100;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("≥2MeV电子通量")
     private Double e2;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("1020-1860keV质子通量")
     private Double pdiff1;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("1900-2300keV质子通量")
     private Double pdiff2a;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("2310-3340keV质子通量")
     private Double pdiff2b;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("3400-6480keV质子通量")
     private Double pdiff3;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("5840-11000keV质子通量")
     private Double pdiff4;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("11640-23270keV质子通量")
     private Double pdiff5;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("25900-38100keV质子通量")
     private Double pdiff6;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("40300-73400keV质子通量")
     private Double pdiff7;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("83700-98500keV质子通量")
     private Double pdiff8a;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("99900-118000keV质子通量")
     private Double pdiff8b;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("115000-143000keV质子通量")
     private Double pdiff8c;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("160000-242000keV质子通量")
     private Double pdiff9;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("276000-404000keV质子通量")
     private Double pdiff10;
 }

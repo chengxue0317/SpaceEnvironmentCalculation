@@ -121,6 +121,6 @@ public class Constant {
     /**
      * 数据分割符号
      */
-    public static final String DATA_SEPERATOR = " ";
+    public static final String DATA_SEPERATOR = "\\t";
 }
 

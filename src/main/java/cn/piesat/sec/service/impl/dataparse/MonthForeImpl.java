@@ -11,6 +11,7 @@ import cn.piesat.sec.model.vo.dataparse.MonthForeVo;
 import cn.piesat.sec.service.SecSpaceEnvData;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,9 @@ public class MonthForeImpl implements SecSpaceEnvData {
     private static final Logger logger = LoggerFactory.getLogger(SoF107Impl.class);
     @Autowired
     private MonthForeMapper monthForeMapper;
+
     @Override
-    public  int parseData(SecIISVO secIISVO) {
+    public int parseData(SecIISVO secIISVO) {
         // 下载文件
         String uuid = UUID.randomUUID().toString();
         OSSInstance.getOSSUtil().download(secIISVO.getBucketName(), secIISVO.getKey(), uuid);
@@ -37,17 +39,22 @@ public class MonthForeImpl implements SecSpaceEnvData {
         filePath = FileUtil.checkPath(filePath);
         List<String> content = FileUtil.readTxtFile2List(filePath);
         int dataNum = 0;
-        if (CollectionUtils.isNotEmpty(content)) {
-            List<MonthForeVo> objList = new ArrayList<>();
-            for (String line : content) {
-                String[] lineData = line.split(Constant.DATA_SEPERATOR);
-                if (lineData.length >= 2) {
-                    MonthForeVo vo = new MonthForeVo();
-                    vo.setTime(DateUtil.parseLocalDateTime(lineData[0], DateConstant.DATE_TIME_PATTERN2));
-                    vo.setSumfore(lineData[1]);
-                    objList.add(vo);
+        List<MonthForeVo> objList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(content) && content.size() >= 2) {
+            MonthForeVo vo = new MonthForeVo();
+            vo.setTime(DateUtil.parseLocalDateTime(content.get(0), DateConstant.DATE_TIME_PATTERN2));
+            content.remove(0);
+            String monthView = StringUtils.join(content, "</br>");
+            if (StringUtils.isNotEmpty(monthView)) {
+                int nextIdx = monthView.indexOf("预计下月");
+                if (nextIdx != -1) {
+                    vo.setLastMonth(monthView.substring(0, nextIdx));
+                    vo.setNextMonth(monthView.substring(nextIdx));
+                } else {
+                    vo.setLastMonth(monthView);
                 }
             }
+            objList.add(vo);
             // 数据入库
             try {
                 dataNum = monthForeMapper.save(objList);

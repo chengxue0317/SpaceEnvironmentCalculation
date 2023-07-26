@@ -42,11 +42,26 @@ public class HEParticalImpl implements SecSpaceEnvData {
             List<SecHEParticalVO> objList = new ArrayList<>();
             for (String line : content) {
                 String[] lineData = line.split(Constant.DATA_SEPERATOR);
-                if (lineData.length >= 5) { // 接口文件和数据库表不一致，这里的判断条件临时设置到E2数据
+                if (lineData.length >= 18) { // 接口文件和数据库表不一致，这里的判断条件临时设置到E2数据
                     SecHEParticalVO vo = new SecHEParticalVO();
-
                     vo.setTime(DateUtil.parseLocalDateTime(lineData[0], DateConstant.DATE_TIME_PATTERN2));
+                    vo.setP10(Double.parseDouble(lineData[1]));
+                    vo.setP50(Double.parseDouble(lineData[2]));
+                    vo.setP100(Double.parseDouble(lineData[3]));
                     vo.setE2(Double.parseDouble(lineData[4]));
+                    vo.setPdiff1(Double.parseDouble(lineData[5]));
+                    vo.setPdiff2a(Double.parseDouble(lineData[6]));
+                    vo.setPdiff2b(Double.parseDouble(lineData[7]));
+                    vo.setPdiff3(Double.parseDouble(lineData[8]));
+                    vo.setPdiff4(Double.parseDouble(lineData[9]));
+                    vo.setPdiff5(Double.parseDouble(lineData[10]));
+                    vo.setPdiff6(Double.parseDouble(lineData[11]));
+                    vo.setPdiff7(Double.parseDouble(lineData[12]));
+                    vo.setPdiff8a(Double.parseDouble(lineData[13]));
+                    vo.setPdiff8b(Double.parseDouble(lineData[14]));
+                    vo.setPdiff8c(Double.parseDouble(lineData[15]));
+                    vo.setPdiff9(Double.parseDouble(lineData[16]));
+                    vo.setPdiff10(Double.parseDouble(lineData[17]));
                     objList.add(vo);
                 }
             }

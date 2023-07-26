@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 太阳黑子数
+ * 警报事件
  *
  * @author wuyazhou
  * @email wuyazhou@piesat.cn
@@ -15,5 +15,5 @@ import java.util.List;
  */
 @Mapper
 public interface SeEventlMapper {
-    int save(@Param("data") List<SecEventsVO> data) throws Exception;
+    int save(@Param("data") SecEventsVO data, @Param("tableName") String tableName) throws Exception;
 }

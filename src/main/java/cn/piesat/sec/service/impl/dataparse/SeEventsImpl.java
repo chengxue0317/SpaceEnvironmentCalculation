@@ -39,26 +39,42 @@ public class SeEventsImpl implements SecSpaceEnvData {
         List<String> content = FileUtil.readTxtFile2List(filePath);
         int dataNum = 0;
         if (CollectionUtils.isNotEmpty(content)) {
-            List<SecEventsVO> objList = new ArrayList<>();
             for (String line : content) {
                 String[] lineData = line.split(Constant.DATA_SEPERATOR);
                 if (lineData.length >= 3) {
                     SecEventsVO vo = new SecEventsVO();
                     vo.setTime(DateUtil.parseLocalDateTime(lineData[0], DateConstant.DATE_TIME_PATTERN2));
                     vo.setContent(lineData[2]);
-                    int random = (int) Math.random() * 10;
-                    random = random > 5 ? random - 5 : random;
-                    vo.setLevel(random);
-                    objList.add(vo);
+                    int level = 0;
+                    String ct = lineData[2];
+                    if (ct.indexOf("[黄]") != -1) {
+                        level = 1;
+                    }
+                    if (ct.indexOf("[橙]") != -1) {
+                        level = 2;
+                    }
+                    if (ct.indexOf("[红]") != -1) {
+                        level = 3;
+                    }
+                    vo.setLevel(level);
+                    // 数据入库
+                    try {
+                        if (ct.indexOf("耀斑") != -1) {
+                            dataNum = seEventlMapper.save(vo, "SEC_XRAY_ALARM");
+                        } else if (ct.indexOf("质子") != -1) {
+                            dataNum = seEventlMapper.save(vo, "SEC_PROTON_ALARM");
+                        } else if (ct.indexOf("地磁") != -1) {
+                            dataNum = seEventlMapper.save(vo, "SEC_DST_ALARM");
+                        } else {
+                            dataNum = seEventlMapper.save(vo, "SEC_ELE_ALARM");
+                        }
+                    } catch (Exception e) {
+                        logger.warn("=====Failed to delete tmeplate dir {}", e.getMessage());
+                        dataNum = -1;
+                    }
                 }
             }
-            // 数据入库
-            try {
-                dataNum = seEventlMapper.save(objList);
-            } catch (Exception e) {
-                logger.warn("=====Failed to delete tmeplate dir {}", e.getMessage());
-                dataNum = -1;
-            }
+
         }
         // 删除下载的文件及创建的临时路径
         try {

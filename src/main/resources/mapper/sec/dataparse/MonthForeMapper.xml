@@ -3,9 +3,9 @@
 
 <mapper namespace="cn.piesat.sec.dao.mapper.dataparse.MonthForeMapper">
     <insert id="save">
-        insert into SEC_MONTH_OVERVIEW(TIME,PAST_REVIEW) values
+        insert into SEC_MONTH_OVERVIEW(TIME,PAST_REVIEW,FUTURE_REVIEW) values
         <foreach item="item" index="index" collection="data" separator=",">
-            (#{item.time},#{item.sumfore})
+            (#{item.time},#{item.lastMonth},#{item.nextMonth})
         </foreach>
     </insert>
 </mapper>

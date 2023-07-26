@@ -282,6 +282,15 @@ public class DateUtil {
         if (StringUtils.isEmpty(dateStr) || StringUtils.isEmpty(format)) {
             return null;
         }
+        if (!dateStr.matches("^\\d+")) {
+            dateStr = dateStr.substring(1);  // 首字符可能含有格式特殊字符情况
+        }
+        if (dateStr.length() < format.length()) {
+            int dis = format.length() - dateStr.length();
+            for (int i = 0; i < dis; i++) {
+                dateStr = dateStr.concat("0");
+            }
+        }
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
         return LocalDateTime.parse(dateStr, dtf);
     }
