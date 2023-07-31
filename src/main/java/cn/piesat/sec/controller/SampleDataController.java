@@ -1,7 +1,9 @@
 package cn.piesat.sec.controller;
 
+import cn.piesat.sec.comm.constant.KafkaConstant;
 import cn.piesat.sec.comm.kafka.KafkaSendServiceImpl;
 import cn.piesat.sec.model.vo.SecIISVO;
+import cn.piesat.sec.service.SecSpaceTimeService;
 import cn.piesat.sec.service.impl.dataparse.*;
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 public class SampleDataController {
     @Value("${s3.bucketName}")
     private String bucketName;
+
+    private final SecSpaceTimeService secSpaceTimeService;
 
     @Autowired
     private KafkaSendServiceImpl kafkaSendService;

@@ -4,32 +4,29 @@
 <mapper namespace="cn.piesat.sec.dao.mapper.SecParticleFluxMapper">
 
     <!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="cn.piesat.sec.model.entity.SecParticleFluxDO" id="secParticleFluxMap">
+    <resultMap id="secParticleFluxMap" type="cn.piesat.sec.model.entity.SecParticleFluxDO">
         <result property="id" column="ID"/>
-        <result property="unitId" column="UNIT_ID"/>
-        <result property="deviceId" column="DEVICE_ID"/>
-        <result property="staId" column="STA_ID"/>
-        <result property="satId" column="SAT_ID"/>
+        <result property="p10" column="P10"/>
+        <result property="p50" column="P50"/>
+        <result property="p100" column="P100"/>
         <result property="e2" column="E2"/>
-        <result property="p1" column="P1"/>
-        <result property="p2" column="P2"/>
-        <result property="p3" column="P3"/>
-        <result property="p4" column="P4"/>
-        <result property="p5" column="P5"/>
-        <result property="p6" column="P6"/>
-        <result property="he" column="He"/>
-        <result property="li" column="Li"/>
-        <result property="c" column="C"/>
-        <result property="mg" column="Mg"/>
-        <result property="ar" column="Ar"/>
-        <result property="fe" column="Fe"/>
-        <result property="lon" column="LON"/>
-        <result property="lat" column="LAT"/>
-        <result property="altitude" column="ALTITUDE"/>
+        <result property="pdiff1" column="PDIFF1"/>
+        <result property="pdiff2a" column="PDIFF2A"/>
+        <result property="pdiff2b" column="PDIFF2B"/>
+        <result property="pdiff3" column="PDIFF3"/>
+        <result property="pdiff4" column="PDIFF4"/>
+        <result property="pdiff5" column="PDIFF5"/>
+        <result property="pdiff6" column="PDIFF6"/>
+        <result property="pdiff7" column="PDIFF7"/>
+        <result property="pdiff8a" column="PDIFF8A"/>
+        <result property="pdiff8b" column="PDIFF8B"/>
+        <result property="pdiff8c" column="PDIFF8C"/>
+        <result property="pdiff9" column="PDIFF9"/>
+        <result property="pdiff10" column="PDIFF10"/>
         <result property="time" column="TIME"/>
     </resultMap>
     <select id="getProtonFluxData" resultMap="secParticleFluxMap">
-        SELECT P1,P2,P3,P4,P5,P6,TIME FROM SEC_PARTICLE_FLUX
+        SELECT P10,P50,P100,TIME FROM SEC_PARTICLE_FLUX
         <where>
             <if test="startTime != null">
                 AND TIME <![CDATA[>=]]> #{startTime}

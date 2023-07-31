@@ -58,41 +58,4 @@ public class SecParticleFluxController {
                                                  @RequestParam(value = "endTime", required = false) String endTime) {
         return secParticleFluxService.getElectronicFluxData(startTime, endTime);
     }
-
-    @ApiOperation("查询一段时间内的重离子通量数据")
-    @OpLog(op = BusinessType.OTHER, description = "查询一段时间内的重离子通量数据")
-    @PostMapping("/getHeavyIonFluxData")
-    public HeavyIonFluxDataVO getHeavyIonFluxData(@RequestBody(required = false) SecParticleFluxQuery secParticleFluxQuery) {
-        QueryWrapper<SecParticleFluxDO> queryWrapper = new QueryWrapper<>();
-        String satId = secParticleFluxQuery.getSatId();
-        queryWrapper.select("He", "Li", "C", "Mg", "Ar", "Fe", "TIME")
-                .eq(StringUtils.isNotBlank(satId), "SAT_ID", satId)
-                .between("TIME", secParticleFluxQuery.getTimeBetween().getLeft(), secParticleFluxQuery.getTimeBetween().getRight());
-        List<SecParticleFluxDO> list = secParticleFluxService.list(queryWrapper);
-        HeavyIonFluxDataVO heavyIonFluxDataVO = new HeavyIonFluxDataVO();
-        List<Double> he = new ArrayList<>();
-        List<Double> li = new ArrayList<>();
-        List<Double> c = new ArrayList<>();
-        List<Double> mg = new ArrayList<>();
-        List<Double> ar = new ArrayList<>();
-        List<Double> fe = new ArrayList<>();
-        List<LocalDateTime> time = new ArrayList<>();
-        list.forEach(e -> {
-            time.add(e.getTime());
-            he.add(e.getHe());
-            li.add(e.getLi());
-            c.add(e.getC());
-            mg.add(e.getMg());
-            ar.add(e.getAr());
-            fe.add(e.getFe());
-        });
-        heavyIonFluxDataVO.setTime(time);
-        heavyIonFluxDataVO.setHe(he);
-        heavyIonFluxDataVO.setLi(li);
-        heavyIonFluxDataVO.setC(c);
-        heavyIonFluxDataVO.setMg(mg);
-        heavyIonFluxDataVO.setAr(ar);
-        heavyIonFluxDataVO.setFe(fe);
-        return heavyIonFluxDataVO;
-    }
 }

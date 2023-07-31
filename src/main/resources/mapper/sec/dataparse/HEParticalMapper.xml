@@ -3,9 +3,28 @@
 
 <mapper namespace="cn.piesat.sec.dao.mapper.dataparse.HEParticalMapper">
     <insert id="save">
-        insert into SEC_PARTICLE_FLUX(TIME, E2) values
+        insert into
+        SEC_PARTICLE_FLUX(P10,P50,P100,E2,PDIFF1,PDIFF2A,PDIFF2B,PDIFF3,PDIFF4,PDIFF5,PDIFF6,PDIFF7,PDIFF8A,PDIFF8B,PDIFF8C,PDIFF9,PDIFF10,TIME)
+        values
         <foreach item="item" index="index" collection="data" separator=",">
-            (#{item.time},#{item.e2})
+            (#{item.p10},
+            #{item.p50},
+            #{item.p100},
+            #{item.e2},
+            #{item.pdiff1},
+            #{item.pdiff2a},
+            #{item.pdiff2b},
+            #{item.pdiff3},
+            #{item.pdiff4},
+            #{item.pdiff5},
+            #{item.pdiff6},
+            #{item.pdiff7},
+            #{item.pdiff8a},
+            #{item.pdiff8b},
+            #{item.pdiff8c},
+            #{item.pdiff9},
+            #{item.pdiff10},
+            #{item.time})
         </foreach>
     </insert>
 </mapper>

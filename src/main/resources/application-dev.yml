@@ -3,6 +3,8 @@ spring:
     multipart:
       max-file-size: 500MB
       max-request-size: 500MB
+    async:
+      request-timeout: 600000
   mvc:
     servlet:
       path: /sec
@@ -125,7 +127,7 @@ piesat:
   s4DataPath: S4/data/ #闪烁指数数据所在位置
 
 oss:
-  type: s3
+  type: minio
 
 minio:
   endpoint: http://127.0.0.1:9000

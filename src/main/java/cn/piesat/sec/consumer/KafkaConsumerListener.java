@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author hezhanfeng <br>
- * @version v1.0 <br>
- * @description KafkaConsumerListener <br>
- * @date 2023-01-07 19:50:56 <br>
+ * @author wuyazhou
+ * @version v1.0
+ * @description KafkaConsumerListener
+ * @date 2023-01-07 19:50:56
  */
 @Component
 @Slf4j

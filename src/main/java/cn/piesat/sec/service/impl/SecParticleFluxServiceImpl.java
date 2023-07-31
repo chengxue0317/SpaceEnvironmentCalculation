@@ -38,27 +38,18 @@ public class SecParticleFluxServiceImpl extends ServiceImpl<SecParticleFluxMappe
             List<Object> dataY = new ArrayList<>();
             List<Object> dataY1 = new ArrayList<>();
             List<Object> dataY2 = new ArrayList<>();
-            List<Object> dataY3 = new ArrayList<>();
-            List<Object> dataY4 = new ArrayList<>();
-            List<Object> dataY5 = new ArrayList<>();
             List<SecParticleFluxDO> list = secParticleFluxMapper.getProtonFluxData(startTime, endTime);
             if (CollectionUtils.isNotEmpty(list)) {
                 list.forEach(item -> {
                     dataX.add(item.getTime());
-                    dataY.add(item.getP1());
-                    dataY1.add(item.getP2());
-                    dataY2.add(item.getP3());
-                    dataY3.add(item.getP4());
-                    dataY4.add(item.getP5());
-                    dataY5.add(item.getP6());
+                    dataY.add(item.getP10());
+                    dataY1.add(item.getP50());
+                    dataY2.add(item.getP100());
                 });
                 eeb.setDataX(dataX);
                 eeb.setDataY(dataY);
                 eeb.setDataY1(dataY1);
                 eeb.setDataY2(dataY2);
-                eeb.setDataY3(dataY3);
-                eeb.setDataY4(dataY4);
-                eeb.setDataY5(dataY5);
             }
         } catch (Exception e) {
             logger.error(String.format(Locale.ROOT, "-------Get proton index anomaly %s", e.getMessage()));
