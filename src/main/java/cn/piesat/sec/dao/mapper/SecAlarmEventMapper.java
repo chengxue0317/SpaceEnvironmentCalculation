@@ -70,9 +70,11 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
      * 获取当天的警报事件
      *
      * @param tableName 表名称
+     * @param startTime 开始时间
+     * @param endTime   结束时间
      * @return 指定表当天的警报事件
      */
-    List<SecProtonAlarmDO> getTodayAlarmEvent(@Param("tableName") String tableName);
+    List<SecProtonAlarmDO> getTodayAlarmEvent(@Param("tableName") String tableName, @Param("startTime") String startTime, @Param("endTime") String endTime);
 
     /**
      * 查询未来三天预报事件
@@ -98,6 +100,7 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
      * @return 质子事件
      */
     Map<String, Object> getProtonAlramEventsBef24h(@Param("startTime") String startTime, @Param("endTime") String endTime) throws Exception;
+
     /**
      * 获取高能电子暴事件
      *
@@ -106,6 +109,7 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
      * @return 高能电子暴事件
      */
     Map<String, Object> getEleAlramEventsBef24h(@Param("startTime") String startTime, @Param("endTime") String endTime) throws Exception;
+
     /**
      * 获取地磁警报事件
      *
@@ -114,6 +118,7 @@ public interface SecAlarmEventMapper extends BaseMapper<SecProtonAlarmDO> {
      * @return 地磁警报事件
      */
     Map<String, Object> getDstAlramEventsBef24h(@Param("startTime") String startTime, @Param("endTime") String endTime) throws Exception;
+
     /**
      * 获取24小时综述
      *

@@ -62,14 +62,14 @@ public class DayForeImpl implements SecSpaceEnvData {
                     vo.setGsm2(lineData[14]);
                     vo.setGsm3(lineData[15]);
                     vo.setGsma1(lineData[16]);
-                    vo.setGsma1(lineData[17]);
-                    vo.setGsma1(lineData[18]);
+                    vo.setGsma2(lineData[17]);
+                    vo.setGsma3(lineData[18]);
                     vo.setSxrm1(lineData[19]);
                     vo.setSxrm2(lineData[20]);
                     vo.setSxrm3(lineData[21]);
-                    vo.setSxrm1(lineData[22]);
-                    vo.setSxrm2(lineData[23]);
-                    vo.setSxrm3(lineData[24]);
+                    vo.setSxrx1(lineData[22]);
+                    vo.setSxrx2(lineData[23]);
+                    vo.setSxrx3(lineData[24]);
                     String overview = lineData[lineData.length - 1];
                     if (StringUtils.isNotEmpty(overview)) {
                         int aft3d = overview.indexOf("预计未来三天");
@@ -87,6 +87,7 @@ public class DayForeImpl implements SecSpaceEnvData {
             // 数据入库
             try {
                 dataNum = dayForeMapper.save(objList);
+                dataNum = dayForeMapper.saveFore(objList);
             } catch (Exception e) {
                 logger.warn("=====Failed to delete tmeplate dir {}", e.getMessage());
                 dataNum = -1;
@@ -97,11 +98,6 @@ public class DayForeImpl implements SecSpaceEnvData {
             FileUtils.deleteDirectory(FileUtils.getFile(File.separator.concat(uuid)));
         } catch (IOException e) {
             logger.warn("=====Failed to delete tmeplate dir {}", e.getMessage());
-        }
-        try {
-            FileUtils.writeStringToFile(FileUtils.getFile("/testOut/testrecords.txt"), "更新数据N条：" + dataNum + "\n", Constant.UTF8, true);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return dataNum;
     }

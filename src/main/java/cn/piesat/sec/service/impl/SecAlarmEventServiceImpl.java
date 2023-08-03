@@ -3,6 +3,8 @@ package cn.piesat.sec.service.impl;
 import cn.piesat.kjyy.core.model.dto.PageBean;
 import cn.piesat.kjyy.core.model.vo.PageResult;
 import cn.piesat.sec.comm.constant.Constant;
+import cn.piesat.sec.comm.constant.DateConstant;
+import cn.piesat.sec.comm.util.DateUtil;
 import cn.piesat.sec.dao.mapper.SecAlarmEventMapper;
 import cn.piesat.sec.model.entity.SecAlarmForecastDO;
 import cn.piesat.sec.model.entity.SecProtonAlarmDO;
@@ -81,14 +83,16 @@ public class SecAlarmEventServiceImpl implements SecAlarmEventService {
 
     @Override
     public PageResult getAlarmEvent3daysForecast() {
+        String startTime = DateUtil.getToDay().concat(" 00:00:00");
+        String endTime = DateUtil.getDaysLater(1).concat(" 00:00:00");
         // 当天警报数据
-        List<SecProtonAlarmDO> xrayList = secAlarmEventMapper.getTodayAlarmEvent("SEC_XRAY_ALARM");
+        List<SecProtonAlarmDO> xrayList = secAlarmEventMapper.getTodayAlarmEvent("SEC_XRAY_ALARM", startTime, endTime);
         checkRowData(xrayList);
-        List<SecProtonAlarmDO> protonList = secAlarmEventMapper.getTodayAlarmEvent("SEC_PROTON_ALARM");
+        List<SecProtonAlarmDO> protonList = secAlarmEventMapper.getTodayAlarmEvent("SEC_PROTON_ALARM", startTime, endTime);
         checkRowData(protonList);
-        List<SecProtonAlarmDO> eleList = secAlarmEventMapper.getTodayAlarmEvent("SEC_ELE_ALARM");
+        List<SecProtonAlarmDO> eleList = secAlarmEventMapper.getTodayAlarmEvent("SEC_ELE_ALARM", startTime, endTime);
         checkRowData(eleList);
-        List<SecProtonAlarmDO> dstList = secAlarmEventMapper.getTodayAlarmEvent("SEC_DST_ALARM");
+        List<SecProtonAlarmDO> dstList = secAlarmEventMapper.getTodayAlarmEvent("SEC_DST_ALARM", startTime, endTime);
         checkRowData(dstList);
 
         SecAlarmEventForecastVO aevo = new SecAlarmEventForecastVO();
@@ -161,27 +165,29 @@ public class SecAlarmEventServiceImpl implements SecAlarmEventService {
 
     private SecProtonAlarmDO combinCellData(String alarmStr) {
         SecProtonAlarmDO vo = new SecProtonAlarmDO();
-        if (StringUtils.isEmpty(alarmStr)) {
-            vo.setLevel(0);
-        } else {
-            Integer level = vo.getLevel();
-            level = level == null ? 0 : level;
-            if (alarmStr.indexOf("红") != -1 && level < 3) {
-                level = 3;
-                vo.setLevel(level);
-                vo.setOverview(findAnyMatchStr(alarmStr.split(Constant.SEMICOLON), "红"));
-            }
-            if (alarmStr.indexOf("橙") != -1 && level < 2) {
-                level = 2;
-                vo.setLevel(level);
-                vo.setOverview(findAnyMatchStr(alarmStr.split(Constant.SEMICOLON), "橙"));
-            }
-            if (alarmStr.indexOf("黄") != -1 && level < 1) {
-                level = 1;
-                vo.setLevel(level);
-                vo.setOverview(findAnyMatchStr(alarmStr.split(Constant.SEMICOLON), "黄"));
-            }
-        }
+//        if (StringUtils.isEmpty(alarmStr)) {
+//            vo.setLevel(0);
+//        } else {
+//            Integer level = vo.getLevel();
+//            level = level == null ? 0 : level;
+//            if (alarmStr.indexOf("红") != -1 && level < 3) {
+//                level = 3;
+//                vo.setLevel(level);
+//                vo.setOverview(findAnyMatchStr(alarmStr.split(Constant.SEMICOLON), "红"));
+//            }
+//            if (alarmStr.indexOf("橙") != -1 && level < 2) {
+//                level = 2;
+//                vo.setLevel(level);
+//                vo.setOverview(findAnyMatchStr(alarmStr.split(Constant.SEMICOLON), "橙"));
+//            }
+//            if (alarmStr.indexOf("黄") != -1 && level < 1) {
+//                level = 1;
+//                vo.setLevel(level);
+//                vo.setOverview(findAnyMatchStr(alarmStr.split(Constant.SEMICOLON), "黄"));
+//            }
+//        }
+        vo.setLevel(999);
+        vo.setOverview(alarmStr);
         vo.setContent(alarmStr);
         return vo;
     }

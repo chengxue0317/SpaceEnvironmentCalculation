@@ -198,8 +198,8 @@
     <select id="getTodayAlarmEvent" resultMap="alarmEventMapper">
         select THRESHOLD_TIME, CONTENT, OVERVIEW, LEVEL
         from ${tableName}
-        where THRESHOLD_TIME <![CDATA[>=]]> SYSDATE()
-          and THRESHOLD_TIME <![CDATA[<]]> ADD_DAYS(SYSDATE(), 1)
+        where THRESHOLD_TIME <![CDATA[>=]]> #{startTime}
+          and THRESHOLD_TIME <![CDATA[<]]> #{endTime}
     </select>
 
     <select id="getXrayAlramEventsBef24h" resultType="java.util.HashMap">

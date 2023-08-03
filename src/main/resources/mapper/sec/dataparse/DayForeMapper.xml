@@ -8,4 +8,17 @@
             (#{item.time},#{item.bef24h},#{item.aft3d})
         </foreach>
     </insert>
+
+    <insert id="saveFore">
+        insert into
+        SEC_ALARM_FORECAST(SPE1,SPE2,SPE3,REE1,REE2,REE3,GSMI1,GSMI2,GSMI3,GSMA1,GSMA2,GSMA3,SXR1,SXR2,SXR3,TIME) values
+        <foreach item="item" index="index" collection="data" separator=",">
+            (#{item.spe1},#{item.spe2},#{item.spe3},
+            #{item.ree1},#{item.ree2},#{item.ree3},
+            #{item.gsm1},#{item.gsm2},#{item.gsm3},
+            #{item.gsma1},#{item.gsma2},#{item.gsma3},
+            #{item.sxrx1},#{item.sxrx2},#{item.sxrx3},
+            #{item.time})
+        </foreach>
+    </insert>
 </mapper>

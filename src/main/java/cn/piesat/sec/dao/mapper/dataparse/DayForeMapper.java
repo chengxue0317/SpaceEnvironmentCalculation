@@ -10,4 +10,6 @@ import java.util.List;
 @Mapper
 public interface DayForeMapper {
     int save(@Param("data") List<DayForeVo> data) throws Exception;
+
+    int saveFore(@Param("data") List<DayForeVo> data) throws Exception;
 }
