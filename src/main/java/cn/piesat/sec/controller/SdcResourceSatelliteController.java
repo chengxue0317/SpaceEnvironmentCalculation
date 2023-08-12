@@ -162,6 +162,15 @@ public class SdcResourceSatelliteController {
     @Value("${python.path.heavy_ion}")
     private String heavyIon;
 
+    @Value("${python.path.get_parameter}")
+    private String getParameter;
+
+    @Value("${python.path.seu_cal_proton}")
+    private String seuCalProton;
+
+    @Value("${python.path.seu_cal_ion}")
+    private String seuCalIon;
+
     private final SdcResourceSatelliteService sdcResourceSatelliteService;
 
 
@@ -854,5 +863,52 @@ public class SdcResourceSatelliteController {
         JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
         return jsonObject;
 
+    }
+
+    @ApiOperation("获取卫星半导体材料信息")
+    @OpLog(op = BusinessType.OTHER, description = "获取卫星半导体材料信息")
+    @GetMapping("/getParameter")
+    public JSONObject getParameter(Integer bendel){
+
+        String command = "python3 "+getParameter+" "+bendel;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        JSONObject jsonObject = JSON.parseObject(result.replaceAll("\n", ""));
+        return jsonObject;
+    }
+
+    @ApiOperation("低轨在轨卫星单粒子翻转峰值概率")
+    @OpLog(op = BusinessType.OTHER, description = "低轨在轨卫星单粒子翻转峰值概率")
+    @GetMapping("/getSeuCalProton")
+    public JSONObject getSeuCalProton(@RequestParam("inclination")String inclination,
+                                      @RequestParam("perigee")String perigee,
+                                      @RequestParam("apogee")String apogee,
+                                      @RequestParam("bendel")String bendel,
+                                      @RequestParam("device")String device,
+                                      @RequestParam("param")String param){
+
+        String command = "python3 "+seuCalProton+" "+inclination+" "+perigee+" "+apogee+" "+bendel+" "+device+" "+param;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "######", "######");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
+        return jsonObject;
+    }
+
+    @ApiOperation("高轨在轨卫星单粒子翻转峰值概率")
+    @OpLog(op = BusinessType.OTHER, description = "高轨在轨卫星单粒子翻转峰值概率")
+    @GetMapping("/getSeuCalIon")
+    public JSONObject getSeuCalIon(@RequestParam("bendel")String bendel,
+                                      @RequestParam("param")String param){
+
+        String command = "python3 "+seuCalIon+" "+bendel+" "+param;
+        log.info("执行Python命令：{}",command);
+        String result = ExecUtil.execCmdWithResult(command);
+        log.info("Python命令执行结果：{}",result);
+        String jsonStr = StrUtil.subBetween(result, "######", "######");
+        JSONObject jsonObject = JSON.parseObject(jsonStr.replaceAll("\n", ""));
+        return jsonObject;
     }
 }

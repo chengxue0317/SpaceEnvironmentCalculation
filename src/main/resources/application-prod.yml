@@ -92,6 +92,9 @@ python:
     satellite_radiation_env_orbit_plane: /CMS-SDC-SEC/SEC/pythonPlot/orbital_plane_plot.py   #卫星轨道面辐射环境算法
     s4_satellite: /CMS-SDC-SEC/s4_satellite/code/S4_new.py   #电波传播影响算法
     heavy_ion: /export/yuechao_cal/heavy_ion/zlz.py    #重离子预报模块
+    get_parameter: /export/yuechao_cal/sat_single_events/get_parameter.py  #单粒子效应模块 获取卫星半导体材料信息
+    seu_cal_proton: /export/yuechao_cal/sat_single_events/seu_cal_proton.py  #在轨卫星单粒子翻转峰值概率(单粒子效应模块-低轨卫星)
+    seu_cal_ion: /export/yuechao_cal/sat_single_events/seu_cal_ion.py  #在轨卫星单粒子翻转峰值概率(单粒子效应模块-高轨卫星)
   data:
     s4_satellite: /CMS-SDC-SEC/S4_satellite/data/
     model: /CMS-SDC-SEC/fault_diagnosis_parameter/
