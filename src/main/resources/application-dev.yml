@@ -128,6 +128,7 @@ piesat:
   rotiEphemerisData: ROTI/roti/Ephemeris_data/
   s4FlickerIndexPy: S4/code/satellite.py # S4闪烁指数算法脚本
   s4DataPath: S4/data/ #闪烁指数数据所在位置
+  parseTectoDBpy: parseTECtoDB/TECtosql/code/TEC_toSql.py #解析TEC文件到数据库
 
 oss:
   type: minio

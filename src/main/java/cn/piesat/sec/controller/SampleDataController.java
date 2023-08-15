@@ -1,6 +1,5 @@
 package cn.piesat.sec.controller;
 
-import cn.piesat.sec.comm.constant.KafkaConstant;
 import cn.piesat.sec.comm.kafka.KafkaSendServiceImpl;
 import cn.piesat.sec.model.vo.SecIISVO;
 import cn.piesat.sec.service.SecSpaceTimeService;
@@ -12,7 +11,10 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Api(tags = "空间环境样例数据测试")
 @RestController
@@ -138,5 +140,14 @@ public class SampleDataController {
         secIISVO.setBucketName(bucketName);
         secIISVO.setKey(key);
         return seEventsImpl.parseData(secIISVO);
+    }
+
+    @ApiOperation("TEC")
+    @GetMapping("tec")
+    public Integer tec(@ApiParam(value = "文件路径") @RequestParam(value = "key") String key) {
+        SecIISVO secIISVO = new SecIISVO();
+        secIISVO.setBucketName(bucketName);
+        secIISVO.setKey(key);
+        return ionoTecImpl.parseData(secIISVO);
     }
 }

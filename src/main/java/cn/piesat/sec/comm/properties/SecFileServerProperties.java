@@ -12,8 +12,6 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author piesat
  */
-@Getter
-@Setter
 @Data
 @Configuration
 @EnableConfigurationProperties
@@ -84,4 +82,8 @@ public class SecFileServerProperties {
      */
     private String rotiEphemerisData;
 
+    /**
+     * tec 解析数据
+     */
+    private String parseTectoDBpy;
 }
