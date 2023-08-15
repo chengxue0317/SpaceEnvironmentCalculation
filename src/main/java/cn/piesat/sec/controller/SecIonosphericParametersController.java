@@ -3,7 +3,6 @@ package cn.piesat.sec.controller;
 import cn.piesat.kjyy.common.log.annotation.OpLog;
 import cn.piesat.kjyy.common.log.enums.BusinessType;
 import cn.piesat.sec.comm.oss.OSSInstance;
-import cn.piesat.sec.comm.properties.SecFileServerProperties;
 import cn.piesat.sec.comm.util.FileUtil;
 import cn.piesat.sec.model.vo.SecEnvElementVO;
 import cn.piesat.sec.model.vo.SecIonosphericParametersVO;
@@ -13,17 +12,14 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -42,9 +38,6 @@ import java.util.Locale;
 public class SecIonosphericParametersController {
     private static final Logger logger = LoggerFactory.getLogger(SecIonosphericParametersController.class);
     private final SecIonosphericParametersService secIPS;
-
-    @Autowired
-    private SecFileServerProperties secFileServerProperties;
 
     @Value("${s3.bucketName}")
     private String bucketName;
@@ -155,55 +148,4 @@ public class SecIonosphericParametersController {
         }
         return list;
     }
-
-    @ApiOperation("下载电离层参数文件")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "type", value = "类型globleTEC/chineseROTI/chineseTec/s4", dataType = "String", required = true),
-            @ApiImplicitParam(name = "altitude", value = "高度", dataType = "String", required = false),
-            @ApiImplicitParam(name = "startTime", value = "开始时间", dataType = "String", required = true),
-            @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", required = true)
-    })
-    @OpLog(op = BusinessType.OTHER, description = "下载电离层参数文件")
-    @GetMapping("ionosphericspngs")
-    public void downloadPics(@RequestParam(value = "type", required = true) String type,
-                             @RequestParam(value = "altitude", required = false) String altitude,
-                             @RequestParam("startTime") String startTime,
-                             @RequestParam("endTime") String endTime,
-                             HttpServletResponse response) {
-        String path;
-        List<String> pathList = new ArrayList<>();
-
-        switch (type) {
-            case "s4": {
-                break;
-            }
-            case "globleTEC": {
-                List<String> fileNames = FileUtil.picsNames(altitude, startTime, endTime);
-                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecGlobal());
-                for (String name : fileNames) {
-                    pathList.add(path.concat(name));
-                }
-                break;
-            }
-            case "chineseROTI": {
-                List<String> fileNames = FileUtil.picturesNamesMinutes(startTime, endTime);
-                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getRotiPics());
-                for (String name : fileNames) {
-                    pathList.add(path.concat(name));
-                }
-                break;
-            }
-            default: {
-                List<String> fileNames = FileUtil.picsNames(altitude, startTime, endTime);
-                path = secFileServerProperties.getProfile().concat(secFileServerProperties.getTecChina());
-                for (String name : fileNames) {
-                    pathList.add(path.concat(name));
-                }
-                break;
-            }
-        }
-        System.out.println("下载========" + StringUtils.join(pathList, "=v="));
-        OSSInstance.getOSSUtil().download(bucketName, pathList, response);
-    }
-
 }

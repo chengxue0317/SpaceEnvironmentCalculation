@@ -242,19 +242,19 @@
             <when test="type=='week'">
                 UPDATE SEC_WEEK_OVERVIEW
                 SET path=#{path}
-                WHERE TIME=#{time};
+                WHERE TIME <![CDATA[>=]]> #{time};
                 COMMIT;
             </when>
             <when test="type=='month'">
                 UPDATE SEC_MONTH_OVERVIEW
                 SET path=#{path}
-                WHERE TIME=#{time};
+                WHERE TIME <![CDATA[>=]]> #{time};
                 COMMIT;
             </when>
             <otherwise>
                 UPDATE SEC_DAILY_OVERVIEW
                 SET path=#{path}
-                WHERE TIME=#{time};
+                WHERE TIME <![CDATA[>=]]> #{time};
                 COMMIT;
             </otherwise>
         </choose>

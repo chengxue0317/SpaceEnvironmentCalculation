@@ -577,10 +577,10 @@ public class SecReportServiceImpl implements SecReportService {
         if (CollectionUtils.isNotEmpty(alarmEvent3daysForecast)) {
             SecAlarmForecastDO afdo = alarmEvent3daysForecast.get(0);
             arr2[0] = new String[]{"序号", "环境事件", aft24, aft48, aft72};
-            arr2[1] = new String[]{"1", "太阳X射线耀斑", checkWarnLevel(afdo.getSxr1()), checkWarnLevel(afdo.getSxr2()), checkWarnLevel(afdo.getSxr3())};
-            arr2[2] = new String[]{"2", "太阳质子事件", checkWarnLevel(afdo.getSpe1()), checkWarnLevel(afdo.getSpe2()), checkWarnLevel(afdo.getSpe3())};
-            arr2[3] = new String[]{"3", "高能电子暴", checkWarnLevel(afdo.getRee1()), checkWarnLevel(afdo.getRee2()), checkWarnLevel(afdo.getRee3())};
-            arr2[4] = new String[]{"4", "地磁暴", checkWarnLevel(afdo.getGsma1()), checkWarnLevel(afdo.getGsma2()), checkWarnLevel(afdo.getGsma3())};
+            arr2[1] = new String[]{"1", "太阳X射线耀斑", checkWarnLevel2(afdo.getSxr1()), checkWarnLevel2(afdo.getSxr2()), checkWarnLevel2(afdo.getSxr3())};
+            arr2[2] = new String[]{"2", "太阳质子事件", checkWarnLevel2(afdo.getSpe1()), checkWarnLevel2(afdo.getSpe2()), checkWarnLevel2(afdo.getSpe3())};
+            arr2[3] = new String[]{"3", "高能电子暴", checkWarnLevel2(afdo.getRee1()), checkWarnLevel2(afdo.getRee2()), checkWarnLevel2(afdo.getRee3())};
+            arr2[4] = new String[]{"4", "地磁暴", checkWarnLevel2(afdo.getGsma1()), checkWarnLevel2(afdo.getGsma2()), checkWarnLevel2(afdo.getGsma3())};
         } else {
             arr2[1] = new String[]{"1", "太阳X射线耀斑", Constant.DEFAULT_WARN_STR, Constant.DEFAULT_WARN_STR, Constant.DEFAULT_WARN_STR};
             arr2[2] = new String[]{"2", "太阳质子事件", Constant.DEFAULT_WARN_STR, Constant.DEFAULT_WARN_STR, Constant.DEFAULT_WARN_STR};
@@ -654,6 +654,14 @@ public class SecReportServiceImpl implements SecReportService {
             } else {
                 return Constant.DEFAULT_WARN_STR;
             }
+        }
+    }
+
+    private String checkWarnLevel2(String content) {
+        if (StringUtils.isEmpty(content)) {
+            return "0%";
+        } else {
+            return content.concat("%");
         }
     }
 
