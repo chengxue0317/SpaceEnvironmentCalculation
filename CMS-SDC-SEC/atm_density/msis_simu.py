@@ -1,21 +1,20 @@
 import dmPython
 import pandas as pd
-import warnings
-warnings.filterwarnings("ignore")
 import os
+import warnings
 import numpy as np
-np.set_printoptions(suppress=True)
 import datetime
 import random
 import sys
-import re
-import time
 from matplotlib import cm
 from scipy.interpolate import interp1d
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib import pyplot as plt
 from PIL import Image
 import json
+import time
+warnings.filterwarnings("ignore")
+np.set_printoptions(suppress=True)
 
 
 def Connect_SQL(iniPath):
@@ -29,12 +28,13 @@ def Connect_SQL(iniPath):
         server=sql_cfg['server'],
         port=sql_cfg['port'])
     cursor = conn.cursor()
-    return cursor,conn
+    return cursor, conn
 
 
 def valid_numbers(x):
-    x = float(np.format_float_positional(x, precision=3, unique = False, fractional = False, trim = 'k'))
+    x = float(np.format_float_positional(x, precision=3, unique=False, fractional=False, trim='k'))
     return x
+
 
 def replace_char(old_string, char, index):
     """
@@ -48,38 +48,44 @@ def replace_char(old_string, char, index):
     new_string = old_string[:index] + char + old_string[index + 1:]
     return new_string
 
+
 def timestamp(shijian):
-    s_t=time.strptime(shijian,"%Y-%m-%d %H:%M:%S")
-    mkt=int(time.mktime(s_t))
-    return(mkt)
+    s_t = time.strptime(shijian, "%Y-%m-%d %H:%M:%S")
+    mkt = int(time.mktime(s_t))
+    return (mkt)
+
 
 def shijian(timeStamp):
     timeArray = time.localtime(timeStamp)
     otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
     return otherStyleTime
 
+
 # 获取数据库对应卫星星下点的时间分辨率
 def get_sqltime_step(SAT_ID):
     from datetime import datetime
-    Time_step = "SELECT TIME from SEC_SATELLITE_LLA where SAT_ID = '%s' order by ID desc limit 2" %(SAT_ID)
+    Time_step = "SELECT TIME from SEC_SATELLITE_LLA where SAT_ID = '%s' order by ID desc limit 2" % (SAT_ID)
     P = pd.read_sql(Time_step, conn).TIME.values
-    time_0 = datetime.timestamp(datetime.strptime(str(P[0]).replace('T',' ').split('.')[0],'%Y-%m-%d %H:%M:%S'))
-    time_1 = datetime.timestamp(datetime.strptime(str(P[1]).replace('T',' ').split('.')[0],'%Y-%m-%d %H:%M:%S'))
+    time_0 = datetime.timestamp(datetime.strptime(str(P[0]).replace('T', ' ').split('.')[0], '%Y-%m-%d %H:%M:%S'))
+    time_1 = datetime.timestamp(datetime.strptime(str(P[1]).replace('T', ' ').split('.')[0], '%Y-%m-%d %H:%M:%S'))
     return time_0-time_1
+
 
 def interpolate(inp, fi):
     i, f = int(fi // 1), fi % 1  # Split floating-point index into whole & fractional parts.
     j = i+1 if f > 0 else i  # Avoid index error.
-    return round((1-f) * inp[i] + f * inp[j],2)
-inp = np.arange(1,256).tolist()
+    return round((1-f) * inp[i] + f * inp[j], 2)
 
 
-def x_reb(current_dir,dir_name,x0): # numpy array
+inp = np.arange(1, 256).tolist()
+
+
+def x_reb(current_dir, dir_name, x0):  # numpy array
     x_set = list(set(x0))
     x_set_sort = np.array(sorted(x_set))
     new_len = len(x_set_sort)
 
-    colormap_float = np.zeros( (255, 3), np.float )
+    colormap_float = np.zeros((255, 3), np.float)
     for i in range(0, 255, 1):
         colormap_float[i, 0] = cm.jet(i)[0]
         colormap_float[i, 1] = cm.jet(i)[1]
@@ -88,62 +94,62 @@ def x_reb(current_dir,dir_name,x0): # numpy array
     delta = (len(inp)-1) / (new_len-1)
     outp = [interpolate(inp, i*delta) for i in range(new_len)]
 
-    f1 = interp1d(inp,colormap_float[:, 0])
-    f2 = interp1d(inp,colormap_float[:, 1])
-    f3 = interp1d(inp,colormap_float[:, 2])
+    f1 = interp1d(inp, colormap_float[:, 0])
+    f2 = interp1d(inp, colormap_float[:, 1])
+    f3 = interp1d(inp, colormap_float[:, 2])
     color_r = f1(outp)
     color_g = f2(outp)
     color_b = f3(outp)
-    color_map = np.zeros((len(outp),3))
-    color_map[:,0] = color_r 
-    color_map[:,1] = color_g 
-    color_map[:,2] = color_b 
+    color_map = np.zeros((len(outp), 3))
+    color_map[:, 0] = color_r 
+    color_map[:, 1] = color_g 
+    color_map[:, 2] = color_b 
     
-    color_new = np.zeros( (len(x0), 3), np.float )
+    color_new = np.zeros((len(x0), 3), np.float)
     for i in range(len(x0)):
         ind = np.where(x_set_sort == x0[i])
-        color_new[i,0] = round(float(color_r[ind]),3)
-        color_new[i,1] = round(float(color_g[ind]),3)
-        color_new[i,2] = round(float(color_b[ind]),3)
+        color_new[i, 0] = round(float(color_r[ind]), 3)
+        color_new[i, 1] = round(float(color_g[ind]), 3)
+        color_new[i, 2] = round(float(color_b[ind]), 3)
 
     rgb_table = LinearSegmentedColormap.from_list('sst cmap', color_map)
-    plt.scatter(x=np.arange(len(x_set_sort)),y=np.arange(len(x_set_sort)),c=x_set_sort,cmap=rgb_table)
+    plt.scatter(x=np.arange(len(x_set_sort)), y=np.arange(len(x_set_sort)), c=x_set_sort, cmap=rgb_table)
     plt.rcParams["figure.facecolor"] = 'black'
     plt.rcParams["savefig.facecolor"] = 'black'
-    clb = plt.colorbar(orientation='horizontal',shrink=1.1)
-    clb.ax.tick_params(labelcolor = 'white')
-    clb.ax.tick_params(color = 'white')
-    clb.ax.tick_params(labelsize= 8)
-    clb.ax.set_title('[Air Density/(kg/m$^{3}$)]',color='white')
-    plt.savefig(current_dir+'/'+dir_name+'/test.jpg',dpi=600)
+    clb = plt.colorbar(orientation='horizontal', shrink=1.1)
+    clb.ax.tick_params(labelcolor='white')
+    clb.ax.tick_params(color='white')
+    clb.ax.tick_params(labelsize=8)
+    clb.ax.set_title('[Air Density/(kg/m$^{3}$)]', color='white')
+    plt.savefig(current_dir+'/'+dir_name+'/test.jpg', dpi=600)
     img = Image.open(current_dir+'/'+dir_name+'/test.jpg')
     # 左边界 #上边界  #右边界  #下边界
-    region = img.crop((100,2060,3840,2700))
+    region = img.crop((100, 2060, 3840, 2700))
     region.save(current_dir+'/'+dir_name+'/colorbar.jpg')
     return color_new
 
 
 # 连接达梦数据库
 iniPath = os.path.dirname(os.path.abspath(__file__)).split('/CMS-SDC-SEC')[0]+'/DLXJS_DB.ini'
-cursor,conn = Connect_SQL(iniPath)
-#conn = dmPython.connect(user='SDC', password='sdc123456', server='192.168..8.9',port=5236, autoCommit=True)
-#cursor = conn.cursor()
+cursor, conn = Connect_SQL(iniPath)
+
 
 # 从数据库读取星下点数据
-Time_start = str(sys.argv[1]).replace('"','').replace("'",'')
-Time_end = str(sys.argv[2]).replace('"','').replace("'",'')
-SAT_ID = str(sys.argv[3]).replace('"','').replace("'",'')
+Time_start = str(sys.argv[1]).replace('"', '').replace("'", '')
+Time_end = str(sys.argv[2]).replace('"', '').replace("'", '')
+SAT_ID = str(sys.argv[3]).replace('"', '').replace("'", '')
+
 
 # 获取卫星时间分辨率
 time_sql_step = get_sqltime_step(SAT_ID)
 
 
 # 读取达梦数据,每隔多长时间(秒)取一个数据？
-time_step = 60  #单位：s
-if time_sql_step>=time_step:
-    Time_span = "select LAT,LON,ALT,TIME from SEC_SATELLITE_LLA where TIME between '%s' and '%s' and SAT_ID = '%s'" % (Time_start,Time_end,SAT_ID)
+time_step = 60  # 单位：s
+if time_sql_step >= time_step:
+    Time_span = "select LAT,LON,ALT,TIME from SEC_SATELLITE_LLA where TIME between '%s' and '%s' and SAT_ID = '%s'" % (Time_start, Time_end, SAT_ID)
 else:
-    Time_span = "SELECT * from SEC_SATELLITE_LLA where SAT_ID = '%s' and ID MOD %d = 0 and TIME between '%s' and '%s' and SAT_ID = '%s'"%(SAT_ID,int(time_step/time_sql_step),Time_start,Time_end,SAT_ID)
+    Time_span = "SELECT * from SEC_SATELLITE_LLA where SAT_ID = '%s' and ID MOD %d = 0 and TIME between '%s' and '%s' and SAT_ID = '%s'" % (SAT_ID, int(time_step/time_sql_step), Time_start, Time_end, SAT_ID)
 P = pd.read_sql(Time_span, conn)
 
 
@@ -159,26 +165,24 @@ TIME = P.TIME.values
 # 读取地磁AP数据
 Time_AP_start = shijian(timestamp(Time_start.split(' ')[0] + ' 12:00:00')-86400*3)
 Time_AP_end = shijian(timestamp(Time_end.split(' ')[0] + ' 12:00:00')+86400)
-Time_span = "select AP,TIME from SEC_AP_INDEX where TIME between '%s' and '%s' " % (Time_AP_start,Time_AP_end)
+Time_span = "select AP,TIME from SEC_AP_INDEX where TIME between '%s' and '%s' " % (Time_AP_start, Time_AP_end)
 P = pd.read_sql(Time_span, conn)
 AP = P.AP.values.astype(np.int)
 t = P.TIME.values
 TIME_AP = np.zeros(len(t))
 for i in range(len(t)):
-    TIME_AP[i] = timestamp(str(t[i]).replace('T',' ').split('.')[0])
-
-
+    TIME_AP[i] = timestamp(str(t[i]).replace('T', ' ').split('.')[0])
 
 # 读取太阳F107数据
 Time_F107_start = shijian(timestamp(Time_start.split(' ')[0] + ' 12:00:00')-86400*41)
 Time_F107_end = shijian(timestamp(Time_end.split(' ')[0] + ' 12:00:00')+86400*41)
-Time_span = "select F107,TIME from SEC_F107_FLUX where TIME between '%s' and '%s' " % (Time_F107_start,Time_F107_end)
+Time_span = "select F107,TIME from SEC_F107_FLUX where TIME between '%s' and '%s' " % (Time_F107_start, Time_F107_end)
 P = pd.read_sql(Time_span, conn)
 F107 = P.F107.values
 t = P.TIME.values
 TIME_F107 = np.zeros(len(t))
 for i in range(len(t)):
-    TIME_F107[i] = timestamp(str(t[i]).split('T')[0]+ ' 12:00:00')
+    TIME_F107[i] = timestamp(str(t[i]).split('T')[0] + ' 12:00:00')
 
 # 数据转换：day_of_year; utc, f107_previous_day; f107_81mean; AP1~AP7
 day_of_year = np.zeros(len(TIME))
@@ -186,15 +190,14 @@ utc = np.zeros(len(TIME))
 f107_previous_day = np.zeros(len(TIME))
 f107_81mean = np.zeros(len(TIME))
 time_std = []
-AP1_7 = np.zeros((len(TIME),7))
-t_std = np.array([1,4,7,10,13,16,19,22])
+AP1_7 = np.zeros((len(TIME), 7))
+t_std = np.array([1, 4, 7, 10, 13, 16, 19, 22])
 for i in range(len(TIME)):
     t = str(TIME[i])
-    time_std.append(t.replace('T',' ').split('.')[0])
+    time_std.append(t.replace('T', ' ').split('.')[0])
     # day_of_year
-    day_of_year[i] = datetime.datetime.strptime(str(t).replace('T',' ').split('.')[0], '%Y-%m-%d %H:%M:%S').strftime('%j')
-    
-    
+    day_of_year[i] = datetime.datetime.strptime(str(t).replace('T', ' ').split('.')[0], '%Y-%m-%d %H:%M:%S').strftime('%j')
+     
     # utc
     utc[i] = int(t[11:13])*3600 + int(t[14:16])*60 + int(t[17:19])
     
@@ -204,61 +207,61 @@ for i in range(len(TIME)):
     ind = np.where(TIME_F107 == time_f107_previous_day)
     f107_previous_day[i] = F107[ind]
     # f107_81mean
-    f107_81_start =  timestamp(time_str)-86400*40
-    f107_81_end =  timestamp(time_str)+86400*40
-    ind = np.where((TIME_F107>=f107_81_start) & (TIME_F107<=f107_81_end))
+    f107_81_start = timestamp(time_str)-86400*40
+    f107_81_end = timestamp(time_str)+86400*40
+    ind = np.where((TIME_F107 >= f107_81_start) & (TIME_F107 <= f107_81_end))
     f107_81mean[i] = round(np.nanmean(F107[ind]))
     
     # AP1~AP7
-    ap_time = t.split(':')[0].replace('T',' ')+':15:00'
+    ap_time = t.split(':')[0].replace('T', ' ')+':15:00'
     t = int(ap_time[11:13])
-    ind = np.where(abs(t_std-t)== min(abs(t_std-t)))
+    ind = np.where(abs(t_std-t) == min(abs(t_std-t)))
     k = str(t_std[ind][0])
-    if len(k)<2:
+    if len(k) < 2:
         k = '0'+str(t_std[ind][0])
-    ap_time_end = replace_char(ap_time,k[0],11)
-    ap_time_end = replace_char(ap_time_end,k[1],12)
+    ap_time_end = replace_char(ap_time, k[0], 11)
+    ap_time_end = replace_char(ap_time_end, k[1], 12)
     ap_time_start = timestamp(ap_time_end)-57*3600
     ap_time_end = timestamp(ap_time_end)
 
-    ind = np.where((TIME_AP>=ap_time_start) & (TIME_AP<=ap_time_end))
-    AP1_7[i,0] = AP[ind][19]
-    AP1_7[i,1] = AP[ind][19]
-    AP1_7[i,2] = AP[ind][18]
-    AP1_7[i,3] = AP[ind][17]
-    AP1_7[i,4] = AP[ind][16]
-    AP1_7[i,5] = round(np.nanmean(AP[ind][8:16]))
-    AP1_7[i,6] = round(np.nanmean(AP[ind][0:8]))
+    ind = np.where((TIME_AP >= ap_time_start) & (TIME_AP <= ap_time_end))
+    AP1_7[i, 0] = AP[ind][19]
+    AP1_7[i, 1] = AP[ind][19]
+    AP1_7[i, 2] = AP[ind][18]
+    AP1_7[i, 3] = AP[ind][17]
+    AP1_7[i, 4] = AP[ind][16]
+    AP1_7[i, 5] = round(np.nanmean(AP[ind][8:16]))
+    AP1_7[i, 6] = round(np.nanmean(AP[ind][0:8]))
     
 
-#df = pd.DataFrame()
-#df['TIME'] = TIME
-#df['LAT'] = LAT
-#df['LON'] = LON
-#df['ALT'] = ALT
-#df['F107_pre'] = f107_previous_day
-#df['F107_81mean'] = f107_81mean
-#df['AP1'] = AP1_7[:,0]
-#df['AP2'] = AP1_7[:,1]
-#df['AP3'] = AP1_7[:,2]
-#df['AP4'] = AP1_7[:,3]
-#df['AP5'] = AP1_7[:,4]
-#df['AP6'] = AP1_7[:,5]
-#df['AP7'] = AP1_7[:,6]
+# df = pd.DataFrame()
+# df['TIME'] = TIME
+# df['LAT'] = LAT
+# df['LON'] = LON
+# df['ALT'] = ALT
+# df['F107_pre'] = f107_previous_day
+# df['F107_81mean'] = f107_81mean
+# df['AP1'] = AP1_7[:,0]
+# df['AP2'] = AP1_7[:,1]
+# df['AP3'] = AP1_7[:,2]
+# df['AP4'] = AP1_7[:,3]
+# df['AP5'] = AP1_7[:,4]
+# df['AP6'] = AP1_7[:,5]
+# df['AP7'] = AP1_7[:,6]
 
 
 # 建立模拟结果文件夹(唯一性)
 current_dir = os.path.dirname(os.path.abspath(__file__))
 while True:
-    dir_name = str(random.randint(1,999999))
+    dir_name = str(random.randint(1, 999999))
     if os.path.exists(dir_name) == False:
         os.system('mkdir '+current_dir+'/'+dir_name)
         break
-os.system('cp '+current_dir+'/'+ 'msis2.0_test_storm.exe '+current_dir+'/'+dir_name)
-os.system('cp '+current_dir+'/'+ 'msis20.parm '+current_dir+'/'+dir_name)
+os.system('cp '+current_dir+'/' + 'msis2.0_test_storm.exe '+current_dir+'/'+dir_name)
+os.system('cp '+current_dir+'/' + 'msis20.parm '+current_dir+'/'+dir_name)
 
 # 将msis背景场写入Txt文件
-with open(current_dir+'/'+dir_name+'/msis2.0_forcing.txt','w',encoding='utf-8') as f:
+with open(current_dir+'/'+dir_name+'/msis2.0_forcing.txt', 'w', encoding='utf-8') as f:
     for i in range(0, len(TIME)):
         f.write(str(int(day_of_year[i])))  
         f.write('  ')
@@ -276,40 +279,40 @@ with open(current_dir+'/'+dir_name+'/msis2.0_forcing.txt','w',encoding='utf-8') 
         f.write('  ')
         f.write(str(float(f107_previous_day[i])))
         f.write('  ')
-        f.write(str(float(AP1_7[i,0])))
+        f.write(str(float(AP1_7[i, 0])))
         f.write('  ')
-        f.write(str(float(AP1_7[i,1])))
+        f.write(str(float(AP1_7[i, 1])))
         f.write('  ')
-        f.write(str(float(AP1_7[i,2])))
+        f.write(str(float(AP1_7[i, 2])))
         f.write('  ')
-        f.write(str(float(AP1_7[i,3])))
+        f.write(str(float(AP1_7[i, 3])))
         f.write('  ')
-        f.write(str(float(AP1_7[i,4])))
+        f.write(str(float(AP1_7[i, 4])))
         f.write('  ')
-        f.write(str(float(AP1_7[i,5])))
+        f.write(str(float(AP1_7[i, 5])))
         f.write('  ')
-        f.write(str(float(AP1_7[i,6])))
+        f.write(str(float(AP1_7[i, 6])))
         f.write('\n')
 
 # 运行FORTRAN seu.exe
-os.system('cd '+current_dir+'/'+dir_name+'; ./msis2.0_test_storm.exe') 
-
+os.system('cd '+current_dir+'/'+dir_name+'; ./msis2.0_test_storm.exe >/dev/null 2>&1') 
 
 
 # 读取flux文件
-def Read_txt(dir_name,current_dir):
-  txt_all = []
-  f = open(current_dir+'/'+dir_name+'/'+'msis2.0_simulations.txt')
-  file_size = len(f.readlines())
-  ff = open(current_dir+'/'+dir_name+'/'+'msis2.0_simulations.txt')
-  for i in range(file_size):
-    txt = float(ff.readline().replace('\n','').replace(' ',''))
-    txt_all.append(txt)
-  txt_all = np.array(txt_all)*1000
-  return txt_all
+def Read_txt(dir_name, current_dir):
+    txt_all = []
+    f = open(current_dir+'/'+dir_name+'/'+'msis2.0_simulations.txt')
+    file_size = len(f.readlines())
+    ff = open(current_dir+'/'+dir_name+'/'+'msis2.0_simulations.txt')
+    for i in range(file_size):
+        txt = float(ff.readline().replace('\n', '').replace(' ', ''))
+        txt_all.append(txt)
+    txt_all = np.array(txt_all)*1000
+    return txt_all
+
 
 vec_valid_numbers = np.vectorize(valid_numbers)
-density = vec_valid_numbers(Read_txt(dir_name,current_dir))
+density = vec_valid_numbers(Read_txt(dir_name, current_dir))
 
 
 switch_color = int(sys.argv[4])
@@ -324,10 +327,10 @@ dic['lon'] = LON.tolist()
 dic['alt'] = ALT.tolist()
 
 if switch_color == 1:
-    color = x_reb(current_dir,dir_name,density)
-    dic['r'] = color[:,0].tolist()
-    dic['g'] = color[:,1].tolist()
-    dic['b'] = color[:,2].tolist()
+    color = x_reb(current_dir, dir_name, density)
+    dic['r'] = color[:, 0].tolist()
+    dic['g'] = color[:, 1].tolist()
+    dic['b'] = color[:, 2].tolist()
     dic['colorbar'] = current_dir+'/'+dir_name
 print('###')
 print(json.dumps(dic))
@@ -335,9 +338,11 @@ print('###')
 
 
 # 删除多余文件
-os.system('rm -rf '+current_dir+'/'+dir_name+'/msis2.0_forcing.txt')
-os.system('rm -rf '+current_dir+'/'+dir_name+'/msis2.0_simulations.txt')
-os.system('rm -rf '+current_dir+'/'+dir_name+'/msis20.parm')
-os.system('rm -rf '+current_dir+'/'+dir_name+'/msis2.0_test_storm.exe')
-os.system('rm -rf '+current_dir+'/'+dir_name+'/test.jpg')
-
+if switch_color == 1:
+    os.system('rm -rf '+current_dir+'/'+dir_name+'/msis2.0_forcing.txt')
+    os.system('rm -rf '+current_dir+'/'+dir_name+'/msis2.0_simulations.txt')
+    os.system('rm -rf '+current_dir+'/'+dir_name+'/msis20.parm')
+    os.system('rm -rf '+current_dir+'/'+dir_name+'/msis2.0_test_storm.exe')
+    os.system('rm -rf '+current_dir+'/'+dir_name+'/test.jpg')
+else:
+    os.system('rm -rf '+current_dir+'/'+dir_name)
