@@ -1,4 +1,3 @@
-import dmPython
 import pandas as pd
 import warnings
 import os
@@ -6,66 +5,31 @@ import numpy as np
 import datetime
 import random
 import sys
-import time
 from matplotlib import pyplot as plt
 from PIL import Image
+from msis_simu import Connect_SQL, timestamp, standard_time
+from msis_simu import get_targetTime_previous_F107, get_targetTime_81centremean_F107, get_targetTime_Apmatrix
+from F107_Ap_forecast import forecast_length
+
+
 warnings.filterwarnings("ignore")
 np.set_printoptions(suppress=True)
 
 
-def Connect_SQL(iniPath):
-    from configparser import ConfigParser
-    cfg = ConfigParser()
-    cfg.read(iniPath)
-    sql_cfg = dict(cfg.items("dmsql"))
-    conn = dmPython.connect(
-        user=sql_cfg['user'],
-        password=sql_cfg['password'],
-        server=sql_cfg['server'],
-        port=sql_cfg['port'])
-    return conn
-
-
-def replace_char(old_string, char, index):
-    """
-    字符串按索引位置替换字符
-    old_string: 原始字符串
-    char： 要替换成啥？
-    index： 下标
-    """
-    old_string = str(old_string)
-    # 新的字符串 = 旧字符串[:要替换的索引位置] + 替换成的目标字符 + 旧字符串[要替换的索引位置+1:]
-    new_string = old_string[:index] + char + old_string[index + 1:]
-    return new_string
-
-
-def timestamp(shijian):
-    s_t = time.strptime(shijian, "%Y-%m-%d %H:%M:%S")
-    mkt = int(time.mktime(s_t))
-    return (mkt)
-
-
-def shijian(timeStamp):
-    timeArray = time.localtime(timeStamp)
-    otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-    return otherStyleTime
-
-
 # 读取flux文件
-def Read_msis_txt(dir_name_flux,filedir_flux):
+def Read_msis_txt(dir_name_flux, filedir_flux):
     txt_all = []
     f = open(filedir_flux+'/figure/'+dir_name_flux+'/msis2.0_simulations.txt')
     file_size = len(f.readlines())
     ff = open(filedir_flux+'/figure/'+dir_name_flux+'/msis2.0_simulations.txt')
     for i in range(file_size):
-        #print(ff.readline().replace(' ','').replace('\n',''))
-        txt = float(ff.readline().replace(' ','').replace('\n',''))
+        txt = float(ff.readline().replace(' ', '').replace('\n', ''))
         txt_all.append(txt)
     txt_all = np.array(txt_all)
     return txt_all
 
 
-def Cal_global_den(model_time, z):
+def Cal_global_den(model_time, z, conn):
     # model_time: MSIS模拟大气密度时间
     # z: MSIS模拟大气密度高度
 
@@ -75,24 +39,39 @@ def Cal_global_den(model_time, z):
     lat = np.arange(90, -91, -degree)
     lon2d, lat2d = np.meshgrid(lon, lat)
 
-    # 生成时间，F107时间
+    # F107时间
     model_time = model_time.replace('"', '')
     if (len(model_time.split('-')[1]) == 1):
         model_time = model_time[:5]+'0'+model_time[5:]
     if (len(model_time.split('-')[2].split(' ')[0]) == 1):
         model_time = model_time[:8]+'0'+model_time[8:]
-    time_f107 = model_time.split()[0]
+    time_f107 = model_time.split()[0]+'T12:00:00.00000000'
+    time_ap = model_time.replace(' ', 'T')+'.00000000'
+    
+    timef107_s, f107_s, timeap_s, ap_s = forecast_length(conn, time_f107)
+    # 读取太阳F107数据。最终F107值为：(1)F107, (2) F107_t
+    Time_F107_start = standard_time(timestamp(time_f107.split('T')[0] + ' 12:00:00')-86400*41)
+    Time_F107_end = standard_time(timestamp(time_f107.split('T')[0] + ' 12:00:00')+86400*41)
 
-    if len(model_time) == 1:
-        model_time = datetime.datetime.now()
-        model_time = str(model_time).split('.')[0]
-    time_f107 = model_time.split()[0]
-    time_str = time_f107 + ' 12:00:00'
-    # F107当前时间的前一天时间：previous day of F107 index
-    time_f107_previous_day = str(shijian(timestamp(time_str)-86400)).split(' ')[0]
-    # F107 81天区间时间
-    time_f107_81_start = str(shijian(timestamp(time_str)-86400*40)).split(' ')[0]
-    time_f107_81_end = str(shijian(timestamp(time_str)+86400*40)).split(' ')[0]
+    Time_span = "select F107,TIME from SEC_F107_FLUX where TIME between '%s' and '%s' " % (Time_F107_start, Time_F107_end)
+    P = pd.read_sql(Time_span, conn)
+    F107 = P.F107.values  # 数据库里的F107值
+    F107 = np.array(F107.tolist()+f107_s)  # 将数据库的F107值与预测F107值合并 
+    F107_t = P.TIME.values
+    t_new = []
+    for i in range(len(F107_t)):
+        t_new.append(str(F107_t[i]))  # 数据库里的时间
+    F107_t = np.array(t_new+timef107_s)  # 将数据库的时间与预测的时间合并
+    # 将时间转换为时间戳
+    F107_tstamp = np.zeros(len(F107_t))
+    for i in range(len(F107_t)):
+        F107_tstamp[i] = timestamp(str(F107_t[i]).split('T')[0] + ' 12:00:00')  # 格式为时间戳
+    
+    # 输出是否预报了F107值
+    if len(timef107_s) > 0:
+        print('预报了F107值,从', timef107_s[0].split('T')[0], '到', timef107_s[-1].split('T')[0])
+    else:
+        print('未预报F107值')
 
     # 生成高度，单位：km
     if z > 2000:
@@ -109,58 +88,52 @@ def Cal_global_den(model_time, z):
             time1d.append(model_time)
             z1d.append(z)
 
-    # 连接达梦数据库
-    iniPath = os.path.dirname(os.path.abspath(__file__)).split('/CMS-SDC-SEC')[0]+'/DLXJS_DB.ini'
-    conn = Connect_SQL(iniPath)
-
-    # 读取太阳F107数据
-    Time_span = "select F107,TIME from SEC_F107_FLUX where TIME = '%s'" % (time_f107_previous_day)
-    P = pd.read_sql(Time_span, conn)
-    F107 = P.F107.values
-    if len(F107) == 0:
-        sys.exit()
-    F107_previous_day = int(F107)
-    Time_span = "select F107,TIME from SEC_F107_FLUX where TIME between '%s' and '%s'" % (time_f107_81_start,time_f107_81_end)
-    P = pd.read_sql(Time_span, conn)
-    F107 = P.F107.values
-    if len(F107) == 0:
-        sys.exit()
-    F107_81mean = round(np.nanmean(F107))
-    print('The previous day of F107 is %d' % (F107_previous_day))
-    print('The 81mean F107 is %d' % (F107_81mean))
-
     # 读取AP数据
-    t_std = np.array([1, 4, 7, 10, 13, 16, 19, 22])
-    ap_time = model_time.split(':')[0]+':15:00'
-    print(ap_time)
-    t = int(ap_time[11:13])
-    ind = np.where(abs(t_std-t) == min(abs(t_std-t)))
-    k = str(t_std[ind][0])
-    if len(k) < 2:
-        k = '0'+str(t_std[ind][0])
-    ap_time_end = replace_char(ap_time, k[0], 11)
-    ap_time_end = replace_char(ap_time_end, k[1], 12)
-
-    ap_time_start = shijian(timestamp(ap_time_end)-57*3600)
-    ap_time_end = ap_time_end.replace(':00', ':01')
-    Time_span = "select AP,TIME from SEC_AP_INDEX where TIME between '%s' and '%s'" % (ap_time_start, ap_time_end)
+    # 读取地磁AP数据。最终AP为: (1)AP,(2)AP_t
+    Time_AP_start = standard_time(timestamp(time_ap.split('T')[0] + ' 12:00:00')-86400*4)
+    Time_AP_end = standard_time(timestamp(time_ap.split('T')[0] + ' 12:00:00')+86400)
+    Time_span = "select AP,TIME from SEC_AP_INDEX where TIME between '%s' and '%s' " % (Time_AP_start, Time_AP_end)
     P = pd.read_sql(Time_span, conn)
-    # print(P.TIME.values)
-    AP = P.AP.values.astype(np.int)
-    AP1 = AP[19]
-    AP2 = AP[19]
-    AP3 = AP[18]
-    AP4 = AP[17]
-    AP5 = AP[16]
-    AP6 = round(np.nanmean(AP[8:16]))
-    AP7 = round(np.nanmean(AP[0:8]))
+    AP = P.AP.values.astype(np.int)  # 数据库里的Ap
+    AP = np.array(AP.tolist()+ap_s)  # 将数据库的AP值与预测值合并
+    AP_t = P.TIME.values
+    t_new = []
+    for i in range(len(AP_t)):
+        t_new.append(str(AP_t[i]))  # 数据库里的时间
+    AP_t = np.array(t_new+timeap_s)  # 将数据库的时间与预测的时间合并
+    # 将时间转换为时间戳
+    AP_tstamp = np.zeros(len(AP_t))
+    for i in range(len(AP_t)):
+        AP_tstamp[i] = timestamp(str(AP_t[i]).replace('T', ' ').split('.')[0])  # Ap时间戳
+    # 输出是否预报了AP值
+    if len(timeap_s) > 0:
+        print('预报了AP值,从', timeap_s[0], '到', timeap_s[-1])
+    else:
+        print('未预报AP值')
 
     # day of year
-    day = datetime.datetime.strptime(ap_time_end, '%Y-%m-%d %H:%M:%S')
+    day = datetime.datetime.strptime(model_time, '%Y-%m-%d %H:%M:%S')
     day_of_year = day.strftime("%j")
 
     # UTC
     utc = int(model_time[11:13])*3600 + int(model_time[14:16])*60 + int(model_time[17:19])
+
+    # F107_previous_day
+    F107_previous_day = get_targetTime_previous_F107(time_f107, F107, F107_tstamp)
+        
+    # F107_81mean
+    F107_81mean = get_targetTime_81centremean_F107(time_f107, F107, F107_tstamp)
+
+    # AP矩阵
+    APmatrix = get_targetTime_Apmatrix(time_ap, AP, AP_tstamp)
+
+    AP1 = APmatrix[0]
+    AP2 = APmatrix[1]
+    AP3 = APmatrix[2]
+    AP4 = APmatrix[3]
+    AP5 = APmatrix[4]
+    AP6 = APmatrix[5]
+    AP7 = APmatrix[6]
 
     # 判断是否存在figure文件夹
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -243,8 +216,8 @@ def Cal_global_den(model_time, z):
     plt.gca().spines['right'].set_visible(False)
 
     # colorbar 设置
-    clb = plt.colorbar(orientation='horizontal',shrink=1.1)
-    clb.ax.set_title('[Air Density/(kg/m$^{3}$)]',color='white')
+    clb = plt.colorbar(orientation='horizontal', shrink=1.1)
+    clb.ax.set_title('[Air Density/(kg/m$^{3}$)]', color='white')
     # 设置colorbar label的颜色
     clb.ax.tick_params(labelcolor='white')
     clb.ax.tick_params(color='white')
@@ -293,4 +266,6 @@ def Cal_global_den(model_time, z):
 
 model_time = str(sys.argv[1])
 z = float(sys.argv[2])
-print(Cal_global_den(model_time, z))
+iniPath = os.path.dirname(os.path.abspath(__file__)).split('/CMS-SDC-SEC')[0]+'/DLXJS_DB.ini'
+conn = Connect_SQL(iniPath)
+print(Cal_global_den(model_time, z, conn))
