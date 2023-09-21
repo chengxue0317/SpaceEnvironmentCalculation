@@ -88,7 +88,6 @@ def main(file_path, endTime,forecastPeriod,interval,p1Channel,p2Channel,prn,stat
     info = satellite_coordinate_calculation.ephemeris_data_analysis(all_params, file_path).data_analysis()
     xing_zuobiao = info[1]
     dimian_zuobiao = info[3]
-    # print(file_time)
     if file_time != [] :
         coordinate_value_list = xingxia_data(xing_zuobiao, file_time[0], file_time[-1])
         local_changes_value = local_changes(dimian_zuobiao)         #电离层闪烁对卫星定位精度影响(百分比)
@@ -101,9 +100,11 @@ def main(file_path, endTime,forecastPeriod,interval,p1Channel,p2Channel,prn,stat
         'S4_time': file_time,
         'ground_coordinate_value': dimian_zuobiao,
         'satellite_coordinate_value': coordinate_value_list,
-        'L1频段对卫星导航信号影响衰减量级(单位为：DB)': all_DB_S1,
-        'L2频段对卫星导航信号影响衰减量级(单位为：DB)': all_DB_S2,
-        '电离层闪烁对卫星定位影响(百分比)': local_changes_value*100}
+        'L1_S4_Signal_attenuation_level(DB)': all_DB_S1,
+        'L2_S4_Signal_attenuation_level(DB)': all_DB_S2,
+        'Positioning_accuracy_result(%)': local_changes_value*100} #l1_S4_Signal_attenuation_level :L1频段对卫星导航信号影响衰减量级(单位为：DB)
+                                                                    #l2_S4_Signal_attenuation_level: L2频段对卫星导航信号影响衰减量级(单位为：DB)
+                                                                    #Positioning_accuracy_result:电离层闪烁对卫星定位影响(百分比)
     print(all_dict)
 
 if __name__ == '__main__':
@@ -115,13 +116,13 @@ if __name__ == '__main__':
     # p1Channel = 'C2I'
     # p2Channel = 'C6I'
     # prn = '13'
-    # statTime = '2023-01-04 00:00:00'
+    # statTime = '2023-01-01 00:00:00'
     # system = 'BDS'
     # time = '2023-01-01 8:00:00'   #固定的
     # paramsSystem = 'C'
 
     file_path = sys.argv[1]  # '..//data//'
-    endTime = sys.argv[2]  # '2023-01-01 00:40:00'
+    endTime = sys.argv[2]  # '2023-01-01 00:40:00'00'
     forecastPeriod = sys.argv[3]  # '10800'
     interval = sys.argv[4]  # '600'
     p1Channel = sys.argv[5]  # 'C1C'
